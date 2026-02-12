@@ -1,0 +1,12 @@
+# Ignore database connection file
+db_conn.php
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore all SQL exports
+*.sql
