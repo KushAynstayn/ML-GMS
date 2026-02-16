@@ -1,0 +1,21 @@
+{
+    "name": "cadc20239999/ml-gms",
+    "description": "ML Loans and GMS Commissions",
+    "type": "project",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Cadc20239999\\MlGms\\": "classes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "KushAynstayn",
+            "email": "njarado2001@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.4"
+    }
+}
