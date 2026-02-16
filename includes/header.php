@@ -19,7 +19,7 @@
         }
     </style>
 </head>
-<body class="bg-white font-sans min-h-screen flex flex-col overflow-x-hidden">
+<body class="bg-white font-sans h-screen flex flex-col overflow-hidden">
 
     <nav class="p-6 flex justify-between items-center relative z-50 bg-white shadow-md">
         <div class="flex items-center gap-2">
