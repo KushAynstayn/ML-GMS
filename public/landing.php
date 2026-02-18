@@ -1,3 +1,8 @@
+<?php
+// This replaces the vendor/autoload, .env, and Database initialization
+require_once __DIR__ . '/../includes/init.php'; 
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +11,6 @@
     <title>ML Loans | M Lhuillier</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../assets/css/styles.css">
-   
 </head>
 <body class="bg-white font-sans min-h-screen flex flex-col overflow-x-hidden">
     <?php include('../includes/header.php'); ?>
