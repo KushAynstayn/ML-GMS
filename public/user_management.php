@@ -6,11 +6,11 @@
 
     <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
         <header class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">All Loans</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">User Management</h2>
 
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex-1 min-w-[200px] relative">
-                    <input type="text" id="searchInput" placeholder="Search account or reference..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20">
+                    <input type="text" id="searchInput" placeholder="Search by name, email, or ID..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20">
                     <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -32,6 +32,10 @@
                         <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-sm">
                     </div>
                 </div>
+                
+                <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm">
+                    + Add User
+                </button>
             </div>
         </header>
 
@@ -40,25 +44,30 @@
             <span class="font-medium">No records found matching your selection.</span>
         </div>
         
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-            <table class="w-full text-left" id="loansTable">
+        <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
+            <table class="w-full text-left" id="userTable">
                 <thead class="bg-red-600 border-b border-red-700">
                     <tr>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Released</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Account Name</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Reference Number</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">ID Number</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Email</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Full Name</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Last Online</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Created</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Modified</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">User Type</th>
+                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Status</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
-                    <tr onclick="openAmortization('Leah Faye Genson', 'MCRVMWQTW')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
-                        <td class="px-6 py-4 text-sm text-gray-600">08/08/2025</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Leah Faye Genson</td>
-                        <td class="px-6 py-4 text-sm font-mono text-gray-500">MCRVMWQTW</td>
-                    </tr>
-                    <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
-                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
-                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
+                    <tr class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500">2024-001</td>
+                        <td class="px-4 py-4 text-sm text-gray-600">juan.dc@mlhuillier.com</td>
+                        <td class="px-4 py-4 text-sm font-semibold text-gray-700">Juan Santos Dela Cruz</td>
+                        <td class="px-4 py-4 text-sm text-gray-500">02/18/2026 14:30</td>
+                        <td class="px-4 py-4 text-sm text-gray-600">01/10/2024</td>
+                        <td class="px-4 py-4 text-sm text-gray-500">02/01/2026</td>
+                        <td class="px-4 py-4 text-sm"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">Administrator</span></td>
+                        <td class="px-4 py-4 text-sm"><span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">Active</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -66,30 +75,9 @@
     </main>
 </div>
 
-<?php include('../includes/modals/amortization_modal.php'); ?>
-
 <script>
-// Open Modal and Set Data
-function openAmortization(name, ref) {
-    const modal = document.getElementById('amortizationModal');
-    // Set text content in the modal
-    document.getElementById('modalDispName').innerText = name;
-    document.getElementById('modalDispRef').innerText = ref;
-    
-    // Toggle Visibility
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
-
-// Close Modal
-function closeAmortization() {
-    const modal = document.getElementById('amortizationModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
-
-// Keep existing search/filter logic
 let dateMode = 'single';
+
 function setDateMode(mode) {
     dateMode = mode;
     const toContainer = document.getElementById('toDateContainer');
@@ -119,10 +107,13 @@ function filterTable() {
     let hasMatch = false;
 
     rows.forEach(row => {
-        const releaseDateStr = row.cells[0].textContent.trim();
-        const nameText = row.cells[1].textContent.toUpperCase();
-        const refText = row.cells[2].textContent.toUpperCase();
-        const [day, month, year] = releaseDateStr.split('/');
+        // Targets Date Created (Column 4) for the date filter logic
+        const createdDateStr = row.cells[4].textContent.trim();
+        const idText = row.cells[0].textContent.toUpperCase();
+        const emailText = row.cells[1].textContent.toUpperCase();
+        const nameText = row.cells[2].textContent.toUpperCase();
+        
+        const [day, month, year] = createdDateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);
 
@@ -139,7 +130,10 @@ function filterTable() {
             dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
         }
 
-        const textMatch = nameText.includes(searchText) || refText.includes(searchText);
+        const textMatch = idText.includes(searchText) || 
+                          emailText.includes(searchText) || 
+                          nameText.includes(searchText);
+
         if (dateMatch && textMatch) {
             row.style.display = "";
             hasMatch = true;
