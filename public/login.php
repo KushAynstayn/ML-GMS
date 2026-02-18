@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php 
+// Go up one level from /public/ to find the includes folder
+require_once __DIR__ . '/../includes/init.php'; 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,9 +47,16 @@
             </button>
          </div>
          
-         <div class="text-center mt-6">
-            <a href="landing.php" class="text-sm font-semibold text-gray-800 underline decoration-1 underline-offset-4 hover:text-red-600 transition-colors">
-                Back to home
+         <div class="text-center mt-6 flex flex-col gap-2">
+            <p class="text-sm text-gray-500">
+               Don't have an account? 
+               <a href="register_form.php" class="font-bold text-red-600 hover:underline">
+                     Register here
+               </a>
+            </p>
+
+            <a href="landing.php" class="text-xs font-semibold text-gray-400 underline decoration-1 underline-offset-4 hover:text-gray-800 transition-colors">
+               Back to home
             </a>
          </div>
       </form>

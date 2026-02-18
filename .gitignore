@@ -1,5 +1,5 @@
-# Ignore database connection file
-db_conn.php
+# Ignore the actual environment variables (IMPORTANT)
+.env
 
 # Ignore OS files
 .DS_Store

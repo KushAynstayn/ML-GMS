@@ -1,41 +1,55 @@
 <?php
-include '../config/config.php';
-session_start();
+// 1. Initialize the system
+require_once __DIR__ . '/../includes/init.php';
 
-// Handle Login Submission
-if(isset($_POST['submit'])){
-   $email = mysqli_real_escape_string($conn, $_POST['email']);
-   $pass = md5($_POST['password']);
-   $current_day_and_time = date('Y-m-d H:i:s');
+if (isset($_POST['submit'])) {
+    $email = $_POST['email'];
+    $pass = $_POST['password'];
+    $current_time = date('Y-m-d H:i:s');
 
-   $select = "SELECT * FROM mldb.user_form WHERE email = '$email' && password = '$pass'";
-   $result = mysqli_query($conn, $select);
+    try {
+        // 2. Fetch user by email only
+        $stmt = $loanConn->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute([':email' => $email]);
+        $user = $stmt->fetch();
 
-   if(mysqli_num_rows($result) > 0){
-      $row = mysqli_fetch_array($result);
-      
-      if($row['status'] == 'Inactive'){
-          $_SESSION['error_message'] = "End-User is Inactive. Please contact the administrator.";
-          header('location: ../public/login.php');
-      } else {
-          // Update last online
-          mysqli_query($conn, "UPDATE mldb.user_form SET last_online = '$current_day_and_time' WHERE email = '$email'");
-          
-          // Set Sessions
-          $session_prefix = ($row['user_type'] == 'admin') ? 'admin' : 'user';
-          $_SESSION[$session_prefix.'_name'] = $row['first_name'].' '.$row['last_name'];
-          $_SESSION[$session_prefix.'_email'] = $row['email'];
-          $_SESSION['user_type'] = $row['user_type'];
+        // 3. Verify existence and check HASHED password
+        if ($user && password_verify($pass, $user['password'])) {
+            
+            if ($user['status'] == 'Inactive') {
+                $_SESSION['error_message'] = "End-User is Inactive. Please contact the administrator.";
+                header('location: ../public/login.php');
+                exit();
+            }
 
-          // Logic for default password
-          if($pass == md5("Mlinc1234")){
-              $_SESSION['force_password_change'] = true;
-          }
-          header('location: ../public/dashboard.php');
-      }
-   } else {
-      $_SESSION['error_message'] = "Incorrect Username or Password";
-      header('location: ../public/login.php');
-   }
-   exit();
+            // 4. Update last online
+            $update = $loanConn->prepare("UPDATE users SET last_online = ? WHERE email = ?");
+            $update->execute([$current_time, $email]);
+
+            // 5. Set Sessions
+            $prefix = ($user['user_type'] == 'admin') ? 'admin' : 'user';
+            $_SESSION[$prefix.'_name'] = $user['first_name'].' '.$user['last_name'];
+            $_SESSION[$prefix.'_email'] = $user['email'];
+            $_SESSION['user_type'] = $user['user_type'];
+
+            // 6. Check for default password
+            if ($pass == "Mlinc1234") {
+                $_SESSION['force_password_change'] = true;
+            }
+
+            header('location: ../public/dashboard.php');
+            exit();
+
+        } else {
+            $_SESSION['error_message'] = "Incorrect Username or Password";
+            header('location: ../public/login.php');
+            exit();
+        }
+
+    } catch (PDOException $e) {
+        error_log($e->getMessage());
+        $_SESSION['error_message'] = "A system error occurred.";
+        header('location: ../public/login.php');
+        exit();
+    }
 }
