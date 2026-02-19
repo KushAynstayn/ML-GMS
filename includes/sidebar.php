@@ -1,13 +1,23 @@
 <?php
+require_once __DIR__ . '/../includes/init.php';
 // Get the current filename (e.g., 'dashboard.php') to highlight the active link
 $current_page = basename($_SERVER['PHP_SELF']);
 
+/** * Logic to fetch the dynamic user data from session
+ * Based on the prefixes set in your login_action.php
+ */
+$u_type = $_SESSION['user_type'] ?? 'user';
+$prefix = ($u_type == 'admin') ? 'admin' : 'user';
+
+$display_name = $_SESSION[$prefix.'_name'] ?? 'Unknown User';
+$display_role = ($u_type == 'admin') ? 'ADMINISTRATOR' : 'STANDARD USER';
+
 $menu_items = [
-    ['file' => 'dashboard.php', 'label' => 'Dashboard', 'icon' => 'M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z'],
-    ['file' => 'add_loan.php', 'label' => 'Add Loan', 'icon' => 'M12 4v16m8-8H4'],
-    ['file' => 'all_loans.php', 'label' => 'All Loans', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-    ['file' => 'collection_report.php', 'label' => 'Collection Report', 'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-    ['file' => 'user_management.php', 'label' => 'User Management', 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z']
+    ['file' => 'dashboard.php', 'label' => 'Dashboard', 'icon' => 'M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z', 'admin_only' => false],
+    ['file' => 'add_loan.php', 'label' => 'Add Loan', 'icon' => 'M12 4v16m8-8H4', 'admin_only' => false],
+    ['file' => 'all_loans.php', 'label' => 'All Loans', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'admin_only' => false],
+    ['file' => 'collection_report.php', 'label' => 'Collection Report', 'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'admin_only' => false],
+    ['file' => 'user_management.php', 'label' => 'User Management', 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', 'admin_only' => true]
 ];
 ?>
 
@@ -24,7 +34,9 @@ $menu_items = [
 
         <nav class="space-y-2 px-4">
             <?php foreach ($menu_items as $item): 
-                // Check if this item is the current page
+                // Hide User Management from Standard Users
+                if ($item['admin_only'] && $u_type !== 'admin') continue;
+                
                 $isActive = ($current_page === $item['file']);
             ?>
                 <a href="<?php echo $item['file']; ?>" 
@@ -63,8 +75,12 @@ $menu_items = [
                 </svg>
             </div>
             <div class="flex flex-col whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150 sidebar-text overflow-hidden">
-                <span class="text-sm font-bold text-gray-800">Juan Dela Cruz</span>
-                <span class="text-xs text-gray-500 font-medium">Administrator</span>
+                <span class="text-sm font-bold text-gray-800 uppercase">
+                    <?php echo htmlspecialchars($display_name); ?>
+                </span>
+                <span class="text-[10px] text-gray-500 font-black tracking-widest">
+                    <?php echo $display_role; ?>
+                </span>
             </div>
         </div>
     </div>
