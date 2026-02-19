@@ -1,7 +1,7 @@
 <div class="w-full">
     <div class="mb-6">
         <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Type of Loan</label>
-        <select class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm">
+        <select class="w-full border border-gray-200 rounded-lg p-2 bg-white-50 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm">
             <option value="">Select Type</option>
             <option value="Car Loan">Car Loan</option>
             <option value="Motor Loan">Motor Loan</option>
@@ -20,16 +20,47 @@
         </div>
         
         <p class="font-bold text-gray-700">Upload Payment file</p>
-        <p class="text-sm text-gray-400 mb-6">Drag & drop your file here or click to browse</p>
+        <p class="text-sm text-gray-400 mb-6">Click the button below to browse your computer</p>
         
-        <button class="bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition-colors">
-            Select File
-        </button>
+        <input 
+            type="file" 
+            id="fileInput" 
+            accept=".pdf, .xls, .xlsx" 
+            style="display: none;"
+        >
+
+        <div class="flex gap-2">
+            <button 
+                id="cancelBtn"
+                onclick="resetFileInput()" 
+                class="hidden bg-red-100 text-red-600 px-6 py-2 rounded-lg font-bold hover:bg-red-200 transition-colors"
+            >
+                Cancel
+            </button>
+
+            <button 
+                id="selectBtn"
+                onclick="document.getElementById('fileInput').click()" 
+                class="bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition-colors"
+            >
+                Select File
+            </button>
+        </div>
     </div>
 
     <div class="mt-6 flex justify-end">
         <button class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700 transition-colors">
             Upload Payment
         </button>
+    </div>
+
+    <div id="fileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-gray-700 text-lg">File Preview</h3>
+                <button onclick="document.getElementById('fileModal').classList.replace('flex', 'hidden')" class="text-gray-400 hover:text-gray-700 text-3xl font-light">&times;</button>
+            </div>
+            <div id="modalBody" class="flex-1 overflow-auto p-4 bg-gray-50"></div>
+        </div>
     </div>
 </div>
