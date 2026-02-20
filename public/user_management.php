@@ -23,7 +23,8 @@ try {
 
     <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
         <header class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">User Management</h2>
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">User <span class="text-red-600">Management</span></h2>
+            <p class="text-gray-500 font-medium mt-2 mb-8">View, edit, and track system users while managing access permissions.</p>
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex-1 min-w-[200px] relative">
                     <input type="text" id="searchInput" placeholder="Search by name, email, or ID..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20">
@@ -51,6 +52,11 @@ try {
                 </a>
             </div>
         </header>
+
+        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-700">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="font-medium">No records found matching your search.</span>
+        </div>
 
         <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
             <table class="w-full text-left" id="userTable">
@@ -192,5 +198,80 @@ function closeEditModal() {
     modal.classList.remove('flex');
 }
 
-// ... rest of your existing filtering script ...
+let dateMode = 'single';
+
+function setDateMode(mode) {
+    dateMode = mode;
+    const toContainer = document.getElementById('toDateContainer');
+    const dateLabel = document.getElementById('dateLabel');
+    const btnSingle = document.getElementById('btnSingle');
+    const btnRange = document.getElementById('btnRange');
+
+    if (mode === 'single') {
+        toContainer.classList.add('hidden');
+        dateLabel.innerText = 'Date';
+        btnSingle.classList.add('bg-white', 'text-red-600', 'shadow-sm');
+        btnRange.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        document.getElementById('endDate').value = ""; 
+    } else {
+        toContainer.classList.remove('hidden');
+        dateLabel.innerText = 'From';
+        btnRange.classList.add('bg-white', 'text-red-600', 'shadow-sm');
+        btnSingle.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+    }
+    filterTable(); 
+}
+
+function filterTable() {
+    const searchText = document.getElementById('searchInput').value.toUpperCase();
+    const startDateVal = document.getElementById('startDate').value;
+    const endDateVal = document.getElementById('endDate').value;
+    const rows = document.querySelectorAll('#tableBody tr');
+    let hasMatch = false;
+
+    rows.forEach(row => {
+        // Mapping columns for User Management:
+        // cell[0] = ID, cell[1] = Username, cell[2] = Full Name, cell[4] = Date Created
+        const idText = row.cells[0].textContent.toUpperCase();
+        const userText = row.cells[1].textContent.toUpperCase();
+        const nameText = row.cells[2].textContent.toUpperCase();
+        const dateCreatedStr = row.cells[4].textContent.trim(); // MM/DD/YYYY
+
+        // Date Parsing
+        const [m, d, y] = dateCreatedStr.split('/');
+        const rowDate = new Date(y, m - 1, d);
+        rowDate.setHours(0, 0, 0, 0);
+
+        const filterStart = startDateVal ? new Date(startDateVal) : null;
+        if(filterStart) filterStart.setHours(0,0,0,0);
+
+        const filterEnd = endDateVal ? new Date(endDateVal) : null;
+        if(filterEnd) filterEnd.setHours(0,0,0,0);
+
+        let dateMatch = true;
+        if (dateMode === 'single' && filterStart) {
+            dateMatch = rowDate.getTime() === filterStart.getTime();
+        } else if (dateMode === 'range' && filterStart && filterEnd) {
+            dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
+        }
+
+        // Text Search Match (ID, Username, or Name)
+        const textMatch = idText.includes(searchText) || 
+                          userText.includes(searchText) || 
+                          nameText.includes(searchText);
+
+        if (dateMatch && textMatch) {
+            row.style.display = "";
+            hasMatch = true;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    // Show/Hide the "No Record Found" message
+    document.getElementById('noRecordFound').classList.toggle('hidden', hasMatch);
+}
+
+// Trigger search on every keystroke
+document.getElementById('searchInput').addEventListener('keyup', filterTable);
 </script>

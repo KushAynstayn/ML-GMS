@@ -6,7 +6,9 @@
 
     <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
         <header class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">All Loans</h2>
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">All <span class="text-red-600">Loans</span></h2>
+            <p class="text-gray-500 font-medium mt-2 mb-8">View and track the status of all existing loan records.</p>
+
 
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex-1 min-w-[200px] relative">
@@ -54,6 +56,31 @@
                         <td class="px-6 py-4 text-sm text-gray-600">08/08/2025</td>
                         <td class="px-6 py-4 text-sm font-semibold text-gray-700">Leah Faye Genson</td>
                         <td class="px-6 py-4 text-sm font-mono text-gray-500">MCRVMWQTW</td>
+                    </tr>
+                    <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
+                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
+                    </tr>
+                    <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
+                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
+                    </tr>
+                    <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
+                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
+                    </tr>
+                    <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
+                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
+                    </tr>
+                    <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
+                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
                     </tr>
                     <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
                         <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>

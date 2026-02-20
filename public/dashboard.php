@@ -1,118 +1,143 @@
 <?php include('../includes/header.php'); ?>
 
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcfcfc; }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0;
+        background: white;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(185, 28, 28, 0.08);
+    }
+
+    /* Red state for selected buttons */
+    .btn-active-red {
+        background-color: #c53030 !important;
+        color: white !important;
+        border-color: #c53030 !important;
+        box-shadow: 0 4px 14px 0 rgba(197, 48, 48, 0.39);
+    }
+
+    /* Matching the image table header */
+    .table-crimson thead {
+        background-color: #c53030;
+    }
+</style>
+
 <div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
     
     <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
-        <header class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
-            
-            <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex-1 min-w-[200px] relative">
-                    <input type="text" id="searchInput" placeholder="Search account or reference..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20">
-                    <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </div>
+    <main class="flex-1 p-8 lg:p-10 overflow-y-auto">
+        <header class="relative bg-white p-10 rounded-[2rem] border border-gray-100 shadow-sm mb-10 overflow-hidden">
+            <div class="relative z-10">
+                <h2 class="text-5xl font-extrabold text-gray-900 tracking-tight">Dashboard <span class="text-red-600">Overview</span></h2>
+                <p class="text-gray-500 font-medium mt-2">Insights and performance overview</p>
 
-                <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-red-600 shadow-sm">Single Date</button>
-                    <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
-                </div>
-
-                <div class="flex shrink-0 items-center gap-3">
-                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors">
-                        <span id="dateLabel" class="text-xs font-bold uppercase">Date</span>
-                        <input type="date" id="startDate" onchange="filterDashboard()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-sm">
+                <div class="mt-8 space-y-4">
+                    <div class="max-w-2xl relative">
+                        <input type="text" id="searchInput" placeholder="Search account or reference..." 
+                               class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:bg-white transition-all text-sm font-medium">
+                        <svg class="w-5 h-5 absolute left-4 top-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
                     </div>
-                    
-                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors">
-                        <span class="text-xs font-bold uppercase">To</span>
-                        <input type="date" id="endDate" onchange="filterDashboard()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-sm">
+
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="setDateMode('single')" id="btnSingle" class="px-8 py-2.5 text-sm font-bold rounded-full border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all btn-active-red">Single Date</button>
+                        <button onclick="setDateMode('range')" id="btnRange" class="px-8 py-2.5 text-sm font-bold rounded-full border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all">Select Range</button>
+                        
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center px-6 py-2.5 bg-gray-50 border border-gray-200 rounded-full">
+                                 <span id="dateLabel" class="text-[10px] font-black text-gray-400 uppercase mr-3 tracking-widest">Date</span>
+                                 <input type="date" id="startDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-gray-700 focus:outline-none cursor-pointer">
+                            </div>
+
+                            <div id="toDateContainer" class="hidden flex items-center px-6 py-2.5 bg-gray-50 border border-gray-200 rounded-full">
+                                 <span class="text-[10px] font-black text-gray-400 uppercase mr-3 tracking-widest">To</span>
+                                 <input type="date" id="endDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-gray-700 focus:outline-none cursor-pointer">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div class="absolute right-10 top-1/2 -translate-y-1/2 opacity-20 lg:opacity-100 pointer-events-none">
+                <img src="../assets/images/mlcircle.png" alt="MLhuillier Logo" class="w-48 h-auto object-contain">
+            </div>
         </header>
 
-        <div id="noRecordFound" class="hidden mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-700">
+        <div id="noRecordFound" class="hidden mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-700">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span class="font-medium">No records found matching your selection.</span>
+            <span class="font-bold">No records found matching your selection.</span>
         </div>
 
-        <div id="searchTableContainer" class="hidden bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 mb-10 transition-all">
-            <table class="w-full text-left" id="loansTable">
-                <thead class="bg-red-600 border-b border-red-700">
+        <div id="searchTableContainer" class="hidden bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden mb-10">
+            <table class="w-full text-left table-crimson" id="loansTable">
+                <thead>
                     <tr>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Released</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Account Name</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Reference Number</th>
+                        <th class="px-8 py-5 text-xs font-bold text-white border-r border-red-500/30">Date Released</th>
+                        <th class="px-8 py-5 text-xs font-bold text-white border-r border-red-500/30">Account Name</th>
+                        <th class="px-8 py-5 text-xs font-bold text-white">Reference</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="divide-y divide-gray-100">
-                    <tr class="hover:bg-pink-50 transition-colors group cursor-default">
-                        <td class="px-6 py-4 text-sm text-gray-600">08/08/2025</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Leah Faye Genson</td>
-                        <td class="px-6 py-4 text-sm font-mono text-gray-500">MCRVMWQTW</td>
-                    </tr>
-                    <tr class="hover:bg-pink-50 transition-colors group cursor-default">
-                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
-                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
-                    </tr>
-                    <tr class="hover:bg-pink-50 transition-colors group cursor-default">
-                        <td class="px-6 py-4 text-sm text-gray-600">20/10/2025</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Maria Clara Reyes</td>
-                        <td class="px-6 py-4 text-sm font-mono text-gray-500">LKNMOP789</td>
+                <tbody id="tableBody" class="text-gray-700">
+                    <tr class="border-b border-gray-50 hover:bg-red-50/20 transition-colors">
+                        <td class="px-8 py-5 font-bold text-sm text-gray-400">08/08/2025</td>
+                        <td class="px-8 py-5 font-bold">Leah Faye Genson</td>
+                        <td class="px-8 py-5">
+                            <span class="px-4 py-1.5 border border-red-600 text-red-600 rounded-full text-xs font-bold">MCRVMWQTW</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            <div class="bg-gradient-to-br from-red-900 to-red-800 p-6 rounded-2xl shadow-lg text-white text-center">
-                <div class="h-24 flex items-center justify-center mb-2">
-                    <div class="w-full h-full opacity-50 bg-[url('https://www.svgrepo.com/show/532276/chart-line.svg')] bg-center bg-no-repeat bg-contain"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="stats-card p-8 rounded-[1.5rem] flex items-center gap-6">
+                <div class="w-20 h-20 bg-red-900 rounded-3xl flex items-center justify-center shrink-0 shadow-lg shadow-red-900/20">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
                 </div>
-                <div class="text-3xl font-black">100</div>
-                <div class="text-sm font-medium opacity-80 mt-1 uppercase tracking-wider">New Records</div>
+                <div>
+                    <h4 class="text-gray-900 text-3xl font-extrabold">$12,000</h4>
+                    <p class="text-gray-500 font-medium">Sample Data</p>
+                </div>
             </div>
 
-            <div class="bg-red-600 p-6 rounded-2xl shadow-lg text-white text-center">
-                <div class="h-24 flex items-center justify-center mb-2 text-red-200">
-                    <div class="w-full h-full opacity-50 bg-[url('https://www.svgrepo.com/show/532276/chart-line.svg')] bg-center bg-no-repeat bg-contain brightness-200"></div>
+            <div class="stats-card p-8 rounded-[1.5rem] flex items-center gap-6">
+                <div class="w-20 h-20 bg-red-600 rounded-3xl flex items-center justify-center shrink-0 shadow-lg shadow-red-600/20">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
                 </div>
-                <div class="text-3xl font-black">100</div>
-                <div class="text-sm font-medium opacity-80 mt-1 uppercase tracking-wider">Monthly Loans</div>
+                <div>
+                    <h4 class="text-gray-900 text-3xl font-extrabold">$482,000</h4>
+                    <p class="text-gray-500 font-medium">Sample Data</p>
+                </div>
             </div>
 
-            <div class="bg-red-700 p-6 rounded-2xl shadow-lg text-white text-center">
-                <div class="h-24 flex items-center justify-center mb-2">
-                    <div class="w-full h-full opacity-50 bg-[url('https://www.svgrepo.com/show/532276/chart-line.svg')] bg-center bg-no-repeat bg-contain brightness-200"></div>
+            <div class="stats-card p-8 rounded-[1.5rem] flex items-center gap-6">
+                <div class="w-20 h-20 bg-rose-500 rounded-3xl flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/20">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
                 </div>
-                <div class="text-3xl font-black">100</div>
-                <div class="text-sm font-medium opacity-80 mt-1 uppercase tracking-wider">Analytics</div>
+                <div>
+                    <h4 class="text-gray-900 text-3xl font-extrabold">$52,000</h4>
+                    <p class="text-gray-500 font-medium">Sample Data</p>
+                </div>
             </div>
 
-            <div class="bg-red-500 p-6 rounded-2xl shadow-lg text-white text-center">
-                <div class="h-24 flex items-center justify-center mb-2">
-                    <div class="w-full h-full opacity-50 bg-[url('https://www.svgrepo.com/show/532276/chart-line.svg')] bg-center bg-no-repeat bg-contain brightness-200"></div>
+            <div class="stats-card p-8 rounded-[1.5rem] flex items-center gap-6">
+                <div class="w-20 h-20 bg-red-400 rounded-3xl flex items-center justify-center shrink-0 shadow-lg shadow-red-400/20">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </div>
-                <div class="text-3xl font-black">100</div>
-                <div class="text-sm font-medium opacity-80 mt-1 uppercase tracking-wider">Analytics</div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white p-8 rounded-2xl shadow-sm flex flex-col items-center justify-center min-h-[300px]">
-                 <div class="w-48 h-48 rounded-full border-[30px] border-red-600 border-r-pink-300 border-b-yellow-700 relative"></div>
-                 <p class="mt-4 text-gray-400 font-bold uppercase tracking-widest text-xs">Loan Distribution</p>
-            </div>
-            <div class="bg-white p-8 rounded-2xl shadow-sm flex flex-col items-center justify-center min-h-[300px]">
-                 <div class="w-48 h-48 rounded-full border-[20px] border-red-600 relative flex items-center justify-center">
-                    <div class="w-32 h-32 rounded-full border-[2px] border-red-600"></div>
-                 </div>
-                 <p class="mt-4 text-gray-400 font-bold uppercase tracking-widest text-xs">Target Completion</p>
+                <div>
+                    <h4 class="text-gray-900 text-3xl font-extrabold">$1,0000</h4>
+                    <p class="text-gray-500 font-medium">Sample Data</p>
+                </div>
             </div>
         </div>
     </main>
@@ -131,14 +156,14 @@ function setDateMode(mode) {
     if (mode === 'single') {
         toContainer.classList.add('hidden');
         dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnSingle.classList.add('btn-active-red');
+        btnRange.classList.remove('btn-active-red');
         document.getElementById('endDate').value = ""; 
     } else {
         toContainer.classList.remove('hidden');
         dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnRange.classList.add('btn-active-red');
+        btnSingle.classList.remove('btn-active-red');
     }
     filterDashboard(); 
 }
@@ -150,7 +175,6 @@ function filterDashboard() {
     const tableContainer = document.getElementById('searchTableContainer');
     const rows = document.querySelectorAll('#tableBody tr');
     
-    // Check if any filter is active
     const isActive = searchText.length > 0 || startDateStr.length > 0 || endDateStr.length > 0;
     
     if (!isActive) {
