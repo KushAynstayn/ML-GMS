@@ -1,4 +1,11 @@
 <?php include('../includes/header.php'); ?>
+<?php 
+    include_once '../includes/modals/addloan_errormodal.php'; 
+    //include_once '../includes/modals/status_modal.php'; // Your processing/success modal
+?>
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
 <body class="h-screen overflow-hidden flex flex-col bg-gray-50">
 
@@ -41,25 +48,34 @@
 
     // 1. Switch Tab Function
     function switchTab(tabName, element) {
-        const contentArea = document.getElementById('tab-content-area');    
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
-            btn.classList.add('text-gray-500');
+    const contentArea = document.getElementById('tab-content-area');    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+        btn.classList.add('text-gray-500');
+    });
+    
+    element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+    element.classList.remove('text-gray-500');
+    
+    fetch(`../includes/tabs/${tabName}.php`)
+        .then(response => {
+            if (!response.ok) throw new Error('File not found');
+            return response.text();
+        })
+        .then(html => {
+            contentArea.innerHTML = html;
+            
+            // ✅ FIX: Re-run listeners if the Add Record tab is loaded
+            if (tabName === 'add_record') {
+                if (typeof initLoanCalculator === 'function') {
+                    initLoanCalculator();
+                    initSearchableDropdowns();
+                }
+            }
+        })
+        .catch(err => {
+            contentArea.innerHTML = `<p class="text-red-500">Error loading tab: ${err.message}</p>`;
         });
-        
-        element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
-        element.classList.remove('text-gray-500');
-        fetch(`../includes/tabs/${tabName}.php`)
-            .then(response => {
-                if (!response.ok) throw new Error('File not found');
-                return response.text();
-            })
-            .then(html => {
-                contentArea.innerHTML = html;
-            })
-            .catch(err => {
-                contentArea.innerHTML = `<p class="text-red-500">Error loading tab: ${err.message}</p>`;
-            });
     }
 
     // 2. The Global Listener for the File Input
@@ -228,5 +244,42 @@
         /* Custom PDF Viewer Background */
         #modalBody { background-color: #525659; } 
     </style>
+
+    <script src="../assets/js/main.js"></script>
+
+    <script>
+    function initSearchableDropdowns() {
+
+        // REGION
+        const regionEl = document.querySelector('#regionSelect');
+        if (regionEl) {
+            if (regionEl.tomselect) {
+                regionEl.tomselect.destroy();
+            }
+
+            new TomSelect(regionEl, {
+                maxOptions: 200,
+                create: false
+            });
+        }
+
+        // BRANCH
+        const branchEl = document.querySelector('#branchSelect');
+        if (branchEl) {
+            if (branchEl.tomselect) {
+                branchEl.tomselect.destroy();
+            }
+
+            new TomSelect(branchEl, {
+                maxOptions: 500,
+                create: false
+            });
+        }
+    }
+
+   
+    </script>
+
+    
 </body>
 </html>

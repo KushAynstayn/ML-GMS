@@ -50,16 +50,61 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
-                    <tr onclick="openAmortization('Leah Faye Genson', 'MCRVMWQTW')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
-                        <td class="px-6 py-4 text-sm text-gray-600">08/08/2025</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Leah Faye Genson</td>
-                        <td class="px-6 py-4 text-sm font-mono text-gray-500">MCRVMWQTW</td>
-                    </tr>
-                    <tr onclick="openAmortization('Juan Dela Cruz', 'XPQZRT123')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
-                        <td class="px-6 py-4 text-sm text-gray-600">15/09/2025</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-gray-700">Juan Dela Cruz</td>
-                        <td class="px-6 py-4 text-sm font-mono text-gray-500">XPQZRT123</td>
-                    </tr>
+                    <?php
+                    require_once '../vendor/autoload.php';
+
+                    use Cadc20239999\MlGms\Database;
+
+                    try {
+                        $db = (new Database())->connect('LOAN');
+
+                        $stmt = $db->prepare("
+                            SELECT id, account_name, reference_number, pn_date 
+                            FROM loans 
+                            ORDER BY pn_date DESC
+                        ");
+                        $stmt->execute();
+                        $loans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        if ($loans) {
+                            foreach ($loans as $loan) {
+
+                                $loanId = $loan['id'];
+                                $accountName = htmlspecialchars($loan['account_name']);
+                                $reference = htmlspecialchars($loan['reference_number']);
+                                $releaseDate = date("d/m/Y", strtotime($loan['pn_date']));
+                    ?>
+                            <tr onclick="openAmortization('<?php echo $loanId; ?>')"
+                                class="hover:bg-pink-50 transition-colors group cursor-pointer">
+
+                                <td class="px-6 py-4 text-sm text-gray-600">
+                                    <?php echo $releaseDate; ?>
+                                </td>
+
+                                <td class="px-6 py-4 text-sm font-semibold text-gray-700">
+                                    <?php echo $accountName; ?>
+                                </td>
+
+                                <td class="px-6 py-4 text-sm font-mono text-gray-500">
+                                    <?php echo $reference; ?>
+                                </td>
+
+                            </tr>
+                    <?php
+                            }
+                        } else {
+                    ?>
+                            <tr>
+                                <td colspan="3" class="px-6 py-6 text-center text-gray-400 text-sm">
+                                    No loan records found.
+                                </td>
+                            </tr>
+                    <?php
+                        }
+                    } catch (Exception $e) {
+                        echo "<tr><td colspan='3' class='px-6 py-6 text-center text-red-500 text-sm'>No Records Found.</td></tr>";
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -70,18 +115,21 @@
 
 <script>
 // Open Modal and Set Data
-function openAmortization(name, ref) {
+function openAmortization(loanId) {
     const modal = document.getElementById('amortizationModal');
-    // Set text content in the modal
-    document.getElementById('modalDispName').innerText = name;
-    document.getElementById('modalDispRef').innerText = ref;
-    
-    // Toggle Visibility
+
+    // You can fetch loan details using AJAX here using loanId
+
+    document.getElementById('modalDispName').innerText = '';
+    document.getElementById('modalDispRef').innerText = '';
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+
+    // TODO: AJAX call to fetch amortization schedule using loanId
 }
 
-// Close Modal
+// Close Modal (Already handled inside amortization_modal.php, but kept here for safety)
 function closeAmortization() {
     const modal = document.getElementById('amortizationModal');
     modal.classList.add('hidden');
@@ -122,6 +170,8 @@ function filterTable() {
         const releaseDateStr = row.cells[0].textContent.trim();
         const nameText = row.cells[1].textContent.toUpperCase();
         const refText = row.cells[2].textContent.toUpperCase();
+        
+        // Simple date parsing for DD/MM/YYYY
         const [day, month, year] = releaseDateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);

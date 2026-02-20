@@ -15,14 +15,20 @@ class Database
      * @return PDO|null
      */
     public function connect($db_type = 'LOAN')
-    {
-        $this->conn = null;
+{
+    $this->conn = null;
 
-        // Fetching credentials from $_ENV based on the prefix provided
-        $host = $_ENV["{$db_type}_DB_HOST"] ?? null;
-        $db_name = $_ENV["{$db_type}_DB_NAME"] ?? null;
-        $username = $_ENV["{$db_type}_DB_USER"] ?? null;
-        $password = $_ENV["{$db_type}_DB_PASS"] ?? null;
+    // ✅ Ensure .env is loaded
+    if (empty($_ENV)) {
+        require_once __DIR__ . '/../vendor/autoload.php';
+        $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+        $dotenv->load();
+    }
+
+        $host = $_ENV["{$db_type}_DB_HOST"] ?? $_SERVER["{$db_type}_DB_HOST"] ?? getenv("{$db_type}_DB_HOST");
+        $db_name = $_ENV["{$db_type}_DB_NAME"] ?? $_SERVER["{$db_type}_DB_NAME"] ?? getenv("{$db_type}_DB_NAME");
+        $username = $_ENV["{$db_type}_DB_USER"] ?? $_SERVER["{$db_type}_DB_USER"] ?? getenv("{$db_type}_DB_USER");
+        $password = $_ENV["{$db_type}_DB_PASS"] ?? $_SERVER["{$db_type}_DB_PASS"] ?? getenv("{$db_type}_DB_PASS");
 
         if (!$host || !$db_name) {
             die("Error: Database configuration for '{$db_type}' not found in .env file.");

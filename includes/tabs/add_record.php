@@ -1,49 +1,67 @@
-<div class="bg-white p-8 rounded-xl shadow-sm w-full max-w-full mx-auto">
+<?php
+require_once __DIR__ . '/../../classes/database.php';
+require_once __DIR__ . '/../../classes/MasterDataService.php';
+
+
+
+use Cadc20239999\MlGms\MasterDataService;
+
+$masterData = new MasterDataService();
+$loanTypes = $masterData->getLoanTypes();
+$regions = $masterData->getRegions();
+$branches = $masterData->getBranches();
+?>
+
+
+<form id="loanForm" class="bg-white p-8 rounded-xl shadow-sm w-full max-w-full mx-auto">
     <div class="mb-8">
         <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">BASIC INFORMATION</h3>
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
             <div class="col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Type of Loan</label>
-                <select id="loanType" class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm">
+                <select id="loanType" name="loan_type_id" required class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm">
                     <option value="">Select Type</option>
-                    <option value="Car Loan">Car Loan</option>
-                    <option value="Motor Loan">Motor Loan</option>
-                    <option value="Home Loan">Home Loan</option>
-                    <option value="Salary Loan">Salary Loan</option>
-                    <option value="Personal Property Loan">Personal Property Loan</option>
-                    <option value="Real Estate Loan">Real Estate Loan</option>
+                    <?php foreach ($loanTypes as $type): ?>
+                        <option value="<?= $type['loan_type_id'] ?>"><?= $type['loan_type_name'] ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Reference Number</label>
-                <input type="text" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="ref_no" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">First Name</label>
-                <input type="text" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="first_name" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Middle Name</label>
-                <input type="text" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="middle_name" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Last Name</label>
-                <input type="text" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="last_name" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Contact Number</label>
-                <input type="text" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="contact" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Region</label>
-                <select class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
-                    <option>Select Region</option>
+                <select id="regionSelect" name="region_id" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                    <option value="">Select Region</option>
+                    <?php foreach ($regions as $region): ?>
+                        <option value="<?= $region['id'] ?>"><?= $region['region_description'] ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Branch</label>
-                <select class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
-                    <option>Select Branch</option>
+                <select id="branchSelect" name="branch_id" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                    <option value="">Select Branch</option>
+                    <?php foreach ($branches as $branch): ?>
+                        <option value="<?= $branch['branch_id'] ?>"><?= $branch['branch_name'] ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
         </div>
@@ -54,40 +72,46 @@
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Loan Amount (Principal)</label>
-                <input type="text" id="calcLoanAmount" placeholder="0.00" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="principal" id="calcLoanAmount" placeholder="0.00" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Term (Months)</label>
-                <input type="text" id="calcTerm" placeholder="e.g. 36" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="term" id="calcTerm" placeholder="e.g. 36" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Granted</label>
-                <input type="date" id="calcDateGranted" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="date" name="date_granted" id="calcDateGranted" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Maturity Date</label>
                 <input type="text" id="resMaturity" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-gray-600 text-sm font-mono cursor-not-allowed">
+                <input type="hidden" name="maturity_date" id="hiddenMaturity">
             </div>
 
             <div class="mt-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Dealer's Incentives (5%)</label>
                 <input type="text" id="resIncentive" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
+                <input type="hidden" name="incentive" id="hiddenIncentive">
             </div>
             <div class="mt-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Loan Amount with 5% off</label>
                 <input type="text" id="resNetLoan" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
+                <input type="hidden" name="net_proceeds" id="hiddenNetProceeds">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Interest Rate (AOR)</label>
                 <input type="text" id="resAOR" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
+                <input type="hidden" name="aor" id="hiddenAOR">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Monthly Amortization</label>
                 <input type="text" id="resMonthly" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-red-600 font-bold text-sm font-mono">
+                <input type="hidden" name="monthly_amort" id="hiddenMonthly">
             </div>
             <div class="col-span-2 md:col-span-1">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">EIR</label>
                 <input type="text" id="resEIR" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
+                <input type="hidden" name="eir" id="hiddenEIR">
             </div>
         </div>
     </div>
@@ -97,34 +121,90 @@
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Classification</label>
-                <select class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
-                    <option>Owned</option>
-                    <option>Pre-Owned</option>
+                <select name="classification" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                    <option value="Owned">PRENDA</option>
+                    <option value="Pre-Owned">PRE OWNED</option>
                 </select>
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-2 block uppercase tracking-wider">Device Installed</label>
                 <div class="flex gap-6">
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="radio" name="device" value="YES" class="device-radio accent-red-600"> <span class="text-gray-700">YES</span>
+                        <input type="radio" name="device_installed" value="YES" class="device-radio accent-red-600"> <span class="text-gray-700">YES</span>
                     </label>
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="radio" name="device" value="NO" class="device-radio accent-red-600" checked> <span class="text-gray-700">NO</span>
+                        <input type="radio" name="device_installed" value="NO" class="device-radio accent-red-600" checked> <span class="text-gray-700">NO</span>
                     </label>
                 </div>
             </div>
             <div id="dateInstalledDiv" class="hidden">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Installed</label>
-                <input type="date" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="date" name="date_installed" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
         </div>
     </div>
 
-    <div class="mt-10 flex justify-end">
-        <button class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700 transition-colors text-sm">
-            CREATE LOAN
+    <div class="mt-6 mb-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+        <label class="flex items-start gap-3 cursor-pointer">
+            <div class="flex items-center h-5">
+                <input id="verifyCheckbox" type="checkbox" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 cursor-pointer">
+            </div>
+            <div class="text-sm">
+                <span class="font-medium text-gray-700">Verification & Accuracy</span>
+                <p class="text-gray-500 text-xs">I hereby certify that all information entered has been verified and is true and correct. I understand that this will generate a permanent loan record and amortization schedule.</p>
+            </div>
+        </label>
+    </div>
+
+    <div class="flex justify-end">
+        <button type="submit" id="submitBtn" disabled class="bg-gray-400 text-white px-8 py-2.5 rounded-lg font-bold transition-all text-sm cursor-not-allowed opacity-70">
+            SAVE LOAN
         </button>
     </div>
-</div>
+</form>
 
-<script src="../assets/js/loan-calculator.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+<style>
+.ts-wrapper.single .ts-control {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.875rem;
+    min-height: 38px;
+    box-shadow: none;
+}
+
+.ts-wrapper.single.focus .ts-control {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 1px #ef4444;
+}
+
+.ts-dropdown {
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+}
+</style>
+
+<script>
+function initSearchableDropdowns() {
+    if (document.querySelector('#regionSelect')) {
+        new TomSelect('#regionSelect', {
+            maxOptions: 200,
+            create: false
+        });
+    }
+
+    if (document.querySelector('#branchSelect')) {
+        new TomSelect('#branchSelect', {
+            maxOptions: 500,
+            create: false
+        });
+    }
+}
+
+// Call it immediately
+initSearchableDropdowns();
+</script>
