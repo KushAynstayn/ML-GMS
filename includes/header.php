@@ -21,7 +21,7 @@
 </head>
 <body class="bg-white font-sans h-screen flex flex-col overflow-hidden">
 
-    <nav class="p-6 flex justify-between items-center relative z-50 bg-white shadow-md">
+    <nav class="py-4 px-5 flex justify-between items-center relative z-50 bg-white shadow-md">
         <div class="flex items-center gap-2">
             <img src="../assets/images/ml.png" alt="M Lhuillier" class="h-8 md:ml-2">
         </div>

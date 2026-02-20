@@ -27,7 +27,10 @@ $menu_items = [
              <button id="logo-lock-btn" class="flex items-center justify-center min-w-[26px]">
                 <img src="../assets/images/mlhuillier-red.png" alt="M Lhuillier" class="w-7 h-7 object-contain">
             </button>
-            <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150 sidebar-text font-bold text-xl ml-8" style="color: #d42929;">
+
+            <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+            <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150 sidebar-text ml-4" 
+                style="color: #a78e8e; font-family: 'Cinzel', serif; font-weight: 10; font-size: 1.25rem; letter-spacing: 0.05em;">
                 ML LOANS
             </span>
         </div>
