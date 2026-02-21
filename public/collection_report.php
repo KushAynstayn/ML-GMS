@@ -9,7 +9,8 @@
 
     <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
         <header class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">Collection Report</h2>
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Collection <span class="text-red-600">Report</span></h2>
+            <p class="text-gray-500 font-medium mt-2 mb-8">Access detailed borrower insights and track all collection data.</p>
 
             <div class="flex flex-nowrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 
@@ -105,6 +106,97 @@
                         <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026 - Feb 2026</td>
                         <td class="px-4 py-4 text-sm text-gray-600 text-center">15/01/2026</td>
                         <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold uppercase">Yes</span></td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-colors">
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">30/09/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-800">Maria Clara Reyes</td>
+                        <td class="px-4 py-4 text-sm text-gray-700 text-center">10,500.50</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">6,200.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">4,300.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">36 months</td>
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">LKNMOP789</td>
+                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Feb 2026 - Mar 2026</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/01/2026</td>
+                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">No</span></td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-colors">
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">30/09/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-800">Maria Clara Reyes</td>
+                        <td class="px-4 py-4 text-sm text-gray-700 text-center">10,500.50</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">6,200.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">4,300.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">36 months</td>
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">LKNMOP789</td>
+                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Feb 2026 - Mar 2026</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/01/2026</td>
+                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">No</span></td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-colors">
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">30/09/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-800">Maria Clara Reyes</td>
+                        <td class="px-4 py-4 text-sm text-gray-700 text-center">10,500.50</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">6,200.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">4,300.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">36 months</td>
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">LKNMOP789</td>
+                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Feb 2026 - Mar 2026</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/01/2026</td>
+                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">No</span></td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-colors">
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">30/09/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-800">Maria Clara Reyes</td>
+                        <td class="px-4 py-4 text-sm text-gray-700 text-center">10,500.50</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">6,200.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">4,300.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">36 months</td>
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">LKNMOP789</td>
+                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Feb 2026 - Mar 2026</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/01/2026</td>
+                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">No</span></td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-colors">
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">30/09/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-800">Maria Clara Reyes</td>
+                        <td class="px-4 py-4 text-sm text-gray-700 text-center">10,500.50</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">6,200.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">4,300.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">36 months</td>
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">LKNMOP789</td>
+                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Feb 2026 - Mar 2026</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/01/2026</td>
+                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">No</span></td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-colors">
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">30/09/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-800">Maria Clara Reyes</td>
+                        <td class="px-4 py-4 text-sm text-gray-700 text-center">10,500.50</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">6,200.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">4,300.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">36 months</td>
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">LKNMOP789</td>
+                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Feb 2026 - Mar 2026</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/01/2026</td>
+                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">No</span></td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-colors">
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">30/09/2025</td>
+                        <td class="px-4 py-4 text-sm text-gray-800">Maria Clara Reyes</td>
+                        <td class="px-4 py-4 text-sm text-gray-700 text-center">10,500.50</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">6,200.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">4,300.25</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">36 months</td>
+                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">LKNMOP789</td>
+                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Feb 2026 - Mar 2026</td>
+                        <td class="px-4 py-4 text-sm text-gray-600 text-center">20/01/2026</td>
+                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">No</span></td>
                     </tr>
                     <tr class="hover:bg-pink-50 transition-colors">
                         <td class="px-4 py-4 text-sm text-gray-600 text-center">20/10/2025</td>
@@ -242,7 +334,10 @@ function downloadPDF() {
     img.src = '../assets/images/ml.png';
     
     img.onload = function() {
-        doc.addImage(img, 'PNG', 135, 10, 25, 10);
+        // FIXED: Changed 25, 10 to 35, 7 and adjusted X position to keep it centered
+        // Parameters: (image, type, x, y, width, height)
+        doc.addImage(img, 'PNG', 131, 10, 35, 7); 
+        
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
         doc.text("LOANS DEPARTMENT", 148.5, 25, { align: "center" });

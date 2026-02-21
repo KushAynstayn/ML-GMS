@@ -10,13 +10,12 @@
 <body class="h-screen overflow-hidden flex flex-col bg-gray-50">
 
     <div class="flex flex-1 overflow-hidden">
-        
         <?php include('../includes/sidebar.php'); ?>
 
         <main class="flex-1 p-8 overflow-y-auto custom-scrollbar">
             <header class="mb-6">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Add Loan</h2>
-                
+                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add <span class="text-red-600">Loan</span></h2>
+    <p class="text-gray-500 font-medium mt-2 mb-8">Fill out the details below to register a new loan application.</p>
                 <div class="flex gap-8 border-b border-gray-200">
                     <button onclick="switchTab('add_record', this)" class="tab-btn pb-2 font-semibold text-red-600 border-b-2 border-red-600 transition-all">Add new record</button>
                     <button onclick="switchTab('import_file', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-red-600 transition-all">Import file</button>
@@ -30,23 +29,36 @@
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.min.js"></script>
+    <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-[100] p-4 transition-opacity duration-200">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all duration-200 scale-95" id="modalContainer">
+            <div id="modalIcon" class="mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full"></div>
+            <h3 id="statusTitle" class="text-xl font-bold mb-1 text-gray-800"></h3>
+            <p id="statusMsg" class="text-gray-500 mb-2"></p>
+            <button id="modalCloseBtn" onclick="closeStatusModal()" class="mt-4 w-full py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors hidden">Try Again</button>
+        </div>
+    </div>
+
+    <div id="fileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[110] p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="modalTitle" class="text-lg font-bold text-gray-800 truncate">File Preview</h3>
+                <button onclick="document.getElementById('fileModal').classList.replace('flex', 'hidden')" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="modalBody" class="p-6 overflow-auto custom-scrollbar bg-gray-50">
+                </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
     <script>
-    // Set PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    let autoCloseTimer;
 
-    // --- 0. ANTI-DRAG LOGIC ---
-    window.addEventListener("dragover", function(e) {
-        e.preventDefault();
-    }, false);
-
-    window.addEventListener("drop", function(e) {
-        e.preventDefault();
-    }, false);
-
-    // 1. Switch Tab Function
+    // --- Tab Management ---
     function switchTab(tabName, element) {
     const contentArea = document.getElementById('tab-content-area');    
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -78,13 +90,13 @@
         });
     }
 
-    // 2. The Global Listener for the File Input
+    // --- File Selection UI Logic ---
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'fileInput') {
             const file = e.target.files[0];
             if (file) {
-                const fileNameDisplay = document.querySelector('.text-sm.text-gray-400.mb-6');
-                const titleDisplay = document.querySelector('.font-bold.text-gray-700');
+                const fileNameDisplay = document.getElementById('fileNameDisplay');
+                const titleDisplay = document.getElementById('uploadTitle');
                 const selectBtn = document.getElementById('selectBtn');
                 const cancelBtn = document.getElementById('cancelBtn');
 
@@ -95,134 +107,166 @@
 
                 if (selectBtn) {
                     selectBtn.innerText = "View File";
-                    selectBtn.classList.remove('bg-blue-600'); 
-                    selectBtn.classList.add('bg-gray-600');    
-                    
+                    selectBtn.className = "bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition-colors"; 
                     selectBtn.onclick = function(event) {
                         event.preventDefault();
                         openFileModal(file);
                     };
                 }
-
-                if (cancelBtn) {
-                    cancelBtn.classList.remove('hidden');
-                }
+                if (cancelBtn) cancelBtn.classList.remove('hidden');
             }
         }
     });
 
-    // 3. Reset the Selection
     function resetFileInput() {
         const fileInput = document.getElementById('fileInput');
+        if(!fileInput) return;
+        fileInput.value = "";
+        document.getElementById('uploadTitle').innerText = "Upload Loan Releases file";
+        document.getElementById('fileNameDisplay').innerText = "Click to browse your computer";
         const selectBtn = document.getElementById('selectBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const fileNameDisplay = document.querySelector('.text-sm.text-gray-400.mb-6');
-        const titleDisplay = document.querySelector('.font-bold.text-gray-700');
-
-        if (fileInput) fileInput.value = "";
-
-        if (titleDisplay) {
-            const isPaymentTab = document.querySelector('button[onclick*="import_payment"]').classList.contains('text-red-600');
-            titleDisplay.innerText = isPaymentTab ? "Upload Payment file" : "Upload Loan Releases file";
-        }
-        
-        if (fileNameDisplay) fileNameDisplay.innerText = "Click to browse your computer";
-
         if (selectBtn) {
             selectBtn.innerText = "Select File";
-            selectBtn.classList.remove('bg-blue-600');
-            selectBtn.classList.add('bg-gray-600');
-            selectBtn.onclick = function() {
-                document.getElementById('fileInput').click();
-            };
+            selectBtn.className = "bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition-colors";
+            selectBtn.onclick = () => { document.getElementById('fileInput').click(); };
         }
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+    }
 
-        if (cancelBtn) {
-            cancelBtn.classList.add('hidden');
+    // --- Scanning Logic ---
+    document.addEventListener('click', async function(e) {
+        if (e.target && e.target.id === 'uploadBtn') {
+            const fileInput = document.getElementById('fileInput');
+            const loanType = document.getElementById('loanTypeSelect').value;
+            if (!loanType || !fileInput.files.length) {
+                showStatusModal('error', 'Missing Information', 'Please select a loan type and a file.', false);
+                return;
+            }
+            const file = fileInput.files[0];
+            file.type === "application/pdf" ? scanPDF(file, loanType) : scanExcel(file, loanType);
+        }
+    });
+
+    async function scanPDF(file, searchTerm) {
+        const reader = new FileReader();
+        reader.onload = async function() {
+            const typedarray = new Uint8Array(this.result);
+            try {
+                const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                let found = false;
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(" ");
+                    if (pageText.toLowerCase().includes(searchTerm.toLowerCase())) { found = true; break; }
+                }
+                handleScanResult(found, searchTerm);
+            } catch (err) { showStatusModal('error', 'Scan Error', 'Unable to read PDF content.', false); }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function scanExcel(file, searchTerm) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                let found = false;
+                workbook.SheetNames.forEach(name => {
+                    const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[name], {header: 1});
+                    if (sheet.flat().some(cell => cell && cell.toString().toLowerCase().includes(searchTerm.toLowerCase()))) found = true;
+                });
+                handleScanResult(found, searchTerm);
+            } catch (err) { showStatusModal('error', 'Scan Error', 'Unable to read Excel content.', false); }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function handleScanResult(found, searchTerm) {
+        if (found) {
+            showStatusModal('success', 'Success', 'File Uploaded Successfully', true);
+            resetFileInput();
+        } else {
+            showStatusModal('error', 'Mismatch Detected', `Please make sure the selected loan type matches the file you uploaded.`, false);
         }
     }
-    
-    // 4. Modal Preview Function (Updated for Canvas PDF Rendering)
+
+    // --- Modal Controllers ---
+    function showStatusModal(type, title, msg, autoClose) {
+        clearTimeout(autoCloseTimer);
+        const modal = document.getElementById('statusModal');
+        const container = document.getElementById('modalContainer');
+        const iconDiv = document.getElementById('modalIcon');
+        const closeBtn = document.getElementById('modalCloseBtn');
+        
+        document.getElementById('statusTitle').innerText = title;
+        document.getElementById('statusMsg').innerText = msg;
+
+        if (type === 'success') {
+            iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 pop-icon";
+            iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
+            closeBtn.classList.add('hidden');
+        } else {
+            iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 pop-icon";
+            iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            closeBtn.classList.remove('hidden');
+        }
+
+        modal.classList.replace('hidden', 'flex');
+        setTimeout(() => container.classList.replace('scale-95', 'scale-100'), 10);
+        if (autoClose) autoCloseTimer = setTimeout(() => closeStatusModal(), 1000);
+    }
+
+    function closeStatusModal() {
+        const modal = document.getElementById('statusModal');
+        const container = document.getElementById('modalContainer');
+        container.classList.replace('scale-100', 'scale-95');
+        setTimeout(() => modal.classList.replace('flex', 'hidden'), 150);
+    }
+
     function openFileModal(file) {
         const modal = document.getElementById('fileModal');
         const modalBody = document.getElementById('modalBody');
-        const modalTitle = document.getElementById('modalTitle');
-        
-        modalTitle.innerText = file.name;
-        modalBody.innerHTML = '<div class="text-center p-10"><p class="text-gray-500">Loading preview...</p></div>'; 
+        document.getElementById('modalTitle').innerText = file.name;
         modal.classList.replace('hidden', 'flex');
 
-        // --- Handle PDF ---
         if (file.type === "application/pdf") {
-            modalBody.innerHTML = '<div id="pdf-viewer" class="flex flex-col items-center gap-4 py-4"></div>';
+            modalBody.innerHTML = '<div id="pdf-viewer" class="flex flex-col items-center"></div>';
             const reader = new FileReader();
-            
             reader.onload = function() {
                 const typedarray = new Uint8Array(this.result);
-                
                 pdfjsLib.getDocument(typedarray).promise.then(pdf => {
                     const viewer = document.getElementById('pdf-viewer');
-                    viewer.innerHTML = ''; // Clear loading text
-                    
-                    // Render all pages
-                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                        pdf.getPage(pageNum).then(page => {
-                            const scale = 1.5;
-                            const viewport = page.getViewport({ scale });
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        pdf.getPage(i).then(page => {
                             const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
+                            viewer.appendChild(canvas);
+                            const viewport = page.getViewport({ scale: 1.5 });
                             canvas.height = viewport.height;
                             canvas.width = viewport.width;
-                            canvas.className = "shadow-lg mb-4 max-w-full h-auto";
-                            
-                            viewer.appendChild(canvas);
-
-                            const renderContext = {
-                                canvasContext: context,
-                                viewport: viewport
-                            };
-                            page.render(renderContext);
+                            page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport });
                         });
                     }
                 });
             };
             reader.readAsArrayBuffer(file);
-        } 
-        // --- Handle Excel ---
-        else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        } else {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const htmlTable = XLSX.utils.sheet_to_html(worksheet, { 
-                    editable: false,
-                    header: '' 
-                });
-
+            reader.onload = (e) => {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                
+                // Convert to HTML and wrap in a clean container
+                const htmlTable = XLSX.utils.sheet_to_html(sheet);
                 modalBody.innerHTML = `
-                    <div class="overflow-x-auto p-2 bg-white">
-                        <div class="excel-preview-container">
+                    <div class="excel-preview-wrapper bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
                             ${htmlTable}
                         </div>
                     </div>`;
-                
-                const table = modalBody.querySelector('table');
-                if(table) {
-                    table.className = "min-w-full divide-y divide-gray-200 text-sm border-collapse border border-gray-200";
-                    table.querySelectorAll('td').forEach(td => {
-                        td.className = "px-4 py-2 border border-gray-200 whitespace-nowrap text-gray-600";
-                    });
-                }
             };
             reader.readAsArrayBuffer(file);
-        } else {
-            modalBody.innerHTML = `
-                <div class="text-center p-10">
-                    <p class="text-gray-600 mb-2 font-semibold italic text-lg">No preview available for this file type.</p>
-                    <p class="text-sm text-gray-400">File: ${file.name}</p>
-                </div>`;
         }
     }
     </script>
@@ -230,19 +274,37 @@
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
-        .excel-preview-container table {
-            width: 100%;
-            border-collapse: collapse;
+        .pop-icon { animation: icon-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+        @keyframes icon-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        /* Fixed Excel Preview Styles */
+        .excel-preview-wrapper table { 
+            width: 100%; 
+            border-collapse: collapse; 
             background: white;
+            font-size: 0.875rem;
+            color: #374151;
         }
-        .excel-preview-container tr:nth-child(even) {
-            background-color: #f9fafb;
+        /* Header styling (First row) */
+        .excel-preview-wrapper tr:first-child {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #1f2937;
+            border-bottom: 2px solid #e2e8f0;
         }
-        .excel-preview-container tr:hover {
+        .excel-preview-wrapper td { 
+            border: 1px solid #e5e7eb; 
+            padding: 12px 16px; 
+            white-space: nowrap;
+        }
+        /* Zebra stripes */
+        .excel-preview-wrapper tr:nth-child(even) {
+            background-color: #fcfcfd;
+        }
+        /* Hover effect */
+        .excel-preview-wrapper tr:hover {
             background-color: #f3f4f6;
         }
-        /* Custom PDF Viewer Background */
-        #modalBody { background-color: #525659; } 
     </style>
 
     <script src="../assets/js/main.js"></script>

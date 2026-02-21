@@ -1,3 +1,5 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -36,7 +38,7 @@
             </div>
 
             <div class="flex justify-center">
-                <img src="../assets/images/ml.png" alt="M Lhuillier" class="h-8">
+                <img src="../assets/images/ml.png" id="mlLogo" alt="M Lhuillier" class="h-8">
             </div>
         </div>
 
@@ -159,8 +161,21 @@ function closeAmortization() {
 }
 
 function exportData(format) {
+    if (typeof XLSX === 'undefined') {
+        alert("Excel library required.");
+        return;
+    }
+
+    const accountName = document.getElementById('modalDispName').innerText;
     const pnNumber = document.getElementById('modalDispRef').innerText;
-    
+    const monthlyAmt = document.getElementById('modalDispMonthly').innerText; // Captured the missing value
+
+    // Capture LIVE values from input fields
+    const preparedByValue = document.getElementById('pdfPrepBy').value;
+    const checkedByValue = document.getElementById('pdfCheckBy').value;
+    const conforme1Value = document.getElementById('pdfConf1').value;
+    const conforme2Value = document.getElementById('pdfConf2').value;
+
     if (format === 'excel') {
         if (typeof XLSX === 'undefined') {
             alert("Excel library missing."); return;
@@ -179,12 +194,12 @@ function exportData(format) {
         const table = document.getElementById('amortizationTable');
         const tbodyRows = table.querySelectorAll('tbody tr');
 
-        // Styles
         const boldStyle = { font: { bold: true } };
         const borderStyle = { border: { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } } };
-        const headerStyle = { font: { bold: true }, alignment: { horizontal: "center" }, ...borderStyle };
+        const headerStyle = { font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, ...borderStyle };
+        const labelStyle = { font: { bold: true }, ...borderStyle };
+        const underlineStyle = { font: { bold: true, underline: true } };
 
-        // Build Excel Rows
         const rows = [
             [{ v: "Account Name :", s: boldStyle }, { v: accountName }],
             [{ v: "Contact Number:", s: boldStyle }, { v: contactNum }],
@@ -225,7 +240,6 @@ function exportData(format) {
         };
         html2pdf().set(opt).from(element).save();
     }
-    
     document.getElementById('amortizationDropdownMenu').classList.add('hidden');
 }
 </script>
