@@ -23,23 +23,27 @@ $menu_items = [
 
 <aside id="sidebar" class="w-20 hover:w-64 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 flex flex-col justify-between py-4 relative group shrink-0 shadow-md">
     <div>
-        <div class="px-3 flex items-center h-12 border-b border-gray-200 mx-4 mb-4">
-             <button id="logo-lock-btn" class="flex items-center justify-center min-w-[26px]">
+        <div class="px-3 flex items-center h-12 border-b border-gray-200 mx-4 mb-4 relative">
+            <div class="flex items-center min-w-[26px]">
                 <img src="../assets/images/mlhuillier-red.png" alt="M Lhuillier" class="w-7 h-7 object-contain">
-            </button>
+                
+                <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;900&display=swap" rel="stylesheet">
+                <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150 sidebar-text ml-3" 
+                    style="color: #a32222; font-family: 'Cinzel', serif; font-weight: 400; font-size: 1.1rem; letter-spacing: 0.05em;">
+                    ML LOANS
+                </span>
+            </div>
 
-            <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
-            <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150 sidebar-text ml-4" 
-                style="color: #a78e8e; font-family: 'Cinzel', serif; font-weight: 10; font-size: 1.25rem; letter-spacing: 0.05em;">
-                ML LOANS
-            </span>
+            <button id="logo-lock-btn" class="absolute top-0 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-150 p-1 hover:bg-gray-100 rounded-md text-gray-400 hover:text-red-600">
+                <svg class="w-5 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
         </div>
 
         <nav class="space-y-2 px-4">
             <?php foreach ($menu_items as $item): 
-                // Hide User Management from Standard Users
                 if ($item['admin_only'] && $u_type !== 'admin') continue;
-                
                 $isActive = ($current_page === $item['file']);
             ?>
                 <a href="<?php echo $item['file']; ?>" 
@@ -90,7 +94,7 @@ $menu_items = [
 </aside>
 
 <script>
-    // 1. Sidebar Lock Logic (from your original code)
+    // Lock logic attached to the new burger icon
     const sidebar = document.getElementById('sidebar');
     const lockBtn = document.getElementById('logo-lock-btn');
     if(lockBtn) {
@@ -100,18 +104,12 @@ $menu_items = [
         });
     }
 
-    // 2. Content Loading Logic
     function loadContent(url, element) {
         const mainArea = document.querySelector('main');
-        
-        // Fetch the PHP file
         fetch(url)
             .then(response => response.text())
             .then(html => {
-                // Update the right side content
                 mainArea.innerHTML = html;
-
-                // Update active button styles
                 document.querySelectorAll('.menu-link').forEach(link => {
                     link.classList.remove('bg-red-600', 'text-white', 'font-bold', 'shadow-md');
                     link.classList.add('text-gray-500', 'hover:bg-gray-100');
@@ -124,39 +122,26 @@ $menu_items = [
 </script>
 
 <style>
-    /* 1. Base Sidebar Transition */
-    #sidebar {
-        transition: width 300ms ease-in-out !important;
-    }
+    #sidebar { transition: width 300ms ease-in-out !important; }
+    .sidebar-text { transition: opacity 200ms ease-in-out !important; }
 
-    /* 2. Base Text Transition (No delay by default) */
-    .sidebar-text {
-        transition: opacity 200ms ease-in-out !important;
-    }
-
-    /* 3. Add Delay ONLY when opening (Hover or Locked) */
     #sidebar:hover .sidebar-text,
     .sidebar-locked .sidebar-text {
         opacity: 1 !important;
-        transition-delay: 150ms !important; /* Wait for sidebar to widen */
+        transition-delay: 150ms !important;
     }
 
-    /* 4. Remove Delay when closing (Mouse leaves or Unlocked) */
+    /* Keep the burger icon visible if the sidebar is locked */
+    .sidebar-locked #logo-lock-btn {
+        opacity: 1 !important;
+        color: #dc2626; /* Highlight when locked */
+    }
+
     #sidebar:not(:hover):not(.sidebar-locked) .sidebar-text {
-        transition-delay: 0ms !important; /* Hide immediately as sidebar shrinks */
+        transition-delay: 0ms !important;
         opacity: 0 !important;
     }
 
-    /* 5. Sidebar Widths */
-    .sidebar-locked { 
-        width: 16rem !important; 
-    }
-
-    #sidebar:hover {
-        width: 16rem;
-    }
-
-    .sidebar-locked #logo-lock-btn { 
-        filter: drop-shadow(0 0 4px rgba(139, 0, 0, 0.4)); 
-    }
+    .sidebar-locked { width: 16rem !important; }
+    #sidebar:hover { width: 16rem; }
 </style>

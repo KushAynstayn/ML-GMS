@@ -37,13 +37,13 @@
     <main class="flex-1 p-8 lg:p-10 overflow-y-auto">
         <header class="relative bg-white p-10 rounded-[2rem] border border-gray-100 shadow-sm mb-10 overflow-hidden">
             <div class="relative z-10">
-                <h2 class="text-5xl font-extrabold text-gray-900 tracking-tight">Dashboard <span class="text-red-600">Overview</span></h2>
+                <h2 class="text-4xl font-extrabold text-gray-900 tracking-tight">Dashboard <span class="text-red-600">Overview</span></h2>
                 <p class="text-gray-500 font-medium mt-2">Insights and performance overview</p>
 
                 <div class="mt-8 space-y-4">
                     <div class="max-w-2xl relative">
                         <input type="text" id="searchInput" placeholder="Search account or reference..." 
-                               class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:bg-white transition-all text-sm font-medium">
+                            class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:bg-white transition-all text-sm font-medium">
                         <svg class="w-5 h-5 absolute left-4 top-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -55,13 +55,13 @@
                         
                         <div class="flex items-center gap-2">
                             <div class="flex items-center px-6 py-2.5 bg-gray-50 border border-gray-200 rounded-full">
-                                 <span id="dateLabel" class="text-[10px] font-black text-gray-400 uppercase mr-3 tracking-widest">Date</span>
-                                 <input type="date" id="startDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-gray-700 focus:outline-none cursor-pointer">
+                                <span id="dateLabel" class="text-[10px] font-black text-gray-400 uppercase mr-3 tracking-widest">Date</span>
+                                <input type="date" id="startDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-gray-700 focus:outline-none cursor-pointer">
                             </div>
 
                             <div id="toDateContainer" class="hidden flex items-center px-6 py-2.5 bg-gray-50 border border-gray-200 rounded-full">
-                                 <span class="text-[10px] font-black text-gray-400 uppercase mr-3 tracking-widest">To</span>
-                                 <input type="date" id="endDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-gray-700 focus:outline-none cursor-pointer">
+                                <span class="text-[10px] font-black text-gray-400 uppercase mr-3 tracking-widest">To</span>
+                                <input type="date" id="endDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-gray-700 focus:outline-none cursor-pointer">
                             </div>
                         </div>
                     </div>
