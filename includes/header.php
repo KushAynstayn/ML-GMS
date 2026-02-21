@@ -23,7 +23,7 @@
 
     <nav class="py-4 px-5 flex justify-between items-center relative z-50 bg-white shadow-md">
         <div class="flex items-center gap-2">
-            <img src="../assets/images/ml.png" alt="M Lhuillier" class="h-8 md:ml-2">
+            <img src="../assets/images/ml.png" alt="M Lhuillier" class="h-6 md:ml-2">
         </div>
         <div>
             <img src="../assets/images/mlhuillier-red.png" alt="Icon" class="h-6 md:mr-2">

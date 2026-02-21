@@ -24,7 +24,7 @@ try {
     <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
         <header class="mb-8">
             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">User <span class="text-red-600">Management</span></h2>
-            <p class="text-gray-500 font-medium mt-2 mb-8">View, edit, and track system users while managing access permissions.</p>
+            <p class="text-gray-500 font-medium mt-2 mb-8">View, edit, and track system users.</p>
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex-1 min-w-[200px] relative">
                     <input type="text" id="searchInput" placeholder="Search by name, email, or ID..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20">
