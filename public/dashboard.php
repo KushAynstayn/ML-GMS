@@ -26,7 +26,6 @@
     .animate-content {
         animation: contentFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
-    /* -------------------------------------- */
     
     .glass-panel {
         background: rgba(255, 255, 255, 0.07);
@@ -47,11 +46,6 @@
         transform: translateY(-5px);
         background: rgba(255, 255, 255, 0.15);
         border-color: #ef4444;
-    }
-
-    .glow-red-sync {
-        color: #ef4444;
-        text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
     }
 
     .btn-active-red {
@@ -101,14 +95,12 @@
     <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
         <header class="relative glass-panel p-10 rounded-[2.5rem] mb-10 overflow-hidden">
             <div class="relative z-10">
-                <h2 class="text-4xl font-extrabold text-white tracking-tight">
-                    Dashboard Overview</span>
-                </h2>
+                <h2 class="text-4xl font-extrabold text-white tracking-tight">Dashboard Overview</h2>
                 <p class="text-gray-200 font-medium mt-2">Insights and performance overview</p>
 
                 <div class="mt-8 space-y-6">
                     <div class="max-w-2xl relative">
-                        <input type="text" id="searchInput" placeholder="Search account or reference..." 
+                        <input type="text" id="searchInput" onkeyup="filterDashboard()" placeholder="Search account or reference..." 
                             class="dark-input w-full pl-14 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-sm">
                         <svg class="w-6 h-6 absolute left-4 top-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -210,3 +202,81 @@
         </div>
     </main>
 </div>
+
+<script>
+let currentMode = 'single';
+
+function setDateMode(mode) {
+    currentMode = mode;
+    const btnSingle = document.getElementById('btnSingle');
+    const btnRange = document.getElementById('btnRange');
+    const toDateContainer = document.getElementById('toDateContainer');
+    const dateLabel = document.getElementById('dateLabel');
+
+    if (mode === 'single') {
+        btnSingle.classList.add('btn-active-red');
+        btnRange.classList.remove('btn-active-red');
+        toDateContainer.classList.add('hidden');
+        dateLabel.innerText = 'Date';
+    } else {
+        btnRange.classList.add('btn-active-red');
+        btnSingle.classList.remove('btn-active-red');
+        toDateContainer.classList.remove('hidden');
+        dateLabel.innerText = 'From';
+    }
+    filterDashboard();
+}
+
+function filterDashboard() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const tableContainer = document.getElementById('searchTableContainer');
+    const noRecordFound = document.getElementById('noRecordFound');
+    const tableRows = document.querySelectorAll('#tableBody tr');
+
+    let visibleCount = 0;
+    const isSearching = searchInput.length > 0 || startDate !== '';
+
+    tableRows.forEach(row => {
+        const dateCell = row.cells[0].innerText; // MM/DD/YYYY format from your static example
+        const nameCell = row.cells[1].innerText.toLowerCase();
+        const refCell = row.cells[2].innerText.toLowerCase();
+        
+        // Simple date parsing for comparison
+        const rowDate = new Date(dateCell);
+        const start = startDate ? new Date(startDate) : null;
+        const end = endDate ? new Date(endDate) : null;
+
+        let dateMatch = true;
+        if (currentMode === 'single' && start) {
+            dateMatch = rowDate.toDateString() === start.toDateString();
+        } else if (currentMode === 'range' && start && end) {
+            dateMatch = rowDate >= start && rowDate <= end;
+        }
+
+        const textMatch = nameCell.includes(searchInput) || refCell.includes(searchInput);
+
+        if (dateMatch && textMatch) {
+            row.style.display = "";
+            visibleCount++;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    // Toggle visibility logic
+    if (isSearching) {
+        if (visibleCount > 0) {
+            tableContainer.classList.remove('hidden');
+            noRecordFound.classList.add('hidden');
+        } else {
+            tableContainer.classList.add('hidden');
+            noRecordFound.classList.remove('hidden');
+        }
+    } else {
+        tableContainer.classList.add('hidden');
+        noRecordFound.classList.add('hidden');
+    }
+}
+</script>
