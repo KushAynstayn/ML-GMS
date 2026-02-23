@@ -17,7 +17,7 @@ $menu_items = [
 ];
 ?>
 
-<aside id="sidebar" class="z-20 w-16 hover:w-64 transition-all duration-300 ease-in-out bg-white border-r border-gray-100 flex flex-col justify-between py-6 relative group shrink-0 shadow-[4px_0_15px_rgba(0,0,0,0.05)]">
+<aside id="sidebar" class="z-20 w-16 hover:w-64 transition-all duration-300 ease-in-out bg-white border-r border-gray-100 flex flex-col justify-between py-6 relative group shrink-5 shadow-[4px_0_8px_rgba(0,0,0,0.05)]">
     <div>
         <div class="px-5 flex items-center h-10 mb-2 relative">
             <div class="flex items-center min-w-[32px]">
