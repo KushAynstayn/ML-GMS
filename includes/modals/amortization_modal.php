@@ -57,21 +57,21 @@
                     </div>
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
-                        <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">PN Number :</div>
+                        <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Reference Number :</div>
                         <div class="col-span-4 p-2 border-r border-gray-300 font-mono" id="modalDispRef">---</div>
-                        <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Loan Amount :</div>
+                        <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Loan Amount(5% off) :</div>
                         <div class="col-span-3 p-2 font-bold text-right" id="modalDispAmount">0.00</div>
                     </div>
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
-                        <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">PN Date :</div>
+                        <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Date Granted :</div>
                         <div class="col-span-4 p-2 border-r border-gray-300" id="modalDispDate">---</div>
                         <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Term :</div>
                         <div class="col-span-3 p-2 text-right font-bold"><span id="modalDispTerm">0</span> <span class="text-gray-400 font-normal">months</span></div>
                     </div>
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
-                        <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">PN Maturity :</div>
+                        <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Maturity Date :</div>
                         <div class="col-span-4 p-2 border-r border-gray-300" id="modalDispMaturity">---</div>
                         <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Interest Rate (AOR)</div>
                         <div class="col-span-3 p-2 text-right font-bold" id="modalDispRate">0%</div>
@@ -171,10 +171,10 @@ function exportData(format) {
     const monthlyAmt = document.getElementById('modalDispMonthly').innerText; // Captured the missing value
 
     // Capture LIVE values from input fields
-    const preparedByValue = document.getElementById('pdfPrepBy').value;
-    const checkedByValue = document.getElementById('pdfCheckBy').value;
-    const conforme1Value = document.getElementById('pdfConf1').value;
-    const conforme2Value = document.getElementById('pdfConf2').value;
+    const preparedByValue = document.getElementById('inputPreparedBy').value;
+    const checkedByValue = document.getElementById('inputCheckedBy').value;
+    const conforme1Value = document.getElementById('inputConforme1').value;
+    const conforme2Value = document.getElementById('inputConforme2').value;
 
     if (format === 'excel') {
         if (typeof XLSX === 'undefined') {

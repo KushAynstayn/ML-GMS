@@ -2,6 +2,38 @@
  * Global function to initialize or re-initialize listeners
  * This is crucial because switchTab() replaces the HTML content
  */
+
+// Ensure this is at the top of main.js
+function initSearchableDropdowns() {
+    const regionSelect = document.querySelector('#regionSelect');
+    const branchSelect = document.querySelector('#branchSelect');
+
+    if (regionSelect) {
+        if (regionSelect.tomselect) regionSelect.tomselect.destroy();
+        new TomSelect(regionSelect, {
+            maxOptions: 100,
+            create: false,
+            placeholder: "Select Region...",
+        });
+    }
+
+    if (branchSelect) {
+        if (branchSelect.tomselect) branchSelect.tomselect.destroy();
+        new TomSelect(branchSelect, {
+            maxOptions: 500,
+            create: false,
+            placeholder: "Select Branch...",
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
+
+document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
+
 function initLoanCalculator() {
     const loanTypeSelect = document.getElementById('loanType');
     const vehicleFields = document.getElementById('vehicleFields');
@@ -133,17 +165,30 @@ function initLoanCalculator() {
 
 // Keep the global math functions outside of init so calculateLoan is always available
 function getEIRRate(nper, pmt, pv, guess = 0.01) {
+
+    const tol = 1e-10;
+    const maxIter = 100;
     let rate = guess;
-    const tolerance = 0.0000001;
-    const maxIterations = 100;
-    for (let i = 0; i < maxIterations; i++) {
-        let powNMinus1 = Math.pow(1 + rate, -nper);
-        let f = pv + pmt * (1 - powNMinus1) / rate;
-        let df = pmt * (nper * powNMinus1 / (rate * (1 + rate)) - (1 - powNMinus1) / Math.pow(rate, 2));
-        let newRate = rate - (f / df);
-        if (Math.abs(newRate - rate) < tolerance) return newRate;
+
+    for (let i = 0; i < maxIter; i++) {
+
+        let f = pv;
+        let df = 0;
+
+        for (let t = 1; t <= nper; t++) {
+            f += pmt / Math.pow(1 + rate, t);
+            df += -t * pmt / Math.pow(1 + rate, t + 1);
+        }
+
+        let newRate = rate - f / df;
+
+        if (Math.abs(newRate - rate) < tol) {
+            return newRate;
+        }
+
         rate = newRate;
     }
+
     return rate;
 }
 
@@ -158,19 +203,6 @@ function calculateLoan() {
     const loanAmount = parseFloat(loanAmtInp.value) || 0;
     const term = parseInt(termInp.value) || 0;
     const dateGranted = dateGrantedInp.value;
-
-    // Update Hidden Car Loan Flag
-    let carLoanFlag = document.getElementById('is_car_loan');
-    if(!carLoanFlag) {
-        carLoanFlag = document.createElement('input');
-        carLoanFlag.type = 'hidden';
-        carLoanFlag.id = 'is_car_loan';
-        carLoanFlag.name = 'is_car_loan';
-        const form = document.getElementById('loanForm');
-        if (form) form.appendChild(carLoanFlag);
-    }
-    const selectedText = loanTypeSelect.options[loanTypeSelect.selectedIndex].text.trim();
-    carLoanFlag.value = (selectedText === 'Car Loan') ? '1' : '0';
 
     const resMaturity = document.getElementById('resMaturity');
     const resIncentive = document.getElementById('resIncentive');
@@ -189,23 +221,54 @@ function calculateLoan() {
         resMaturity.value = `${mm}/${dd}/${yyyy}`;
         document.getElementById('hiddenMaturity').value = `${yyyy}-${mm}-${dd}`;
     } else {
-        if(resMaturity) resMaturity.value = "";
+        if (resMaturity) resMaturity.value = "";
     }
 
-    // 2. Calculations
+    // 2. Calculations (Reducing Balance Fix)
     if (loanAmount > 0 && term > 0) {
-        const incentive = loanAmount * 0.05;
-        const netLoan = loanAmount - incentive;
-        const aorValue = 0.02; 
-        const aorDisplay = (term * aorValue) * 100;
-        const monthly = (((netLoan * aorValue) * term) + netLoan) / term;
-        const monthlyRate = getEIRRate(term, -monthly, netLoan);
-        const eirPercentage = monthlyRate * 100;
+        const incentive = loanAmount * 0.05;           // 5% incentive
+        const netLoan = loanAmount - incentive;        // Loan after incentive
+        const flatRate = 0.02;                         // 2% monthly FLAT
+        const monthlyInterest = netLoan * flatRate;    // Constant monthly interest
 
-        resIncentive.value = incentive.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        resNetLoan.value = netLoan.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        // Generate reducing balance schedule
+        let balance = netLoan;
+        const monthlyPayment = (netLoan + monthlyInterest * term) / term; // Initial monthly
+        const amortizationSchedule = [];
+
+        for (let i = 1; i <= term; i++) {
+            let principal = monthlyPayment - monthlyInterest;
+
+            // Last month adjustment
+            if (i === term) {
+                principal = balance;
+            }
+
+            balance -= principal;
+
+            amortizationSchedule.push({
+                payment_number: i,
+                principal: principal,
+                interest: monthlyInterest,
+                ending_balance: balance >= 0 ? balance : 0,
+                status: 'UNPAID',
+                due_date: getDueDate(dateGranted, i)
+            });
+        }
+
+        // Monthly payment (first month standard, last month may differ)
+        const monthly = monthlyPayment;
+
+        // AOR and EIR calculations
+        const aorDisplay = flatRate * term * 100;
+        const computedEIR = getEIRRate(term, -monthly, netLoan); // Your Excel-equivalent function
+        const eirPercentage = computedEIR * 100;
+
+        // Update result fields
+        resIncentive.value = incentive.toFixed(2);
+        resNetLoan.value = netLoan.toFixed(2);
         resAOR.value = aorDisplay.toFixed(2) + "%";
-        resMonthly.value = monthly.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        resMonthly.value = monthly.toFixed(2);
         resEIR.value = eirPercentage.toFixed(6) + "%";
 
         document.getElementById('hiddenIncentive').value = incentive.toFixed(2);
@@ -213,7 +276,54 @@ function calculateLoan() {
         document.getElementById('hiddenAOR').value = (aorDisplay / 100).toFixed(4);
         document.getElementById('hiddenMonthly').value = monthly.toFixed(2);
         document.getElementById('hiddenEIR').value = eirPercentage.toFixed(6);
+
+        // Optional: render amortization table immediately (if modal exists)
+        renderAmortizationTable(amortizationSchedule);
     }
+}
+
+// Helper: calculate each payment's due date
+function getDueDate(startDate, monthNumber) {
+    const date = new Date(startDate);
+    date.setMonth(date.getMonth() + monthNumber);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD format for consistency
+}
+
+// Helper: populate amortization table
+function renderAmortizationTable(schedule) {
+    const tbody = document.getElementById('amortizationTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = ''; // clear existing rows
+
+    schedule.forEach(row => {
+        const totalAmount = row.principal + row.interest;
+        const tr = `
+            <tr class="hover:bg-gray-50 border-b border-gray-200">
+                <td class="p-2 border-r border-gray-300 text-center font-bold">${row.payment_number}</td>
+                <td class="p-2 border-r border-gray-300 text-center">${formatDate(row.due_date)}</td>
+                <td class="p-2 border-r border-gray-300 text-right">${formatCurrency(row.principal)}</td>
+                <td class="p-2 border-r border-gray-300 text-right">${formatCurrency(row.interest)}</td>
+                <td class="p-2 border-r border-gray-300 text-right font-medium">${formatCurrency(totalAmount)}</td>
+                <td class="p-2 border-r border-gray-300 text-right">${formatCurrency(row.ending_balance)}</td>
+                <td class="p-2 text-center font-bold text-xs ${row.status === 'PAID' ? 'text-green-600' : 'text-red-500'}">
+                    ${row.status}
+                </td>
+            </tr>`;
+        tbody.insertAdjacentHTML('beforeend', tr);
+    });
+}
+
+// Reuse your existing formatting functions
+function formatCurrency(num) {
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(num);
+}
+
+function formatDate(dateStr) {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    return new Date(dateStr).toLocaleDateString('en-GB', options); // DD/MM/YYYY
 }
 
 // Initialize on first load
@@ -267,12 +377,14 @@ function loadAllBranches() {
         });
 }
 
+// --- 1. Validation Modal (Keep this for missing fields) ---
 function showErrorModal(fields) {
-    const modal = document.getElementById('errorModal');
+    const modal = document.getElementById('errorModal'); // This is from addloan_errormodal.php
     const list = document.getElementById('errorList');
     
-    list.innerHTML = ''; // Clear previous errors
-    
+    if (!modal || !list) return;
+
+    list.innerHTML = ''; 
     fields.forEach(field => {
         const li = document.createElement('li');
         li.className = "py-0.5";
@@ -283,55 +395,93 @@ function showErrorModal(fields) {
     modal.classList.remove('hidden');
 }
 
-function closeErrorModal() {
-    document.getElementById('errorModal').classList.add('hidden');
+// --- 2. The Submission Event Listener (KEEP THIS) ---
+document.addEventListener('submit', function (e) {
+    if (e.target && e.target.id === 'loanForm') {
+        e.preventDefault(); 
+        e.stopPropagation();
+        handleLoanSubmission(e.target);
+    }
+});
+
+// --- 3. The Refined Submission Function ---
+async function handleLoanSubmission(formElement) {
+    // Show loading state first
+    showStatusModal('success', 'Processing...', 'Please wait...', false);
+
+    const formData = new FormData(formElement);
+
+    try {
+        const response = await fetch('../actions/save_loan.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json(); 
+        console.log("Server Response:", result); 
+
+        // Change 'result.success' to 'result.status === "success"'
+        if (result.status === "success" || result.success === true) { 
+            showStatusModal('success', 'Success!', result.message || 'Record saved successfully.', true);
+        } else {
+            showStatusModal('error', 'Save Failed', result.message || 'Error saving record.', false);
+        }
+    } catch (error) {
+        console.error("Submission Error:", error);
+        showStatusModal('error', 'Connection Error', 'Server unreachable.', false);
+    }
+}
+
+// --- 4. The Updated Modal Controller ---
+function showStatusModal(type, title, msg, shouldRefresh) {
+    // 1. Target the correct ID
+    const modal = document.getElementById('saveRecordModal'); 
+    const container = document.getElementById('modalContainer');
+    const iconDiv = document.getElementById('modalIcon');
+    const closeBtn = document.getElementById('modalCloseBtn');
+    
+    // Check if modal exists to prevent the "classList of null" error
+    if (!modal) {
+        console.error("saveRecordModal not found in DOM. Check your status_modal.php ID.");
+        return;
+    }
+
+    // 2. Set the text
+    document.getElementById('statusTitle').innerText = title;
+    document.getElementById('statusMsg').innerText = msg;
+
+    // 3. Set the icon and colors
+    if (type === 'success') {
+        iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 pop-icon";
+        iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
+    } else {
+        iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 pop-icon";
+        iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
+    }
+
+    // 4. Show the modal
+    modal.classList.replace('hidden', 'flex');
+    setTimeout(() => container.classList.replace('scale-95', 'scale-100'), 10);
+
+    // 5. Handle Refresh/Close
+    closeBtn.onclick = () => {
+        if (shouldRefresh && type === 'success') {
+            window.location.reload(); // Refresh the page to clear fields
+        } else {
+            closeStatusModal();
+        }
+    };
+}
+
+function closeStatusModal() {
+    const modal = document.getElementById('saveRecordModal');
+    if (modal) {
+        const container = document.getElementById('modalContainer');
+        container.classList.replace('scale-100', 'scale-95');
+        setTimeout(() => modal.classList.replace('flex', 'hidden'), 150);
+    }
 }
 
 
-document.addEventListener('submit', function(e) {
-    if (e.target && e.target.id === 'loanForm') {
-        e.preventDefault();
-        
-        const statusModal = document.getElementById('statusModal');
-        const modalLoading = document.getElementById('modalLoading');
-        const modalSuccess = document.getElementById('modalSuccess');
-        const submitBtn = document.getElementById('submitBtn');
 
-        // 1. Show Loading State
-        statusModal.classList.remove('hidden');
-        modalLoading.classList.remove('hidden');
-        modalSuccess.classList.add('hidden');
-        
-        // Disable button to prevent double-clicks
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-        const formData = new FormData(e.target);
-
-        // 2. Post to PHP API
-        fetch('../api/save_loan.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // 3. Switch to Success State
-                modalLoading.classList.add('hidden');
-                modalSuccess.classList.remove('hidden');
-            } else {
-                // Handle database/server errors
-                statusModal.classList.add('hidden');
-                alert("Database Error: " + data.message);
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        })
-        .catch(err => {
-            statusModal.classList.add('hidden');
-            console.error("System Error:", err);
-            alert("A network error occurred. Please try again.");
-            submitBtn.disabled = false;
-        });
-    }
-});

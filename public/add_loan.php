@@ -1,13 +1,15 @@
-<?php include('../includes/header.php'); ?>
 <?php 
-    include_once '../includes/modals/addloan_errormodal.php'; 
-    //include_once '../includes/modals/status_modal.php'; // Your processing/success modal
+require_once __DIR__ . '/../includes/init.php';
+include('../includes/header.php'); 
+include_once '../includes/modals/addloan_errormodal.php'; 
+include_once '../includes/modals/status_modal.php';
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
 <body class="h-screen overflow-hidden flex flex-col bg-gray-50">
+    
 
     <div class="flex flex-1 overflow-hidden">
         <?php include('../includes/sidebar.php'); ?>
@@ -29,15 +31,6 @@
         </main>
     </div>
 
-    <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-[100] p-4 transition-opacity duration-200">
-        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all duration-200 scale-95" id="modalContainer">
-            <div id="modalIcon" class="mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full"></div>
-            <h3 id="statusTitle" class="text-xl font-bold mb-1 text-gray-800"></h3>
-            <p id="statusMsg" class="text-gray-500 mb-2"></p>
-            <button id="modalCloseBtn" onclick="closeStatusModal()" class="mt-4 w-full py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors hidden">Try Again</button>
-        </div>
-    </div>
-
     <div id="fileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[110] p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
             <div class="p-4 border-b flex justify-between items-center">
@@ -53,6 +46,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+    <script src="../assets/js/main.js"></script>
 
     <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -77,12 +72,20 @@
         .then(html => {
             contentArea.innerHTML = html;
             
-            // ✅ FIX: Re-run listeners if the Add Record tab is loaded
             if (tabName === 'add_record') {
-                if (typeof initLoanCalculator === 'function') {
-                    initLoanCalculator();
-                    initSearchableDropdowns();
-                }
+                setTimeout(() => {
+                    // 1. Re-initialize dropdowns and calculators
+                    if (typeof initLoanCalculator === 'function') initLoanCalculator();
+                    if (typeof initSearchableDropdowns === 'function') initSearchableDropdowns();
+
+                    // 2. CRITICAL FIX: Re-bind the Submit event to the new form
+                    const form = document.getElementById('loanForm');
+                    if (form) {
+                        // Ensure we don't have duplicate listeners
+                        form.removeEventListener('submit', handleFormSubmit); 
+                        form.addEventListener('submit', handleFormSubmit);
+                    }
+                }, 50);
             }
         })
         .catch(err => {
@@ -192,38 +195,6 @@
         }
     }
 
-    // --- Modal Controllers ---
-    function showStatusModal(type, title, msg, autoClose) {
-        clearTimeout(autoCloseTimer);
-        const modal = document.getElementById('statusModal');
-        const container = document.getElementById('modalContainer');
-        const iconDiv = document.getElementById('modalIcon');
-        const closeBtn = document.getElementById('modalCloseBtn');
-        
-        document.getElementById('statusTitle').innerText = title;
-        document.getElementById('statusMsg').innerText = msg;
-
-        if (type === 'success') {
-            iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 pop-icon";
-            iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
-            closeBtn.classList.add('hidden');
-        } else {
-            iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 pop-icon";
-            iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
-            closeBtn.classList.remove('hidden');
-        }
-
-        modal.classList.replace('hidden', 'flex');
-        setTimeout(() => container.classList.replace('scale-95', 'scale-100'), 10);
-        if (autoClose) autoCloseTimer = setTimeout(() => closeStatusModal(), 1000);
-    }
-
-    function closeStatusModal() {
-        const modal = document.getElementById('statusModal');
-        const container = document.getElementById('modalContainer');
-        container.classList.replace('scale-100', 'scale-95');
-        setTimeout(() => modal.classList.replace('flex', 'hidden'), 150);
-    }
 
     function openFileModal(file) {
         const modal = document.getElementById('fileModal');
@@ -306,42 +277,6 @@
             background-color: #f3f4f6;
         }
     </style>
-
-    <script src="../assets/js/main.js"></script>
-
-    <script>
-    function initSearchableDropdowns() {
-
-        // REGION
-        const regionEl = document.querySelector('#regionSelect');
-        if (regionEl) {
-            if (regionEl.tomselect) {
-                regionEl.tomselect.destroy();
-            }
-
-            new TomSelect(regionEl, {
-                maxOptions: 200,
-                create: false
-            });
-        }
-
-        // BRANCH
-        const branchEl = document.querySelector('#branchSelect');
-        if (branchEl) {
-            if (branchEl.tomselect) {
-                branchEl.tomselect.destroy();
-            }
-
-            new TomSelect(branchEl, {
-                maxOptions: 500,
-                create: false
-            });
-        }
-    }
-
-   
-    </script>
-
     
 </body>
 </html>
