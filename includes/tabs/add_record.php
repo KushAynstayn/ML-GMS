@@ -10,10 +10,12 @@ $masterData = new MasterDataService();
 $loanTypes = $masterData->getLoanTypes();
 $regions = $masterData->getRegions();
 $branches = $masterData->getBranches();
+
+
 ?>
 
 
-<form id="loanForm" class="bg-white p-8 rounded-xl shadow-sm w-full max-w-full mx-auto">
+<form id="loanForm" method="POST" class="bg-white p-8 rounded-xl shadow-sm w-full max-w-full mx-auto">
     <div class="mb-8">
         <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">BASIC INFORMATION</h3>
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
@@ -55,12 +57,15 @@ $branches = $masterData->getBranches();
                     <?php endforeach; ?>
                 </select>
             </div>
+
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Branch</label>
                 <select id="branchSelect" name="branch_id" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
                     <option value="">Select Branch</option>
                     <?php foreach ($branches as $branch): ?>
-                        <option value="<?= $branch['branch_id'] ?>"><?= $branch['branch_name'] ?></option>
+                        <option value="<?= htmlspecialchars($branch['branch_id']) ?>">
+                            <?= htmlspecialchars($branch['branch_name']) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -106,7 +111,7 @@ $branches = $masterData->getBranches();
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Monthly Amortization</label>
                 <input type="text" id="resMonthly" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-red-600 font-bold text-sm font-mono">
-                <input type="hidden" name="monthly_amort" id="hiddenMonthly">
+                <input type="hidden" name="monthly_amortization" id="hiddenMonthly">
             </div>
             <div class="col-span-2 md:col-span-1">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">EIR</label>
@@ -122,7 +127,7 @@ $branches = $masterData->getBranches();
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Classification</label>
                 <select name="classification" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
-                    <option value="Owned">PRENDA</option>
+                    <option value="Prenda">PRENDA</option>
                     <option value="Pre-Owned">PRE OWNED</option>
                 </select>
             </div>
@@ -163,8 +168,7 @@ $branches = $masterData->getBranches();
     </div>
 </form>
 
-<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
 
 <style>
 .ts-wrapper.single .ts-control {
@@ -188,23 +192,3 @@ $branches = $masterData->getBranches();
 }
 </style>
 
-<script>
-function initSearchableDropdowns() {
-    if (document.querySelector('#regionSelect')) {
-        new TomSelect('#regionSelect', {
-            maxOptions: 200,
-            create: false
-        });
-    }
-
-    if (document.querySelector('#branchSelect')) {
-        new TomSelect('#branchSelect', {
-            maxOptions: 500,
-            create: false
-        });
-    }
-}
-
-// Call it immediately
-initSearchableDropdowns();
-</script>

@@ -61,7 +61,7 @@
                         $db = (new Database())->connect('LOAN');
 
                         $stmt = $db->prepare("
-                            SELECT id, account_name, reference_number, pn_date 
+                            SELECT loan_id, account_name, reference_number, pn_date 
                             FROM loans 
                             ORDER BY pn_date DESC
                         ");
@@ -71,14 +71,13 @@
                         if ($loans) {
                             foreach ($loans as $loan) {
 
-                                $loanId = $loan['id'];
+                                $loanId = $loan['loan_id'];
                                 $accountName = htmlspecialchars($loan['account_name']);
                                 $reference = htmlspecialchars($loan['reference_number']);
                                 $releaseDate = date("d/m/Y", strtotime($loan['pn_date']));
                     ?>
-                            <tr onclick="openAmortization('<?php echo $loanId; ?>')"
-                                class="hover:bg-pink-50 transition-colors group cursor-pointer">
-
+                            <tr onclick="viewAmortization('<?php echo $loanId; ?>')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                                
                                 <td class="px-6 py-4 text-sm text-gray-600">
                                     <?php echo $releaseDate; ?>
                                 </td>
@@ -114,22 +113,10 @@
 </div>
 
 <?php include('../includes/modals/amortization_modal.php'); ?>
+<script src="../assets/js/amortization.js"></script>
 
 <script>
-// Open Modal and Set Data
-function openAmortization(loanId) {
-    const modal = document.getElementById('amortizationModal');
 
-    // You can fetch loan details using AJAX here using loanId
-
-    document.getElementById('modalDispName').innerText = '';
-    document.getElementById('modalDispRef').innerText = '';
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    // TODO: AJAX call to fetch amortization schedule using loanId
-}
 
 // Close Modal (Already handled inside amortization_modal.php, but kept here for safety)
 function closeAmortization() {
