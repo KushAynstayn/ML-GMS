@@ -21,7 +21,7 @@ try {
 <div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
     <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
+    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
         <header class="mb-8">
             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">User <span class="text-red-600">Management</span></h2>
             <p class="text-gray-500 font-medium mt-2 mb-8">View, edit, and track system users.</p>
