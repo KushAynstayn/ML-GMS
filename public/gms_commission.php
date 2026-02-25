@@ -77,6 +77,12 @@
                         ['date' => '2026-02-15', 'ref' => 'REF-GMS005', 'name' => 'Crisostomo Ibarra', 'vehicle' => 'Car (Mitsubishi)', 'device' => 'MCCS Unit', 'rate' => '15%', 'val' => 3200, 'status' => 'partial', 'paid' => 1000, 'p_date' => '2026-02-16']
                     ];
 
+                    // --- ADDED SORTING LOGIC ---
+                    usort($records, function($a, $b) {
+                        return strtotime($b['date']) - strtotime($a['date']);
+                    });
+                    // ---------------------------
+
                     foreach ($records as $row): 
                         $status = strtolower($row['status']);
                         $statusColor = match($status) {
@@ -146,7 +152,6 @@ function filterTable() {
         const accountText = row.cells[2].textContent.toUpperCase();
         const deviceText = row.cells[4].textContent.toUpperCase();
         
-        // Date parsing (DD/MM/YYYY)
         const [day, month, year] = dateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);

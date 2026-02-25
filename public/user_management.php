@@ -7,6 +7,7 @@ if ($_SESSION['user_type'] !== 'admin') {
 }
 
 try {
+    // UPDATED: Sorted by date_created DESC (Newest to Oldest)
     $stmt = $loanConn->prepare("SELECT * FROM users ORDER BY date_created DESC");
     $stmt->execute();
     $users = $stmt->fetchAll();
@@ -180,7 +181,6 @@ function openEditModal(user) {
     document.getElementById('edit_fname').value = user.first_name;
     document.getElementById('edit_lname').value = user.last_name;
     
-    // Matches database column 'email'
     document.getElementById('edit_user').value = user.email; 
     
     document.getElementById('edit_type').value = user.user_type;
@@ -230,14 +230,11 @@ function filterTable() {
     let hasMatch = false;
 
     rows.forEach(row => {
-        // Mapping columns for User Management:
-        // cell[0] = ID, cell[1] = Username, cell[2] = Full Name, cell[4] = Date Created
         const idText = row.cells[0].textContent.toUpperCase();
         const userText = row.cells[1].textContent.toUpperCase();
         const nameText = row.cells[2].textContent.toUpperCase();
-        const dateCreatedStr = row.cells[4].textContent.trim(); // MM/DD/YYYY
+        const dateCreatedStr = row.cells[4].textContent.trim(); 
 
-        // Date Parsing
         const [m, d, y] = dateCreatedStr.split('/');
         const rowDate = new Date(y, m - 1, d);
         rowDate.setHours(0, 0, 0, 0);
@@ -255,10 +252,9 @@ function filterTable() {
             dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
         }
 
-        // Text Search Match (ID, Username, or Name)
         const textMatch = idText.includes(searchText) || 
-                          userText.includes(searchText) || 
-                          nameText.includes(searchText);
+                        userText.includes(searchText) || 
+                        nameText.includes(searchText);
 
         if (dateMatch && textMatch) {
             row.style.display = "";
@@ -268,10 +264,8 @@ function filterTable() {
         }
     });
 
-    // Show/Hide the "No Record Found" message
     document.getElementById('noRecordFound').classList.toggle('hidden', hasMatch);
 }
 
-// Trigger search on every keystroke
 document.getElementById('searchInput').addEventListener('keyup', filterTable);
 </script>

@@ -395,6 +395,10 @@ function showErrorModal(fields) {
     modal.classList.remove('hidden');
 }
 
+function closeErrorModal() {
+    document.getElementById('errorModal').classList.add('hidden');
+}
+
 // --- 2. The Submission Event Listener (KEEP THIS) ---
 document.addEventListener('submit', function (e) {
     if (e.target && e.target.id === 'loanForm') {
@@ -440,9 +444,9 @@ function showStatusModal(type, title, msg, shouldRefresh) {
     const iconDiv = document.getElementById('modalIcon');
     const closeBtn = document.getElementById('modalCloseBtn');
     
-    // Check if modal exists to prevent the "classList of null" error
+    // Check if modal exists
     if (!modal) {
-        console.error("saveRecordModal not found in DOM. Check your status_modal.php ID.");
+        console.error("saveRecordModal not found in DOM.");
         return;
     }
 
@@ -450,23 +454,38 @@ function showStatusModal(type, title, msg, shouldRefresh) {
     document.getElementById('statusTitle').innerText = title;
     document.getElementById('statusMsg').innerText = msg;
 
-    // 3. Set the icon and colors
+    // 3. Set the icon, colors, and handle the Timer/Button logic
     if (type === 'success') {
         iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 pop-icon";
         iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
+        
+        // --- HIDE BUTTON & START TIMER ---
+        closeBtn.style.display = 'none'; 
+        
+        setTimeout(() => {
+            if (shouldRefresh) {
+                window.location.reload();
+            } else {
+                closeStatusModal();
+            }
+        }, 1000); // 2-second timer
+
     } else {
         iconDiv.className = "mx-auto mb-4 flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 pop-icon";
         iconDiv.innerHTML = '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        
+        // Show button for errors so user can acknowledge
+        closeBtn.style.display = 'block'; 
     }
 
     // 4. Show the modal
     modal.classList.replace('hidden', 'flex');
     setTimeout(() => container.classList.replace('scale-95', 'scale-100'), 10);
 
-    // 5. Handle Refresh/Close
+    // 5. Handle Manual Close (for errors or if timer is skipped)
     closeBtn.onclick = () => {
         if (shouldRefresh && type === 'success') {
-            window.location.reload(); // Refresh the page to clear fields
+            window.location.reload();
         } else {
             closeStatusModal();
         }
@@ -478,7 +497,11 @@ function closeStatusModal() {
     if (modal) {
         const container = document.getElementById('modalContainer');
         container.classList.replace('scale-100', 'scale-95');
-        setTimeout(() => modal.classList.replace('flex', 'hidden'), 150);
+        setTimeout(() => {
+            modal.classList.replace('flex', 'hidden');
+            // Reset button display for the next time the modal opens
+            document.getElementById('modalCloseBtn').style.display = 'block';
+        }, 150);
     }
 }
 
@@ -531,7 +554,6 @@ document.addEventListener('DOMContentLoaded', function() {
         refInput.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
     }
 });
-
 
 
 

@@ -1,3 +1,25 @@
+<style>
+    /* This ensures the modal wrapper always fills the screen and centers the content */
+    #amortizationModal {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: none; /* Controlled by the 'hidden' class */
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* When 'hidden' is removed by your script, force flex display */
+    #amortizationModal:not(.hidden) {
+        display: flex !important;
+    }
+
+    /* Prevents the modal from jumping if the table is very long */
+    #amortizationModal > div {
+        margin: auto !important;
+    }
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
@@ -161,75 +183,81 @@ function closeAmortization() {
 }
 
 function exportData(format) {
-    if (typeof XLSX === 'undefined') {
-        alert("Excel library required.");
-        return;
-    }
-
-    const accountName = document.getElementById('modalDispName').innerText;
     const pnNumber = document.getElementById('modalDispRef').innerText;
-    const monthlyAmt = document.getElementById('modalDispMonthly').innerText; // Captured the missing value
-
-    // Capture LIVE values from input fields
-    const preparedByValue = document.getElementById('inputPreparedBy').value;
-    const checkedByValue = document.getElementById('inputCheckedBy').value;
-    const conforme1Value = document.getElementById('inputConforme1').value;
-    const conforme2Value = document.getElementById('inputConforme2').value;
 
     if (format === 'excel') {
-        if (typeof XLSX === 'undefined') {
-            alert("Excel library missing."); return;
-        }
-
         const wb = XLSX.utils.book_new();
+        
+        // --- 1. Data Collection ---
         const accountName = document.getElementById('modalDispName').innerText;
         const contactNum = document.getElementById('modalDispContact').innerText;
-        const loanAmount = parseFloat(document.getElementById('modalDispAmount').innerText.replace(/,/g, '')) || 0;
+        const loanAmt = document.getElementById('modalDispAmount').innerText;
         const term = document.getElementById('modalDispTerm').innerText;
-        const maturity = document.getElementById('modalDispMaturity').innerText;
-        const pnDate = document.getElementById('modalDispDate').innerText;
         const rate = document.getElementById('modalDispRate').innerText;
-        const monthly = parseFloat(document.getElementById('modalDispMonthly').innerText.replace(/,/g, '')) || 0;
+        const dateGrant = document.getElementById('modalDispDate').innerText;
+        const maturity = document.getElementById('modalDispMaturity').innerText;
+        const monthly = document.getElementById('modalDispMonthly').innerText;
 
-        const table = document.getElementById('amortizationTable');
-        const tbodyRows = table.querySelectorAll('tbody tr');
+        // --- 2. Styling Definitions ---
+        const s_Bold = { font: { bold: true, name: 'Arial', sz: 10 } };
+        const s_Header = { font: { bold: true }, alignment: { horizontal: "center" }, fill: { fgColor: { rgb: "F3F4F6" } } };
+        const s_Number = { numFmt: '#,##0.00', alignment: { horizontal: "right" } };
+        const s_Center = { alignment: { horizontal: "center" } };
 
-        const boldStyle = { font: { bold: true } };
-        const borderStyle = { border: { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } } };
-        const headerStyle = { font: { bold: true }, alignment: { horizontal: "center", vertical: "center" }, ...borderStyle };
-        const labelStyle = { font: { bold: true }, ...borderStyle };
-        const underlineStyle = { font: { bold: true, underline: true } };
-
+        // --- 3. Build the Matrix based on your reference ---
         const rows = [
-            [{ v: "Account Name :", s: boldStyle }, { v: accountName }],
-            [{ v: "Contact Number:", s: boldStyle }, { v: contactNum }],
-            [{ v: "PN Number :", s: boldStyle }, { v: pnNumber }, "", { v: "Loan Amount :", s: boldStyle }, { v: loanAmount, t: 'n', z: '#,##0.00' }],
-            [{ v: "PN Date :", s: boldStyle }, { v: pnDate }, "", { v: "Term :", s: boldStyle }, { v: term + " months" }],
-            [{ v: "PN Maturity :", s: boldStyle }, { v: maturity }, "", { v: "Interest Rate :", s: boldStyle }, { v: rate }],
-            [{ v: "", s: {} }, "", "", { v: "Monthly Amort:", s: boldStyle }, { v: monthly, t: 'n', z: '#,##0.00' }],
-            [],
-            [{ v: "#", s: headerStyle }, { v: "DATE", s: headerStyle }, { v: "PRINCIPAL", s: headerStyle }, { v: "INTEREST", s: headerStyle }, { v: "TOTAL", s: headerStyle }, { v: "BALANCE", s: headerStyle }]
+            /* Row 1 */ [{ v: "Account Name :", s: s_Bold }, { v: accountName, s: s_Bold }, "", "", "", ""],
+            /* Row 2 */ [{ v: "Contact Number", s: s_Bold }, { v: contactNum, s: s_Bold }, "", "", "", ""],
+            /* Row 3 */ [{ v: "Reference Number :", s: s_Bold }, { v: pnNumber }, { v: "Loan Amount(5% off) :", s: s_Bold }, { v: parseFloat(loanAmt.replace(/,/g,'')), s: s_Bold, t:'n', z:'#,##0.00' }, "", ""],
+            /* Row 4 */ [{ v: "Date Granted :", s: s_Bold }, { v: dateGrant }, { v: "Term :", s: s_Bold }, { v: term + " months", s: s_Bold }, "", ""],
+            /* Row 5 */ [{ v: "Maturity Date :", s: s_Bold }, { v: maturity }, { v: "Interest Rate (AOR)", s: s_Bold }, { v: rate, s: s_Bold }, "", ""],
+            /* Row 6 */ ["", "", { v: "Monthly Amortization", s: s_Bold }, { v: parseFloat(monthly.replace(/,/g,'')), s: s_Bold, t:'n', z:'#,##0.00' }, "", ""],
+            /* Row 7 */ ["", "", { v: "APPLICATION", s: s_Header }, "", "", ""], // Title Row
+            /* Row 8 */ [
+                { v: "#", s: s_Header }, 
+                { v: "DATE", s: s_Header }, 
+                { v: "PRINCIPAL", s: s_Header }, 
+                { v: "INTEREST", s: s_Header }, 
+                { v: "TOTAL AMOUNT", s: s_Header }, 
+                { v: "PRINCIPAL BALANCE", s: s_Header }, 
+                { v: "STATUS", s: s_Header }
+            ],
+            // Row 9: The initial balance row (Row before records start)
+            ["", "", "", "", "", { v: parseFloat(loanAmt.replace(/,/g,'')), s: s_Bold, t:'n', z:'#,##0.00' }, ""]
         ];
 
+        // --- 4. Append Table Records ---
+        const tbodyRows = document.querySelectorAll('#amortizationTableBody tr');
         tbodyRows.forEach((tr) => {
             const cols = tr.querySelectorAll('td');
-            if(cols.length >= 6) {
+            if (cols.length >= 6) {
                 rows.push([
-                    { v: cols[0]?.innerText || "" },
-                    { v: cols[1]?.innerText || "" },
-                    { v: parseFloat(cols[2]?.innerText.replace(/,/g, '')) || 0, t: 'n', z: '#,##0.00' },
-                    { v: parseFloat(cols[3]?.innerText.replace(/,/g, '')) || 0, t: 'n', z: '#,##0.00' },
-                    { v: parseFloat(cols[4]?.innerText.replace(/,/g, '')) || 0, t: 'n', z: '#,##0.00' },
-                    { v: parseFloat(cols[5]?.innerText.replace(/,/g, '')) || 0, t: 'n', z: '#,##0.00' }
+                    { v: cols[0]?.innerText || "", s: s_Center }, // #
+                    { v: cols[1]?.innerText || "", s: s_Center }, // Date
+                    { v: parseFloat(cols[2]?.innerText.replace(/,/g, '')) || 0, s: s_Number }, // Principal
+                    { v: parseFloat(cols[3]?.innerText.replace(/,/g, '')) || 0, s: s_Number }, // Interest
+                    { v: parseFloat(cols[4]?.innerText.replace(/,/g, '')) || 0, s: s_Number }, // Total
+                    { v: parseFloat(cols[5]?.innerText.replace(/,/g, '')) || 0, s: s_Number }, // Balance
+                    { v: cols[6]?.innerText || "", s: s_Center }  // Status
                 ]);
             }
         });
 
         const ws = XLSX.utils.aoa_to_sheet(rows);
+
+        // Merge cells for the "APPLICATION" header to span across Principal/Interest
+        ws['!merges'] = [
+            { s: { r: 6, c: 2 }, e: { r: 6, c: 3 } } // Merges C7:D7
+        ];
+
+        // Column Widths
+        ws['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 20 }, { wch: 12 }];
+
         XLSX.utils.book_append_sheet(wb, ws, "Amortization");
         XLSX.writeFile(wb, `Amortization_${pnNumber}.xlsx`);
 
     } else if (format === 'pdf') {
+        // ... (Keep your existing PDF logic)
         const element = document.getElementById('amortizationPrintArea');
         const opt = {
             margin: 0.5,

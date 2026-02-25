@@ -60,10 +60,11 @@
                     try {
                         $db = (new Database())->connect('LOAN');
 
+                        // Changed ORDER BY to loan_id DESC to show most recent entries first
                         $stmt = $db->prepare("
                             SELECT loan_id, account_name, reference_number, pn_date 
                             FROM loans 
-                            ORDER BY pn_date DESC
+                            ORDER BY loan_id DESC
                         ");
                         $stmt->execute();
                         $loans = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -116,16 +117,12 @@
 <script src="../assets/js/amortization.js"></script>
 
 <script>
-
-
-// Close Modal (Already handled inside amortization_modal.php, but kept here for safety)
 function closeAmortization() {
     const modal = document.getElementById('amortizationModal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
 }
 
-// Keep existing search/filter logic
 let dateMode = 'single';
 function setDateMode(mode) {
     dateMode = mode;
@@ -156,11 +153,12 @@ function filterTable() {
     let hasMatch = false;
 
     rows.forEach(row => {
+        if(row.cells.length < 3) return; // Skip empty message row
+
         const releaseDateStr = row.cells[0].textContent.trim();
         const nameText = row.cells[1].textContent.toUpperCase();
         const refText = row.cells[2].textContent.toUpperCase();
         
-        // Simple date parsing for DD/MM/YYYY
         const [day, month, year] = releaseDateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);
