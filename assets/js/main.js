@@ -483,5 +483,55 @@ function closeStatusModal() {
 }
 
 
+document.addEventListener('DOMContentLoaded', function() {
+    const refInput = document.getElementById('ref_no');
+    const errorDisplay = document.getElementById('ref-error');
+
+    if (refInput) {
+        refInput.addEventListener('input', function() {
+            // 1. Force Uppercase and limit to 11
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); 
+            
+            const val = this.value;
+
+            // 2. Clear errors if empty
+            if (val.length === 0) {
+                hideError();
+                return;
+            }
+
+            // 3. Trapping: Check if less than 11
+            if (val.length < 11) {
+                showError("Reference must be exactly 11 characters.");
+            } 
+            // 4. Trapping: If exactly 11, check Database
+            else if (val.length === 11) {
+                fetch(`../api/check_reference.php?ref=${val}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.exists) {
+                            showError("Reference number already exists in the database.");
+                        } else {
+                            hideError(); // Valid and Unique!
+                        }
+                    })
+                    .catch(err => console.error("Error checking reference:", err));
+            }
+        });
+    }
+
+    function showError(msg) {
+        errorDisplay.textContent = msg;
+        errorDisplay.classList.remove('hidden');
+        refInput.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+    }
+
+    function hideError() {
+        errorDisplay.classList.add('hidden');
+        refInput.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+    }
+});
+
+
 
 

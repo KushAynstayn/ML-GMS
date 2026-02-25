@@ -30,7 +30,14 @@ $branches = $masterData->getBranches();
             </div>
             <div class="col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Reference Number</label>
-                <input type="text" name="ref_no" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" 
+                    id="ref_no" 
+                    name="ref_no" 
+                    required 
+                    maxlength="11" 
+                    autocomplete="off"
+                    class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm transition-all">
+                <p id="ref-error" class="text-red-500 text-[10px] mt-1 hidden font-bold italic"></p>
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">First Name</label>
