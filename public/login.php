@@ -20,30 +20,30 @@ require_once __DIR__ . '/../includes/init.php';
          
          <div class="flex flex-col items-center mb-8">
             <div class="bg-red-600 p-3 rounded-2xl shadow-lg mb-4">
-                <img src="../assets/images/mlhuillier-red.png" alt="logo" class="w-12 h-12 brightness-0 invert">
+               <img src="../assets/images/mlhuillier-red.png" alt="logo" class="w-12 h-12 brightness-0 invert">
             </div>
             <h3 class="text-2xl font-extrabold text-gray-800 tracking-tight uppercase">ML Loans</h3>
          </div>
          
          <div class="space-y-4">
             <input type="text" 
-                   name="email" 
-                   placeholder="Enter your username" 
-                   class="w-full px-6 py-4 border border-gray-400 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition-all placeholder:text-gray-400 uppercase" 
-                   required>
+                  name="email" 
+                  placeholder="USERNAME" 
+                  class="w-full px-6 py-4 border border-gray-400 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition-all placeholder:text-gray-400 uppercase" 
+                  required>
             
             <input type="password" 
-                   name="password" 
-                   placeholder="Enter your password" 
-                   class="w-full px-6 py-4 border border-gray-400 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition-all placeholder:text-gray-400" 
-                   required>
+                  name="password" 
+                  placeholder="PASSWORD" 
+                  class="w-full px-6 py-4 border border-gray-400 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition-all placeholder:text-gray-400" 
+                  required>
          </div>
          
          <div class="mt-10">
             <button type="submit" 
-                    name="submit" 
-                    class="w-32 block mx-auto bg-black text-white font-bold py-3 rounded-full hover:bg-gray-800 transition-all shadow-md active:scale-95 text-sm tracking-widest">
-                LOGIN
+                  name="submit" 
+                  class="w-32 block mx-auto bg-black text-white font-bold py-3 rounded-full hover:bg-gray-800 transition-all shadow-md active:scale-95 text-sm tracking-widest">
+               LOGIN
             </button>
          </div>
          
@@ -65,9 +65,9 @@ require_once __DIR__ . '/../includes/init.php';
    <?php include '../includes/modals/change_password_modal.php'; ?>
 
    <script>
-       const sessionSuccess = "<?php echo $_SESSION['success_message'] ?? ''; ?>";
-       const sessionError = "<?php echo $_SESSION['error_message'] ?? ''; ?>";
-       const forceChange = <?php echo isset($_SESSION['force_password_change']) ? 'true' : 'false'; ?>;
+      const sessionSuccess = "<?php echo $_SESSION['success_message'] ?? ''; ?>";
+      const sessionError = "<?php echo $_SESSION['error_message'] ?? ''; ?>";
+      const forceChange = <?php echo isset($_SESSION['force_password_change']) ? 'true' : 'false'; ?>;
    </script>
    <script src="../assets/js/login.js"></script>
 </body>

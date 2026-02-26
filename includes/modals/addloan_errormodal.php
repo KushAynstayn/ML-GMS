@@ -15,7 +15,7 @@
             </ul>
         
         <button onclick="closeErrorModal()" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200">
-            Close and Fix
+            Close
         </button>
     </div>
 </div>
