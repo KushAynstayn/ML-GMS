@@ -32,37 +32,41 @@
             <div class="flex justify-between items-start">
                 <div class="flex items-center gap-2">
                     <button onclick="closeAmortization()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
                     </button>
                     <h3 class="text-xl font-bold text-gray-700">Monthly Amortization</h3>
                 </div>
-                
+
                 <div class="relative inline-block text-left shrink-0" id="amortizationDownloadDropdown">
                     <button onclick="toggleAmortizationDropdown()" class="flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 transition-all shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         Download
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
                     </button>
 
                     <div id="amortizationDropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-[60] overflow-hidden">
                         <div class="py-1">
                             <button onclick="exportData('excel')" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors">
-                                <span class="text-green-600 font-bold">EXCEL</span> 
+                                <span class="text-green-600 font-bold">EXCEL</span>
                             </button>
                             <button onclick="exportData('pdf')" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-t border-gray-100 transition-colors">
-                                <span class="text-red-600 font-bold">PDF</span> 
+                                <span class="text-red-600 font-bold">PDF</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-center">
+            <div class="flex flex-col items-center justify-center">
                 <img src="../assets/images/ml.png" id="mlLogo" alt="M Lhuillier" class="h-8">
+                <h4 class="text-sm font-semibold text-gray-500 mt-1">SECOND LEDGER</h4>
             </div>
-        </div>
 
         <div id="amortizationPrintArea" class="p-6 overflow-y-auto max-h-[70vh]">
             <div class="border border-gray-300 rounded-sm overflow-hidden text-black">
@@ -73,15 +77,19 @@
                         <div class="col-span-10 p-2 font-bold" id="modalDispName">---</div>
                     </div>
 
+                    
+
                     <div class="grid grid-cols-12 border-b border-gray-300">
                         <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Contact Number</div>
-                        <div class="col-span-10 p-2 font-bold" id="modalDispContact">---</div>
+                        <div class="col-span-4 p-2 border-r border-gray font-mono" id="modalDispContact">---</div>
+                        <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Loan Amount (Principal) :</div>
+                        <div class="col-span-3 p-2 font-bold text-right" id="">0.00</div>
                     </div>
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
                         <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Reference Number :</div>
                         <div class="col-span-4 p-2 border-r border-gray-300 font-mono" id="modalDispRef">---</div>
-                        <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Loan Amount(5% off) :</div>
+                        <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Amount (5% off) :</div>
                         <div class="col-span-3 p-2 font-bold text-right" id="modalDispAmount">0.00</div>
                     </div>
 

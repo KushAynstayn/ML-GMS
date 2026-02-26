@@ -2,24 +2,19 @@
 require_once __DIR__ . '/../../classes/database.php';
 require_once __DIR__ . '/../../classes/MasterDataService.php';
 
-
-
 use Cadc20239999\MlGms\MasterDataService;
 
 $masterData = new MasterDataService();
 $loanTypes = $masterData->getLoanTypes();
 $regions = $masterData->getRegions();
 $branches = $masterData->getBranches();
-
-
 ?>
-
 
 <form id="loanForm" method="POST" class="bg-white p-8 rounded-xl shadow-sm w-full max-w-full mx-auto">
     <div class="mb-8">
         <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">BASIC INFORMATION</h3>
-        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div class="col-span-2">
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-x-8 gap-y-4">
+            <div class="col-span-2 md:col-span-6">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Type of Loan</label>
                 <select id="loanType" name="loan_type_id" required class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm">
                     <option value="">Select Type</option>
@@ -28,7 +23,8 @@ $branches = $masterData->getBranches();
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-span-2">
+
+            <div class="col-span-2 md:col-span-6">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Reference Number</label>
                 <input type="text" 
                     id="ref_no" 
@@ -39,25 +35,28 @@ $branches = $masterData->getBranches();
                     class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm transition-all">
                 <p id="ref-error" class="text-red-500 text-[10px] mt-1 hidden font-bold italic"></p>
             </div>
-            <div>
+
+            <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">First Name</label>
-                <input type="text" name="first_name" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="first_name" required class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
-            <div>
+            <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Middle Name</label>
-                <input type="text" name="middle_name" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="middle_name" class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
-            <div>
+            <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Last Name</label>
-                <input type="text" name="last_name" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="last_name" required class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
-            <div>
+
+            <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Contact Number</label>
                 <input type="text" name="contact" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
-            <div>
+
+            <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Region</label>
-                <select id="regionSelect" name="region_id" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <select id="regionSelect" name="region_id" required class="w-full border border-gray-200 rounded-lg p-0 bg-white focus:outline-none text-sm">
                     <option value="">Select Region</option>
                     <?php foreach ($regions as $region): ?>
                         <option value="<?= $region['id'] ?>"><?= $region['region_description'] ?></option>
@@ -65,9 +64,9 @@ $branches = $masterData->getBranches();
                 </select>
             </div>
 
-            <div>
+            <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Branch</label>
-                <select id="branchSelect" name="branch_id" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <select id="branchSelect" name="branch_id" required class="w-full border border-gray-200 rounded-lg p-0 bg-white focus:outline-none text-sm">
                     <option value="">Select Branch</option>
                     <?php foreach ($branches as $branch): ?>
                         <option value="<?= htmlspecialchars($branch['branch_id']) ?>">
@@ -175,8 +174,6 @@ $branches = $masterData->getBranches();
     </div>
 </form>
 
-
-
 <style>
 .ts-wrapper.single .ts-control {
     border: 1px solid #e5e7eb;
@@ -186,16 +183,13 @@ $branches = $masterData->getBranches();
     min-height: 38px;
     box-shadow: none;
 }
-
 .ts-wrapper.single.focus .ts-control {
     border-color: #ef4444;
     box-shadow: 0 0 0 1px #ef4444;
 }
-
 .ts-dropdown {
     border-radius: 0.5rem;
     border: 1px solid #e5e7eb;
     font-size: 0.875rem;
 }
 </style>
-
