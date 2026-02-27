@@ -28,7 +28,9 @@ class LoanService {
         $fullName = strtoupper("{$data['last_name']}, {$data['first_name']} {$data['middle_name']}");
         
         // 2. Get the User ID from the session (ensure session_start() is called in init.php)
-        $currentUserId = $_SESSION['user_id'] ?? 1; // Fallback to 1 if not found
+        $creatorFirstName = $_SESSION['first_name'] ?? 'System';
+        $creatorLastName = $_SESSION['last_name'] ?? 'User';
+        $currentUserName = strtoupper("{$creatorLastName}, {$creatorFirstName}");
 
         $stmt = $this->db->prepare($sqlLoan);
         $stmt->execute([
@@ -48,26 +50,33 @@ class LoanService {
             $data['monthly_amortization'] ?? $data['monthly_amortization'], 
             $data['region_id'], 
             $data['branch_id'],
-            $currentUserId // This satisfies the 'created_by' INT requirement
+            $currentUserName
         ]);
 
         $loanId = $this->db->lastInsertId();
 
             // 2. Insert into 'car_loans' ONLY if it is a Car Loan
-            // Note: your JS sets 'is_car_loan' to '1' or '0'
             if (isset($data['is_car_loan']) && $data['is_car_loan'] == '1') {
-                $sqlCar = "INSERT INTO car_loans (
-                    loan_id, classification, device_installed, date_installed
-                ) VALUES (?, ?, ?, ?)";
-                
+            $loanTypeText = strtoupper(trim($data['loan_type_text'] ?? ''));
+
+            if ($loanTypeText === 'MOTOR LOAN') {
+                // Only insert loan_id, type, and date_installed
+                $sqlMotor = "INSERT INTO motor_loans (loan_id, type, date_installed) VALUES (?, ?, ?)";
+                $stmtMotor = $this->db->prepare($sqlMotor);
+                $stmtMotor->execute([
+                    $loanId, 
+                    $data['vehicle_type'], 
+                    $data['date_installed'] ?: null
+                ]);
+            } else if ($loanTypeText === 'CAR LOAN') {
+                $sqlCar = "INSERT INTO car_loans (loan_id, date_installed) VALUES (?, ?)";
                 $stmtCar = $this->db->prepare($sqlCar);
                 $stmtCar->execute([
                     $loanId, 
-                    $data['classification'], 
-                    $data['device_installed'], 
-                    ($data['device_installed'] === 'YES' ? $data['date_installed'] : null)
+                    $data['date_installed'] ?: null
                 ]);
             }
+        }
 
             // 3. Generate Schedule
             $this->generateAmortization($loanId, $data);
@@ -81,6 +90,102 @@ class LoanService {
             }
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
+    }
+
+
+    public function saveImportedRecord($data, $amortizationRows): array{
+        try {
+            $this->db->beginTransaction();
+
+            $fullName = strtoupper($data['account_name']);
+            $creatorFirstName = $_SESSION['first_name'] ?? 'System';
+            $creatorLastName = $_SESSION['last_name'] ?? 'User';
+            $currentUserName = strtoupper("{$creatorLastName}, {$creatorFirstName}");
+
+            // Insert into loans
+            $sqlLoan = "INSERT INTO loans (
+                reference_number, loan_type_id, account_name, contact_number, 
+                pn_date, pn_maturity_date, principal_amount, term_months, 
+                dealer_incentive, net_proceeds, interest_rate, eir, 
+                monthly_amortization, region_id, branch_id, created_by, source
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            $stmt = $this->db->prepare($sqlLoan);
+            $stmt->execute([
+                $data['reference_number'],
+                $data['loan_type_id'],
+                $fullName,
+                $data['contact_number'],
+                $data['pn_date'],
+                $data['pn_maturity_date'],
+                $data['principal_amount'],
+                $data['term_months'],
+                $data['dealer_incentive'],
+                $data['net_proceeds'],
+                $data['interest_rate'],
+                $data['eir'],
+                $data['monthly_amortization'],
+                $data['region_id'],
+                $data['branch_id'],
+                $currentUserName,
+                'import'
+            ]);
+
+            $loanId = $this->db->lastInsertId();
+
+            // Insert into motor_loans / car_loans
+            if ($data['loan_type_text'] === 'MOTOR LOAN') {
+                $stmtMotor = $this->db->prepare("
+                    INSERT INTO motor_loans (loan_id, type, date_installed, date_created)
+                    VALUES (?, ?, ?, NOW())
+                ");
+                $stmtMotor->execute([
+                    $loanId,
+                    $data['vehicle_type'],
+                    $data['date_installed'] ?: null
+                ]);
+
+            } else if ($data['loan_type_text'] === 'CAR LOAN') {
+                $stmtCar = $this->db->prepare("
+                    INSERT INTO car_loans (loan_id, date_installed, date_created)
+                    VALUES (?, ?, NOW())
+                ");
+                $stmtCar->execute([
+                    $loanId,
+                    $data['date_installed'] ?: null
+                ]);
+            }
+
+            // Insert amortization schedule
+            $stmtSchedule = $this->db->prepare("
+                INSERT INTO amortization_schedule
+                (loan_id, payment_number, due_date, beginning_balance, 
+                principal, interest, ending_balance, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            foreach ($amortizationRows as $row) {
+                $stmtSchedule->execute([
+                    $loanId,
+                    $row['payment_number'],
+                    $row['due_date'],
+                    $row['beginning_balance'],
+                    $row['principal'],
+                    $row['interest'],
+                    $row['ending_balance'],
+                    $row['status']
+                ]);
+            }
+
+            $this->db->commit();
+            return ['status' => 'success', 'loan_id' => $loanId];
+
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+        
     }
 
     private function generateAmortization($loan_id, $data) {

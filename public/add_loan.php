@@ -44,6 +44,18 @@ include_once '../includes/modals/status_modal.php';
         </div>
     </div>
 
+
+    <!-- Import Status Modal -->
+    <div id="importModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[999]">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4"></h2>
+            <p id="modalMessage" class="mb-6 text-gray-700"></p>
+            <div class="text-right">
+                <button onclick="closeImportModal()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">OK</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
@@ -82,8 +94,8 @@ include_once '../includes/modals/status_modal.php';
                     const form = document.getElementById('loanForm');
                     if (form) {
                         // Ensure we don't have duplicate listeners
-                        form.removeEventListener('submit', handleFormSubmit); 
-                        form.addEventListener('submit', handleFormSubmit);
+                        //form.removeEventListener('submit', handleFormSubmit); 
+                        //form.addEventListener('submit', handleFormSubmit);
                     }
                 }, 50);
             }
@@ -125,7 +137,7 @@ include_once '../includes/modals/status_modal.php';
         const fileInput = document.getElementById('fileInput');
         if(!fileInput) return;
         fileInput.value = "";
-        document.getElementById('uploadTitle').innerText = "Upload Loan Releases file";
+        document.getElementById('uploadTitle').innerText = "Upload File";
         document.getElementById('fileNameDisplay').innerText = "Click to browse your computer";
         const selectBtn = document.getElementById('selectBtn');
         if (selectBtn) {
@@ -137,17 +149,105 @@ include_once '../includes/modals/status_modal.php';
         if (cancelBtn) cancelBtn.classList.add('hidden');
     }
 
+    // --- Upload Logic (Dynamic Tab Safe) ---
+    document.addEventListener('click', function(e) {
+
+        if (e.target && e.target.id === 'uploadBtn') {
+
+            const fileInput = document.getElementById('fileInput');
+
+            // If fileInput doesn't exist, do nothing
+            if (!fileInput) return;
+
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file first.");
+                return;
+            }
+
+            const allowedExtensions = ['xls', 'xlsx'];
+            const extension = file.name.split('.').pop().toLowerCase();
+
+            if (!allowedExtensions.includes(extension)) {
+                alert("Only Excel files (.xls, .xlsx) are allowed.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('loan_file', file);
+
+            e.target.disabled = true;
+            e.target.innerText = "PROCESSING...";
+
+            fetch('../actions/process_import.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                // Re-enable the button
+                e.target.disabled = false;
+                e.target.innerText = "UPLOAD";
+
+                const modal = document.getElementById('importModal');
+                const title = document.getElementById('modalTitle');
+                const msg = document.getElementById('modalMessage');
+
+                if (result.trim() === "success") {
+                    // SUCCESS CASE
+                    title.innerText = "Import Successful!";
+                    title.className = "text-2xl font-bold text-center mb-2 text-green-600";
+                    msg.innerText = "The loan records have been added to the database.";
+                    resetFileInput(); // Clear the file input
+                } else {
+                    // ERROR CASE
+                    title.innerText = "Import Failed";
+                    title.className = "text-2xl font-bold text-center mb-2 text-red-600";
+                    msg.innerText = "Error: " + result;
+                }
+
+                // SHOW THE MODAL NOW
+                modal.classList.replace('hidden', 'flex');
+            })
+            .catch(error => {
+                alert("System error. Check console.");
+                e.target.disabled = false;
+                e.target.innerText = "UPLOAD";
+            });
+
+        }
+
+    });
+
+     function closeImportModal() {
+        document.getElementById('importModal').classList.replace('flex', 'hidden');
+        // We refresh ONLY when the user clicks "Done" so they can see the new data
+        window.location.reload();
+    }
+    
+
     // --- Scanning Logic ---
     document.addEventListener('click', async function(e) {
         if (e.target && e.target.id === 'uploadBtn') {
+
             const fileInput = document.getElementById('fileInput');
-            const loanType = document.getElementById('loanTypeSelect').value;
+            const loanTypeElement = document.getElementById('loanTypeSelect');
+
+            // Only run scanning if loanTypeSelect exists (Add Record tab)
+            if (!loanTypeElement) return;
+
+            const loanType = loanTypeElement.value;
+
             if (!loanType || !fileInput.files.length) {
                 showStatusModal('error', 'Missing Information', 'Please select a loan type and a file.', false);
                 return;
             }
+
             const file = fileInput.files[0];
-            file.type === "application/pdf" ? scanPDF(file, loanType) : scanExcel(file, loanType);
+            file.type === "application/pdf"
+                ? scanPDF(file, loanType)
+                : scanExcel(file, loanType);
         }
     });
 
@@ -240,6 +340,7 @@ include_once '../includes/modals/status_modal.php';
             reader.readAsArrayBuffer(file);
         }
     }
+
     </script>
 
     <style>

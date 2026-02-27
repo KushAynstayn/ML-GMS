@@ -16,6 +16,7 @@ async function viewAmortization(loanId) {
             document.getElementById('modalDispName').innerText = loan.account_name;
             document.getElementById('modalDispRef').innerText = loan.reference_number;
             document.getElementById('modalDispContact').innerText = loan.contact_number;
+            document.getElementById('modalDispPrincipal').innerText = formatCurrency(loan.principal_amount);
             
             // This displays 224,276.00 instead of 236,080.00
             document.getElementById('modalDispAmount').innerText = formatCurrency(loan.net_proceeds);

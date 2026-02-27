@@ -127,28 +127,21 @@ $branches = $masterData->getBranches();
         </div>
     </div>
 
+    <input type="hidden" name="is_car_loan" id="is_car_loan_flag" value="0">
+    <input type="hidden" name="loan_type_text" id="loan_type_text_flag" value="">
+
     <div id="vehicleFields" class="hidden mb-8">
         <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">VEHICLE DETAILS</h3>
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div>
-                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Classification</label>
-                <select name="classification" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
-                    <option value="Prenda">PRENDA</option>
-                    <option value="Pre-Owned">PRE OWNED</option>
+            <div id="motorTypeDiv" class="hidden">
+                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Motorcycle Type</label>
+                <select name="vehicle_type" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white text-sm focus:outline-none">
+                    <option readonly value="">Select Type</option>
+                    <option value="2-WHEELS">2-WHEELS</option>
+                    <option value="3-WHEELS">3-WHEELS</option>
                 </select>
             </div>
-            <div>
-                <label class="text-xs font-semibold text-gray-500 mb-2 block uppercase tracking-wider">Device Installed</label>
-                <div class="flex gap-6">
-                    <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="radio" name="device_installed" value="YES" class="device-radio accent-red-600"> <span class="text-gray-700">YES</span>
-                    </label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="radio" name="device_installed" value="NO" class="device-radio accent-red-600" checked> <span class="text-gray-700">NO</span>
-                    </label>
-                </div>
-            </div>
-            <div id="dateInstalledDiv" class="hidden">
+            <div id="dateInstalledDiv">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Installed</label>
                 <input type="date" name="date_installed" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
