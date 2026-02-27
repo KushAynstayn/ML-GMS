@@ -27,9 +27,6 @@ function initSearchableDropdowns() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
-
-document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
@@ -37,8 +34,6 @@ document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
 function initLoanCalculator() {
     const loanTypeSelect = document.getElementById('loanType');
     const vehicleFields = document.getElementById('vehicleFields');
-    const deviceRadios = document.querySelectorAll('.device-radio');
-    const dateInstalledDiv = document.getElementById('dateInstalledDiv');
 
     const loanAmtInp = document.getElementById('calcLoanAmount');
     const termInp = document.getElementById('calcTerm');
@@ -55,29 +50,35 @@ function initLoanCalculator() {
     // 1. TOGGLE VEHICLE SECTION
     // =============================
     function toggleVehicleSection() {
-        const selectedText = loanTypeSelect.options[loanTypeSelect.selectedIndex].text.trim();
-        
-        // We also want to send a flag to PHP so it knows whether to insert into car_loans
-        let isCarLoanInput = document.getElementById('is_car_loan_flag');
-        if (!isCarLoanInput) {
-            isCarLoanInput = document.createElement('input');
-            isCarLoanInput.type = 'hidden';
-            isCarLoanInput.name = 'is_car_loan';
-            isCarLoanInput.id = 'is_car_loan_flag';
-            loanTypeSelect.form.appendChild(isCarLoanInput);
+        const selectedOption = loanTypeSelect.options[loanTypeSelect.selectedIndex];
+        if (!selectedOption) return; // Safety check
+
+        const selectedText = selectedOption.text.trim().toUpperCase();
+        const motorTypeDiv = document.getElementById('motorTypeDiv');
+        const carLoanFlag = document.getElementById('is_car_loan_flag');
+        const loanTypeTextFlag = document.getElementById('loan_type_text_flag');
+
+        // 1. Safe assignment for Loan Type Text
+        if (loanTypeTextFlag) {
+            loanTypeTextFlag.value = selectedText;
+        } else {
+            console.error("loan_type_text_flag not found in DOM");
         }
 
-        if (selectedText === 'Car Loan' || selectedText === 'Motor Loan') {
+        if (selectedText === 'CAR LOAN' || selectedText === 'MOTOR LOAN') {
             vehicleFields.classList.remove('hidden');
-            isCarLoanInput.value = '1';
+            
+            // 2. Safe assignment for Car Loan Flag
+            if (carLoanFlag) carLoanFlag.value = '1';
+
+            if (selectedText === 'MOTOR LOAN') {
+                if (motorTypeDiv) motorTypeDiv.classList.remove('hidden');
+            } else {
+                if (motorTypeDiv) motorTypeDiv.classList.add('hidden');
+            }
         } else {
             vehicleFields.classList.add('hidden');
-            isCarLoanInput.value = '0';
-
-            if (dateInstalledDiv) dateInstalledDiv.classList.add('hidden');
-
-            const noRadio = document.querySelector('input[name="device_installed"][value="NO"]');
-            if (noRadio) noRadio.checked = true;
+            if (carLoanFlag) carLoanFlag.value = '0';
         }
     }
 
@@ -90,18 +91,6 @@ function initLoanCalculator() {
         calculateLoan();
     });
 
-    // =============================
-    // 2. DEVICE RADIO TOGGLE
-    // =============================
-    deviceRadios.forEach(radio => {
-        radio.addEventListener('change', function () {
-            if (this.value === 'YES') {
-                dateInstalledDiv.classList.remove('hidden');
-            } else {
-                dateInstalledDiv.classList.add('hidden');
-            }
-        });
-    });
 
     // =============================
     // 3. CALCULATION LISTENERS

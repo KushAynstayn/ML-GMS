@@ -11,3 +11,14 @@ Thumbs.db
 # Ignore all SQL exports
 *.sql
 /vendor/
+
+# --- NEW: Ignore Uploaded/Processed Files ---
+# This ensures your storage folders stay empty in Git
+/storage/imports/*
+/storage/processed/*
+/storage/failed/*
+
+# Optional: keep the folders themselves in Git but ignore the contents
+!/storage/imports/.gitkeep
+!/storage/processed/.gitkeep
+!/storage/failed/.gitkeep

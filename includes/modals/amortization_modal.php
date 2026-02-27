@@ -36,7 +36,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
                     </button>
-                    <h3 class="text-xl font-bold text-gray-700">Monthly Amortization</h3>
                 </div>
 
                 <div class="relative inline-block text-left shrink-0" id="amortizationDownloadDropdown">
@@ -81,28 +80,28 @@
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
                         <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Contact Number</div>
-                        <div class="col-span-4 p-2 border-r border-gray font-mono" id="modalDispContact">---</div>
+                        <div class="col-span-4 p-2 border-r border-gray font-bold" id="modalDispContact">---</div>
                         <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Loan Amount (Principal) :</div>
-                        <div class="col-span-3 p-2 font-bold text-right" id="">0.00</div>
+                        <div class="col-span-3 p-2 font-bold text-right" id="modalDispPrincipal">0.00</div>
                     </div>
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
                         <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Reference Number :</div>
-                        <div class="col-span-4 p-2 border-r border-gray-300 font-mono" id="modalDispRef">---</div>
+                        <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispRef">---</div>
                         <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Amount (5% off) :</div>
                         <div class="col-span-3 p-2 font-bold text-right" id="modalDispAmount">0.00</div>
                     </div>
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
                         <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Date Granted :</div>
-                        <div class="col-span-4 p-2 border-r border-gray-300" id="modalDispDate">---</div>
+                        <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispDate">---</div>
                         <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Term :</div>
                         <div class="col-span-3 p-2 text-right font-bold"><span id="modalDispTerm">0</span> <span class="text-gray-400 font-normal">months</span></div>
                     </div>
 
                     <div class="grid grid-cols-12 border-b border-gray-300">
                         <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Maturity Date :</div>
-                        <div class="col-span-4 p-2 border-r border-gray-300" id="modalDispMaturity">---</div>
+                        <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispMaturity">---</div>
                         <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Interest Rate (AOR)</div>
                         <div class="col-span-3 p-2 text-right font-bold" id="modalDispRate">0%</div>
                     </div>

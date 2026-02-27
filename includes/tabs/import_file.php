@@ -1,17 +1,5 @@
 <div class="w-full">
-    <div class="mb-6">
-        <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Type of Loan</label>
-        <select id="loanTypeSelect" class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm">
-            <option value="">Select Type</option>
-            <option value="Car Loan">Car Loan</option>
-            <option value="Motor Loan">Motor Loan</option>
-            <option value="Home Loan">Home Loan</option>
-            <option value="Salary Loan">Salary Loan</option>
-            <option value="Personal Property Loan">Personal Property Loan</option>
-            <option value="Real Estate Loan">Real Estate Loan</option>
-        </select>
-    </div>
-
+    
     <div class="bg-white p-12 rounded-xl shadow-sm border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-center">
         <div class="bg-yellow-100 p-4 rounded-lg mb-4">
             <svg class="w-10 h-10 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
@@ -19,10 +7,10 @@
             </svg>
         </div>
         
-        <p id="uploadTitle" class="font-bold text-gray-700">Upload Loan Releases file</p>
+        <p id="uploadTitle" class="font-bold text-gray-700">Upload Files</p>
         <p id="fileNameDisplay" class="text-sm text-gray-400 mb-6">Click to browse your computer</p>
         
-        <input type="file" id="fileInput" accept=".pdf, .xls, .xlsx" style="display: none;">
+        <input type="file" id="fileInput" name="loan_file" accept=".xls,.xlsx" style="display: none;">
         
         <div class="flex gap-2">
             <button id="cancelBtn" onclick="resetFileInput()" class="hidden bg-red-100 text-red-600 px-6 py-2 rounded-lg font-bold hover:bg-red-200 transition-colors">
@@ -50,3 +38,4 @@
         </div>
     </div>
 </div>
+
