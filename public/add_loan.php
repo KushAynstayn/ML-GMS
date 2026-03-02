@@ -14,7 +14,7 @@ include_once '../includes/modals/status_modal.php';
     <div class="flex flex-1 overflow-hidden">
         <?php include('../includes/sidebar.php'); ?>
 
-        <main class="flex-1 p-8 overflow-y-auto custom-scrollbar">
+        <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
             <header class="mb-6">
                 <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add <span class="text-red-600">Loan</span></h2>
     <p class="text-gray-500 font-medium mt-2 mb-8">Fill out the details below to register a new loan application.</p>
