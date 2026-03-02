@@ -22,7 +22,7 @@ $hasTabs = $current_config['has_tabs'];
 <div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
     <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto custom-scrollbar">
+    <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
         <header class="mb-6">
             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
                 <?php echo $current_config['title']; ?> <span class="text-red-600">Loans</span>
