@@ -1,14 +1,46 @@
-<?php include('../includes/header.php'); ?>
+<?php 
+include('../includes/header.php'); 
+require_once '../vendor/autoload.php';
+use Cadc20239999\MlGms\Database;
+
+$type = $_GET['type'] ?? 'car'; 
+
+$loan_configs = [
+    'car'         => ['title' => 'Car', 'has_tabs' => true],
+    'motor'       => ['title' => 'Motor', 'has_tabs' => true, 'show_wheels' => true],
+    'home'        => ['title' => 'Home', 'has_tabs' => false],
+    'salary'      => ['title' => 'Salary', 'has_tabs' => false],
+    'personal'    => ['title' => 'Personal Property', 'has_tabs' => false],
+    'realestate'  => ['title' => 'Real Estate', 'has_tabs' => false]
+];
+
+$current_config = $loan_configs[$type] ?? $loan_configs['car'];
+$isMotor = ($type === 'motor');
+$hasTabs = $current_config['has_tabs'];
+?>
 
 <div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
-    
     <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
-        <header class="mb-8">
-            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">All <span class="text-red-600">Loans</span></h2>
-            <p class="text-gray-500 font-medium mt-2 mb-8">View and track the status of all existing loan records.</p>
+    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto custom-scrollbar">
+        <header class="mb-6">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+                <?php echo $current_config['title']; ?> <span class="text-red-600">Loans</span>
+            </h2>
+            <p class="text-gray-500 font-medium mt-2 mb-8">View and track the status of <?php echo strtolower($current_config['title']); ?> loan records.</p>
 
+            <?php if ($hasTabs): ?>
+            <div class="flex gap-8 border-b border-gray-200 mb-8">
+                <button onclick="switchLedger('primary', this)" 
+                        class="ledger-tab-btn pb-2 font-semibold text-red-600 border-b-2 border-red-600 transition-all">
+                    Primary Ledger
+                </button>
+                <button onclick="switchLedger('secondary', this)" 
+                        class="ledger-tab-btn pb-2 font-semibold text-gray-500 hover:text-red-600 transition-all">
+                    Secondary Ledger
+                </button>
+            </div>
+            <?php endif; ?>
 
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex-1 min-w-[200px] relative">
@@ -18,94 +50,60 @@
                     </svg>
                 </div>
 
+                <?php if ($isMotor): ?>
+                <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500">
+                    <select id="wheelFilter" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer text-xs font-bold uppercase">
+                        <option value="">All Wheels</option>
+                        <option value="2-WHEELS">2-Wheels</option>
+                        <option value="3-WHEELS">3-Wheels</option>
+                    </select>
+                </div>
+                <?php endif; ?>
+
                 <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
                     <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-red-600 shadow-sm">Single Date</button>
                     <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
                 </div>
 
                 <div class="flex shrink-0 items-center gap-3">
-                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors">
+                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500">
                         <span id="dateLabel" class="text-xs font-bold uppercase">Date</span>
-                        <input type="date" id="startDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-sm">
+                        <input type="date" id="startDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer text-sm">
                     </div>
                     
-                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors">
+                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500">
                         <span class="text-xs font-bold uppercase">To</span>
-                        <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-sm">
+                        <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer text-sm">
                     </div>
                 </div>
             </div>
         </header>
 
         <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-700">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span class="font-medium">No records found matching your selection.</span>
         </div>
         
         <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
             <table class="w-full text-left" id="loansTable">
-                <thead class="bg-red-600 border-b border-red-700">
+                <thead class="bg-red-600">
                     <tr>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Released</th>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Account Name</th>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Reference Number</th>
+                        <?php if ($isMotor): ?>
+                            <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Wheel Type</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
-                    <?php
-                    require_once '../vendor/autoload.php';
-
-                    use Cadc20239999\MlGms\Database;
-
-                    try {
-                        $db = (new Database())->connect('LOAN');
-
-                        // Changed ORDER BY to loan_id DESC to show most recent entries first
-                        $stmt = $db->prepare("
-                            SELECT loan_id, account_name, reference_number, pn_date 
-                            FROM loans 
-                            ORDER BY loan_id DESC
-                        ");
-                        $stmt->execute();
-                        $loans = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        if ($loans) {
-                            foreach ($loans as $loan) {
-
-                                $loanId = $loan['loan_id'];
-                                $accountName = htmlspecialchars($loan['account_name']);
-                                $reference = htmlspecialchars($loan['reference_number']);
-                                $releaseDate = date("d/m/Y", strtotime($loan['pn_date']));
-                    ?>
-                            <tr onclick="viewAmortization('<?php echo $loanId; ?>')" class="hover:bg-pink-50 transition-colors group cursor-pointer">
-                                
-                                <td class="px-6 py-4 text-sm text-gray-600">
-                                    <?php echo $releaseDate; ?>
-                                </td>
-
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-700">
-                                    <?php echo $accountName; ?>
-                                </td>
-
-                                <td class="px-6 py-4 text-sm font-mono text-gray-500">
-                                    <?php echo $reference; ?>
-                                </td>
-
-                            </tr>
-                    <?php
-                            }
+                    <?php 
+                        // Default to Primary Ledger for all pages
+                        $primaryFile = dirname(__DIR__) . '/includes/primary_ledger.php';
+                        if (file_exists($primaryFile)) {
+                            include($primaryFile);
                         } else {
-                    ?>
-                            <tr>
-                                <td colspan="3" class="px-6 py-6 text-center text-gray-400 text-sm">
-                                    No loan records found.
-                                </td>
-                            </tr>
-                    <?php
+                            echo "<tr><td colspan='5' class='p-10 text-center text-gray-400 italic'>No records found.</td></tr>";
                         }
-                    } catch (Exception $e) {
-                        echo "<tr><td colspan='3' class='px-6 py-6 text-center text-red-500 text-sm'>No Records Found.</td></tr>";
-                    }
                     ?>
                 </tbody>
             </table>
@@ -117,13 +115,9 @@
 <script src="../assets/js/amortization.js"></script>
 
 <script>
-function closeAmortization() {
-    const modal = document.getElementById('amortizationModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
-
+// Date and Filtering logic remains the same...
 let dateMode = 'single';
+
 function setDateMode(mode) {
     dateMode = mode;
     const toContainer = document.getElementById('toDateContainer');
@@ -145,46 +139,76 @@ function setDateMode(mode) {
     filterTable(); 
 }
 
+function switchLedger(tabName, element) {
+    const tableBody = document.getElementById('tableBody');
+    const loanType = "<?php echo $type; ?>";
+
+    document.querySelectorAll('.ledger-tab-btn').forEach(btn => {
+        btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+        btn.classList.add('text-gray-500');
+    });
+    element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+    element.classList.remove('text-gray-500');
+
+    tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">Updating records...</td></tr>';
+
+    fetch(`../includes/${tabName}_ledger.php?type=${loanType}`)
+        .then(response => response.text())
+        .then(html => {
+            tableBody.innerHTML = html;
+            filterTable(); 
+        })
+        .catch(err => {
+            tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">No records found.</td></tr>';
+        });
+}
+
 function filterTable() {
     const searchText = document.getElementById('searchInput').value.toUpperCase();
     const startDateValue = document.getElementById('startDate').value;
     const endDateValue = document.getElementById('endDate').value;
+    const wheelValue = document.getElementById('wheelFilter')?.value.toUpperCase() || "";
+
     const rows = document.querySelectorAll('#tableBody tr');
-    let hasMatch = false;
+    let visibleRows = 0;
 
     rows.forEach(row => {
-        if(row.cells.length < 3) return; // Skip empty message row
+        if(row.cells.length < 3) return; 
 
-        const releaseDateStr = row.cells[0].textContent.trim();
+        const dateText = row.cells[0].textContent.trim();
         const nameText = row.cells[1].textContent.toUpperCase();
         const refText = row.cells[2].textContent.toUpperCase();
         
-        const [day, month, year] = releaseDateStr.split('/');
-        const rowDate = new Date(year, month - 1, day);
-        rowDate.setHours(0, 0, 0, 0);
-
-        const filterStart = startDateValue ? new Date(startDateValue) : null;
-        if(filterStart) filterStart.setHours(0,0,0,0);
-
-        const filterEnd = endDateValue ? new Date(endDateValue) : null;
-        if(filterEnd) filterEnd.setHours(0,0,0,0);
-
         let dateMatch = true;
-        if (dateMode === 'single' && filterStart) {
-            dateMatch = rowDate.getTime() === filterStart.getTime();
-        } else if (dateMode === 'range' && filterStart && filterEnd) {
-            dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
+        if (startDateValue) {
+            const [d, m, y] = dateText.split('/');
+            const rowDate = new Date(y, m - 1, d).setHours(0,0,0,0);
+            const start = new Date(startDateValue).setHours(0,0,0,0);
+            
+            if (dateMode === 'single') {
+                dateMatch = rowDate === start;
+            } else if (endDateValue) {
+                const end = new Date(endDateValue).setHours(0,0,0,0);
+                dateMatch = rowDate >= start && rowDate <= end;
+            }
+        }
+
+        let wheelMatch = true;
+        if (wheelValue !== "" && row.cells[3]) {
+            wheelMatch = row.cells[3].textContent.toUpperCase().includes(wheelValue);
         }
 
         const textMatch = nameText.includes(searchText) || refText.includes(searchText);
-        if (dateMatch && textMatch) {
+        
+        if (textMatch && wheelMatch && dateMatch) {
             row.style.display = "";
-            hasMatch = true;
+            visibleRows++;
         } else {
             row.style.display = "none";
         }
     });
-    document.getElementById('noRecordFound').classList.toggle('hidden', hasMatch);
+
+    document.getElementById('noRecordFound').classList.toggle('hidden', visibleRows > 0 || rows.length === 0);
 }
 
 document.getElementById('searchInput').addEventListener('keyup', filterTable);
