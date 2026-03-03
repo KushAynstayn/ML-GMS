@@ -133,7 +133,7 @@ include('../includes/header.php');
     
     <main class="flex-1 p-8 lg:p-12 overflow-y-auto animate-content">
         
-        <header class="relative glass-panel p-10 rounded-[3rem] mb-8 overflow-hidden">
+        <header class="relative bg-white/5 border border-white/10 p-10 rounded-[3rem] mb-8 overflow-hidden">
             <div class="header-content-inner">
                 <div class="flex items-center gap-4 mb-2">
                     <span class="h-1 w-12 bg-red-500 rounded-full"></span>
@@ -169,8 +169,9 @@ include('../includes/header.php');
                     </div>
                 </div>
 
-                <div id="headerLogo" class="hidden lg:block absolute right-4 top-1/2 -translate-y-1/2 scale-100 opacity-60 pointer-events-none">
-                    <img src="../assets/images/mlcircle.png" alt="Logo" class="w-56 h-56 object-contain drop-shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+                <div id="headerLogo" class="hidden lg:block absolute right-4 top-1/2 -translate-y-1/2 scale-100 opacity-100 pointer-events-none">
+                    <img src="../assets/images/mlcircle.png" alt="Logo" 
+                        class="w-64 h-64 object-contain drop-shadow-[0_0_40px_rgba(239,68,68,0.8)] brightness-110">
                 </div>
             </div>  
         </header>
