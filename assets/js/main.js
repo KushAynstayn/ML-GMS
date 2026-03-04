@@ -181,94 +181,207 @@ function getEIRRate(nper, pmt, pv, guess = 0.01) {
     return rate;
 }
 
+
+
+
 function calculateLoan() {
+
     const loanAmtInp = document.getElementById('calcLoanAmount');
     const termInp = document.getElementById('calcTerm');
     const dateGrantedInp = document.getElementById('calcDateGranted');
-    const loanTypeSelect = document.getElementById('loanType');
+    const dateInstalledInp = document.getElementById('dateInstalled'); // GMS trigger
+    if (dateInstalledInp) {
+        dateInstalledInp.addEventListener('change', calculateLoan);
+        // Also trigger on 'input' for better compatibility with some datepickers
+        dateInstalledInp.addEventListener('input', calculateLoan); 
+    }
 
     if (!loanAmtInp || !termInp) return;
 
-    const loanAmount = parseFloat(loanAmtInp.value) || 0;
+    const principal = parseFloat(loanAmtInp.value) || 0;
     const term = parseInt(termInp.value) || 0;
-    const dateGranted = dateGrantedInp.value;
+    const dateGranted = dateGrantedInp?.value || "";
 
     const resMaturity = document.getElementById('resMaturity');
-    const resIncentive = document.getElementById('resIncentive');
-    const resNetLoan = document.getElementById('resNetLoan');
-    const resAOR = document.getElementById('resAOR');
     const resMonthly = document.getElementById('resMonthly');
+    const resAOR = document.getElementById('resAOR');
     const resEIR = document.getElementById('resEIR');
 
-    // 1. Calculate Maturity Date
+    const hiddenIncentive = document.getElementById('hiddenIncentive');
+    const hiddenNetProceeds = document.getElementById('hiddenNetProceeds');
+    const hiddenMonthly = document.getElementById('hiddenMonthly');
+    const hiddenSecondaryMonthly = document.getElementById('hiddenSecondaryMonthly');
+    const hiddenEIR = document.getElementById('hiddenEIR');
+    const hiddenMaturity = document.getElementById('hiddenMaturity');
+    const hiddenAOR = document.getElementById('hiddenAOR');
+
+    const flatRate = 0.02; // 2% monthly flat
+
+    if (principal <= 0 || term <= 0) return;
+
+    // ===============================
+    // 1️⃣ MATURITY DATE
+    // ===============================
+
     if (dateGranted && term > 0) {
         let d = new Date(dateGranted);
         d.setMonth(d.getMonth() + term);
+
         const dd = String(d.getDate()).padStart(2, '0');
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const yyyy = d.getFullYear();
-        resMaturity.value = `${mm}/${dd}/${yyyy}`;
-        document.getElementById('hiddenMaturity').value = `${yyyy}-${mm}-${dd}`;
+
+        if (resMaturity) resMaturity.value = `${mm}/${dd}/${yyyy}`;
+        if (hiddenMaturity) hiddenMaturity.value = `${yyyy}-${mm}-${dd}`;
     } else {
         if (resMaturity) resMaturity.value = "";
     }
 
-    // 2. Calculations (Reducing Balance Fix)
-    if (loanAmount > 0 && term > 0) {
-        const incentive = loanAmount * 0.05;           // 5% incentive
-        const netLoan = loanAmount - incentive;        // Loan after incentive
-        const flatRate = 0.02;                         // 2% monthly FLAT
-        const monthlyInterest = netLoan * flatRate;    // Constant monthly interest
+    // =====================================================
+    // 2️⃣ PRIMARY LEDGER (AMORTIZED - REDUCING BALANCE)
+    // =====================================================
 
-        // Generate reducing balance schedule
-        let balance = netLoan;
-        const monthlyPayment = (netLoan + monthlyInterest * term) / term; // Initial monthly
-        const amortizationSchedule = [];
+    const monthlyRate = 0.02;
+
+    // Proper amortized monthly payment formula
+    const primaryMonthlyPayment = Number(
+        (
+            (principal * monthlyRate) /
+            (1 - Math.pow(1 + monthlyRate, -term))
+        ).toFixed(2)
+    );
+
+    let primaryBalance = Number(principal.toFixed(2));
+    const primarySchedule = [];
+
+    for (let i = 1; i <= term; i++) {
+
+        let interest = Number((primaryBalance * monthlyRate).toFixed(2));
+        let principalPayment = Number(
+            (primaryMonthlyPayment - interest).toFixed(2)
+        );
+
+        // Final month adjustment
+        if (i === term || principalPayment >= primaryBalance) {
+            principalPayment = primaryBalance;
+            interest = Number((primaryMonthlyPayment - principalPayment).toFixed(2));
+            if (interest < 0) interest = 0;
+        }
+
+        let endingBalance = Number(
+            (primaryBalance - principalPayment).toFixed(2)
+        );
+
+        if (endingBalance < 0) endingBalance = 0;
+
+        primarySchedule.push({
+            payment_number: i,
+            principal: principalPayment,
+            interest: interest,
+            total_payment: primaryMonthlyPayment,
+            ending_balance: endingBalance,
+            status: 'UNPAID',
+            due_date: getDueDate(dateGranted, i)
+        });
+
+        primaryBalance = endingBalance;
+    }
+
+    // Display Primary Results
+    if (resMonthly) resMonthly.value = primaryMonthlyPayment.toFixed(2);
+    if (hiddenMonthly) hiddenMonthly.value = primaryMonthlyPayment.toFixed(2);
+
+    const aorDisplay = flatRate * term * 100;
+    if (resAOR) resAOR.value = aorDisplay.toFixed(2) + "%";
+    if (hiddenAOR) hiddenAOR.value = aorDisplay.toFixed(2);
+
+    const computedEIRPrimary = getEIRRate(term, -primaryMonthlyPayment, principal);
+    const eirPercentagePrimary = computedEIRPrimary * 100;
+
+    if (resEIR) resEIR.value = eirPercentagePrimary.toFixed(6) + "%";
+    if (hiddenEIR) hiddenEIR.value = eirPercentagePrimary.toFixed(6);
+
+    renderAmortizationTable(primarySchedule);
+
+    // =====================================================
+    // 3️⃣ SECONDARY LEDGER (ONLY IF GMS)
+    // =====================================================
+
+    const isGMS = dateInstalledInp && dateInstalledInp.value.trim() !== "";
+    console.log("Is GMS active?", isGMS); // Debug line
+
+    if (isGMS) {
+
+        const incentive = Number((principal * 0.05).toFixed(2));
+        const netLoan = Number((principal - incentive).toFixed(2));
+
+        const secondaryMonthlyPayment = Number(
+            (
+                (netLoan * monthlyRate) /
+                (1 - Math.pow(1 + monthlyRate, -term))
+            ).toFixed(2)
+        );
+        console.log("Calculated Secondary Monthly:", secondaryMonthlyPayment);
+
+        if (hiddenSecondaryMonthly) {
+            hiddenSecondaryMonthly.value = secondaryMonthlyPayment.toFixed(2);
+        }
+
+        let secondaryBalance = netLoan;
+        const secondarySchedule = [];
 
         for (let i = 1; i <= term; i++) {
-            let principal = monthlyPayment - monthlyInterest;
 
-            // Last month adjustment
-            if (i === term) {
-                principal = balance;
+            let interest = Number((secondaryBalance * monthlyRate).toFixed(2));
+
+            let principalPayment = Number(
+                (secondaryMonthlyPayment - interest).toFixed(2)
+            );
+
+            // Final month adjustment
+            if (i === term || principalPayment >= secondaryBalance) {
+                principalPayment = secondaryBalance;
+                interest = Number((secondaryMonthlyPayment - principalPayment).toFixed(2));
+                if (interest < 0) interest = 0;
             }
 
-            balance -= principal;
+            let endingBalance = Number(
+                (secondaryBalance - principalPayment).toFixed(2)
+            );
 
-            amortizationSchedule.push({
+            if (endingBalance < 0) endingBalance = 0;
+
+            secondarySchedule.push({
                 payment_number: i,
-                principal: principal,
-                interest: monthlyInterest,
-                ending_balance: balance >= 0 ? balance : 0,
+                principal: principalPayment,
+                interest: interest,
+                total_payment: secondaryMonthlyPayment,
+                ending_balance: endingBalance,
                 status: 'UNPAID',
                 due_date: getDueDate(dateGranted, i)
             });
+
+            secondaryBalance = endingBalance;
         }
 
-        // Monthly payment (first month standard, last month may differ)
-        const monthly = monthlyPayment;
+        if (hiddenIncentive) hiddenIncentive.value = incentive.toFixed(2);
+        if (hiddenNetProceeds) hiddenNetProceeds.value = netLoan.toFixed(2);
+        if (hiddenSecondaryMonthly) hiddenSecondaryMonthly.value = secondaryMonthlyPayment.toFixed(2);
 
-        // AOR and EIR calculations
-        const aorDisplay = flatRate * term * 100;
-        const computedEIR = getEIRRate(term, -monthly, netLoan); // Your Excel-equivalent function
-        const eirPercentage = computedEIR * 100;
+        // 🔹 Store secondarySchedule when saving record
+        window.secondaryLedger = secondarySchedule;
 
-        // Update result fields
-        resIncentive.value = incentive.toFixed(2);
-        resNetLoan.value = netLoan.toFixed(2);
-        resAOR.value = aorDisplay.toFixed(2) + "%";
-        resMonthly.value = monthly.toFixed(2);
-        resEIR.value = eirPercentage.toFixed(6) + "%";
+    } else {
 
-        document.getElementById('hiddenIncentive').value = incentive.toFixed(2);
-        document.getElementById('hiddenNetProceeds').value = netLoan.toFixed(2);
-        document.getElementById('hiddenAOR').value = (aorDisplay / 100).toFixed(4);
-        document.getElementById('hiddenMonthly').value = monthly.toFixed(2);
-        document.getElementById('hiddenEIR').value = eirPercentage.toFixed(6);
-
-        // Optional: render amortization table immediately (if modal exists)
-        renderAmortizationTable(amortizationSchedule);
+        if (hiddenIncentive) hiddenIncentive.value = "0.00";
+        if (hiddenNetProceeds) hiddenNetProceeds.value = principal.toFixed(2);
+        if (hiddenSecondaryMonthly) hiddenSecondaryMonthly.value = "";
+    
+        window.secondaryLedger = [];
     }
+
+    // 🔹 Store primary ledger globally for save function
+    window.primaryLedger = primarySchedule;
 }
 
 // Helper: calculate each payment's due date

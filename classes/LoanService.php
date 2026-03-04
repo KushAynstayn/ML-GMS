@@ -5,84 +5,142 @@ use Exception;
 use DateTime;
 
 class LoanService {
+
     private $db;
 
     public function __construct() {
-        // Ensure Database class is available or required
         $this->db = (new Database())->connect('LOAN');
     }
 
-
+    /* ============================================================
+       SAVE MANUAL RECORD
+    ============================================================ */
     public function saveManualRecord($data) {
         try {
             $this->db->beginTransaction();
 
-        // 1. Fixed SQL: removed NOW() because created_by is an INT (User ID)
-        $sqlLoan = "INSERT INTO loans (
-            reference_number, loan_type_id, account_name, contact_number, 
-            pn_date, pn_maturity_date, principal_amount, term_months, 
-            dealer_incentive, net_proceeds, interest_rate, eir, 
-            monthly_amortization, region_id, branch_id, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Added a ? for created_by
+            $creatorFirstName = $_SESSION['first_name'] ?? 'System';
+            $creatorLastName  = $_SESSION['last_name'] ?? 'User';
+            $currentUserName  = strtoupper("{$creatorLastName}, {$creatorFirstName}");
 
-        $fullName = strtoupper("{$data['last_name']}, {$data['first_name']} {$data['middle_name']}");
-        
-        // 2. Get the User ID from the session (ensure session_start() is called in init.php)
-        $creatorFirstName = $_SESSION['first_name'] ?? 'System';
-        $creatorLastName = $_SESSION['last_name'] ?? 'User';
-        $currentUserName = strtoupper("{$creatorLastName}, {$creatorFirstName}");
+            // Detect GMS (if date_installed exists)
+            $isGMS = !empty($data['date_installed']);
 
-        $stmt = $this->db->prepare($sqlLoan);
-        $stmt->execute([
-            $data['ref_no'], 
-            $data['loan_type_id'], 
-            $fullName, 
-            $data['contact'],
-            $data['date_granted'], 
-            $data['maturity_date'], 
-            $data['principal'], 
-            $data['term'],
-            $data['incentive'], 
-            $data['net_proceeds'], 
-            $data['aor'], 
-            $data['eir'],
-            // 3. Match the key from your save_loan.php cleaning logic
-            $data['monthly_amortization'] ?? $data['monthly_amortization'], 
-            $data['region_id'], 
-            $data['branch_id'],
-            $currentUserName
-        ]);
+            $principal = round((float)$data['principal'], 2);
 
-        $loanId = $this->db->lastInsertId();
+            $dealerIncentive = $isGMS 
+                ? round($principal * 0.05, 2) 
+                : 0.00;
 
-            // 2. Insert into 'car_loans' ONLY if it is a Car Loan
-            if (isset($data['is_car_loan']) && $data['is_car_loan'] == '1') {
-            $loanTypeText = strtoupper(trim($data['loan_type_text'] ?? ''));
+            $netProceeds = $isGMS 
+                ? round($principal - $dealerIncentive, 2) 
+                : $principal;
+            $eir = $isGMS ? (float)$data['eir'] : null;
 
-            if ($loanTypeText === 'MOTOR LOAN') {
-                // Only insert loan_id, type, and date_installed
-                $sqlMotor = "INSERT INTO motor_loans (loan_id, type, date_installed) VALUES (?, ?, ?)";
-                $stmtMotor = $this->db->prepare($sqlMotor);
+
+            $secondaryMonthly = $isGMS
+                ? round((float)($data['secondary_monthly'] ?? 0), 2)
+                : null;
+
+            /* ============================
+               INSERT INTO LOANS
+            ============================ */
+            $sqlLoan = "INSERT INTO loans (
+                reference_number,
+                loan_type_id,
+                first_name,
+                middle_name,
+                last_name,
+                contact_number,
+                pn_date,
+                pn_maturity_date,
+                principal_amount,
+                term_months,
+                dealer_incentive,
+                net_proceeds,
+                interest_rate,
+                eir,
+                monthly_amortization,
+                secondary_monthly,
+                region_name,
+                source,
+                status,
+                date_created,
+                created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'active', NOW(), ?)";
+
+            $stmt = $this->db->prepare($sqlLoan);
+            $stmt->execute([
+                $data['ref_no'],
+                $data['loan_type_id'],
+                strtoupper($data['first_name']),
+                strtoupper($data['middle_name'] ?? ''),
+                strtoupper($data['last_name']),
+                $data['contact'],
+                $data['date_granted'],
+                $data['maturity_date'],
+                $principal,
+                $data['term'],
+                $dealerIncentive,
+                $netProceeds,
+                $data['aor'],
+                $eir,
+                $data['monthly_amortization'],
+                $secondaryMonthly,
+                $data['region_name'] ?? '',
+                $currentUserName
+            ]);
+
+            $loanId = $this->db->lastInsertId();
+
+            /* ============================
+               INSERT VEHICLE TABLE
+            ============================ */
+            if ($data['loan_type_text'] === 'MOTOR LOAN') {
+                $stmtMotor = $this->db->prepare("
+                    INSERT INTO motor_loans (loan_id, type, date_installed, gps_provider, date_created)
+                    VALUES (?, ?, ?, ?, NOW())
+                ");
                 $stmtMotor->execute([
-                    $loanId, 
-                    $data['vehicle_type'], 
-                    $data['date_installed'] ?: null
-                ]);
-            } else if ($loanTypeText === 'CAR LOAN') {
-                $sqlCar = "INSERT INTO car_loans (loan_id, date_installed) VALUES (?, ?)";
-                $stmtCar = $this->db->prepare($sqlCar);
-                $stmtCar->execute([
-                    $loanId, 
-                    $data['date_installed'] ?: null
+                    $loanId,
+                    $data['vehicle_type'],
+                    $data['date_installed'] ?: null,
+                    $isGMS ? 'GMS' : null
                 ]);
             }
-        }
 
-            // 3. Generate Schedule
-            $this->generateAmortization($loanId, $data);
+            if ($data['loan_type_text'] === 'CAR LOAN') {
+                $stmtCar = $this->db->prepare("
+                    INSERT INTO car_loans (loan_id, date_installed, gps_provider, date_created)
+                    VALUES (?, ?, ?, NOW())
+                ");
+                $stmtCar->execute([
+                    $loanId,
+                    $data['date_installed'] ?: null,
+                    $isGMS ? 'GMS' : null
+                ]);
+            }
+
+            /* ============================
+               GENERATE PRIMARY LEDGER
+            ============================ */
+            $this->generatePrimaryLedger($loanId, $data);
+
+            /* ============================
+               GENERATE SECONDARY (IF GMS)
+            ============================ */
+            if ($isGMS) {
+                $this->generateSecondaryLedger($loanId, [
+                    'net_proceeds'       => $netProceeds,
+                    'secondary_monthly'  => $secondaryMonthly,
+                    'term'               => $data['term'],
+                    'date_granted'       => $data['date_granted']
+                ]);
+            }
 
             $this->db->commit();
-            return ['status' => 'success', 'loan_id' => $loanId, 'message' => 'Record saved successfully!'];
+
+            return ['status' => 'success', 'loan_id' => $loanId];
 
         } catch (\Exception $e) {
             if ($this->db->inTransaction()) {
@@ -92,137 +150,280 @@ class LoanService {
         }
     }
 
+    /* ============================================================
+    PRIMARY LEDGER (AMORTIZATION MATCHING EXCEL)
+    ============================================================ */
+    private function generatePrimaryLedger($loanId, $data) {
+        $balance = round((float)$data['principal'], 2);
+        $monthly = round((float)$data['monthly_amortization'], 2);
+        $term = (int)$data['term']; // e.g., 48, 36, 24
+        $startDate = new DateTime($data['date_granted']);
+        
+        // To match your Excel, the rate must be applied to the REMAINING balance
+        $monthlyRate = 0.02; 
+
+        for ($i = 1; $i <= $term; $i++) {
+            $startDate->modify('+1 month');
+
+            // If balance is already 0 from previous overpayment, everything else is 0
+            if ($balance <= 0) {
+                $interest = 0.00;
+                $principal = 0.00;
+                $ending_balance = 0.00;
+            } else {
+                // 1. Interest is calculated on current balance (decreases over time)
+                $interest = round($balance * $monthlyRate, 2);
+                
+                // 2. Principal is the rest of the fixed monthly payment (increases over time)
+                $principal = round($monthly - $interest, 2);
+
+                // 3. Final Month or Early Payoff Check
+                if ($i === $term || $principal >= $balance) {
+                    $principal = $balance; 
+                    $ending_balance = 0.00;
+                    // Re-calculate interest to keep the 'Total Amount' consistent in the final row
+                    $interest = round($monthly - $principal, 2);
+                    if ($interest < 0) $interest = 0.00;
+                } else {
+                    $ending_balance = round($balance - $principal, 2);
+                }
+            }
+
+            $this->saveToLedger('primary_ledger', $loanId, $i, $startDate->format('Y-m-d'), $balance, $principal, $interest, $ending_balance);
+
+            $balance = $ending_balance;
+        }
+    }
+
+    /* ============================================================
+    SECONDARY LEDGER (AMORTIZATION MATCHING EXCEL)
+    ============================================================ */
+    private function generateSecondaryLedger($loanId, $data) {
+        $balance = round((float)$data['net_proceeds'], 2);
+        $monthly = round((float)$data['secondary_monthly'], 2);
+        $term = (int)$data['term'];
+        $startDate = new DateTime($data['date_granted']);
+        $monthlyRate = 0.02;
+
+        for ($i = 1; $i <= $term; $i++) {
+            $startDate->modify('+1 month');
+
+            if ($balance <= 0) {
+                $interest = 0.00;
+                $principal = 0.00;
+                $ending_balance = 0.00;
+            } else {
+                $interest = round($balance * $monthlyRate, 2);
+                $principal = round($monthly - $interest, 2);
+
+                if ($i === $term || $principal >= $balance) {
+                    $principal = $balance;
+                    $ending_balance = 0.00;
+                    $interest = round($monthly - $principal, 2);
+                    if ($interest < 0) $interest = 0.00;
+                } else {
+                    $ending_balance = round($balance - $principal, 2);
+                }
+            }
+
+            $this->saveToLedger('secondary_ledger', $loanId, $i, $startDate->format('Y-m-d'), $balance, $principal, $interest, $ending_balance);
+
+            $balance = $ending_balance;
+        }
+    }
+
+    private function saveToLedger($table, $loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal) {
+        $sql = "INSERT INTO $table 
+                (loan_id, installment_no, due_date, beginning_balance, principal, interest, ending_balance, status, date_created) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'unpaid', NOW())";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal]);
+    }
+
 
     public function saveImportedRecord($data, $amortizationRows): array{
         try {
             $this->db->beginTransaction();
 
-            $fullName = strtoupper($data['account_name']);
             $creatorFirstName = $_SESSION['first_name'] ?? 'System';
-            $creatorLastName = $_SESSION['last_name'] ?? 'User';
-            $currentUserName = strtoupper("{$creatorLastName}, {$creatorFirstName}");
+            $creatorLastName  = $_SESSION['last_name'] ?? 'User';
+            $currentUserName  = strtoupper("{$creatorLastName}, {$creatorFirstName}");
 
-            // Insert into loans
+            // Detect GMS tagging from Excel
+            $isGMS = !empty($data['gms']) || !empty($data['date_installed']);
+
+            /* ============================================================
+            SANITIZE NUMERIC VALUES
+            ============================================================ */
+
+            $principal       = round((float)$data['principal_amount'], 2);
+            $term            = (int)$data['term_months'];
+            $monthly         = round((float)$data['monthly_amortization'], 2);
+            $dealerIncentive = $isGMS ? round((float)($data['dealer_incentive'] ?? 0), 2) : 0.00;
+            $netProceeds     = $isGMS
+                ? round((float)($data['net_proceeds'] ?? ($principal - $dealerIncentive)), 2)
+                : $principal;
+
+            $interestRate = isset($data['interest_rate'])
+                ? round((float)$data['interest_rate'], 6)
+                : 0.00;
+
+            $eir = $isGMS && isset($data['eir'])
+                ? round((float)$data['eir'], 6)
+                : null;
+
+            /* ============================================================
+            INSERT INTO LOANS
+            ============================================================ */
+
             $sqlLoan = "INSERT INTO loans (
-                reference_number, loan_type_id, account_name, contact_number, 
-                pn_date, pn_maturity_date, principal_amount, term_months, 
-                dealer_incentive, net_proceeds, interest_rate, eir, 
-                monthly_amortization, region_id, branch_id, created_by, source
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                reference_number,
+                loan_type_id,
+                first_name,
+                middle_name,
+                last_name,
+                contact_number,
+                pn_date,
+                pn_maturity_date,
+                principal_amount,
+                term_months,
+                dealer_incentive,
+                net_proceeds,
+                interest_rate,
+                eir,
+                monthly_amortization,
+                region_name,
+                source,
+                status,
+                date_created,
+                created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'import', 'active', NOW(), ?)";
 
             $stmt = $this->db->prepare($sqlLoan);
             $stmt->execute([
                 $data['reference_number'],
                 $data['loan_type_id'],
-                $fullName,
+                strtoupper($data['first_name']),
+                strtoupper($data['middle_name'] ?? ''),
+                strtoupper($data['last_name']),
                 $data['contact_number'],
                 $data['pn_date'],
                 $data['pn_maturity_date'],
-                $data['principal_amount'],
-                $data['term_months'],
-                $data['dealer_incentive'],
-                $data['net_proceeds'],
-                $data['interest_rate'],
-                $data['eir'],
-                $data['monthly_amortization'],
-                $data['region_id'],
-                $data['branch_id'],
-                $currentUserName,
-                'import'
+                $principal,
+                $term,
+                $dealerIncentive,
+                $netProceeds,
+                $interestRate,
+                $eir,
+                $monthly,
+                $data['region_name'] ?? '',
+                $currentUserName
             ]);
 
             $loanId = $this->db->lastInsertId();
 
-            // Insert into motor_loans / car_loans
+            /* ============================================================
+            INSERT VEHICLE TABLES
+            ============================================================ */
+
             if ($data['loan_type_text'] === 'MOTOR LOAN') {
+
                 $stmtMotor = $this->db->prepare("
-                    INSERT INTO motor_loans (loan_id, type, date_installed, date_created)
-                    VALUES (?, ?, ?, NOW())
+                    INSERT INTO motor_loans
+                    (loan_id, type, date_installed, gps_provider, date_created)
+                    VALUES (?, ?, ?, ?, NOW())
                 ");
+
                 $stmtMotor->execute([
                     $loanId,
-                    $data['vehicle_type'],
-                    $data['date_installed'] ?: null
-                ]);
-
-            } else if ($data['loan_type_text'] === 'CAR LOAN') {
-                $stmtCar = $this->db->prepare("
-                    INSERT INTO car_loans (loan_id, date_installed, date_created)
-                    VALUES (?, ?, NOW())
-                ");
-                $stmtCar->execute([
-                    $loanId,
-                    $data['date_installed'] ?: null
+                    $data['vehicle_type'] ?? null,
+                    $data['date_installed'] ?? null,
+                    $isGMS ? 'GMS' : null
                 ]);
             }
 
-            // Insert amortization schedule
-            $stmtSchedule = $this->db->prepare("
-                INSERT INTO amortization_schedule
-                (loan_id, payment_number, due_date, beginning_balance, 
-                principal, interest, ending_balance, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            foreach ($amortizationRows as $row) {
-                $stmtSchedule->execute([
+            if ($data['loan_type_text'] === 'CAR LOAN') {
+
+                $stmtCar = $this->db->prepare("
+                    INSERT INTO car_loans
+                    (loan_id, date_installed, gps_provider, date_created)
+                    VALUES (?, ?, ?, NOW())
+                ");
+
+                $stmtCar->execute([
                     $loanId,
-                    $row['payment_number'],
-                    $row['due_date'],
-                    $row['beginning_balance'],
-                    $row['principal'],
-                    $row['interest'],
-                    $row['ending_balance'],
-                    $row['status']
+                    $data['date_installed'] ?? null,
+                    $isGMS ? 'GMS' : null
+                ]);
+            }
+
+            /* ============================================================
+            INSERT PRIMARY LEDGER (FROM EXCEL — NO RECOMPUTE)
+            ============================================================ */
+
+            foreach ($amortizationRows as $row) {
+
+                $installmentNo     = (int)$row['payment_number'];
+                $dueDate           = $row['due_date'];
+                $beginningBalance  = round((float)$row['beginning_balance'], 2);
+                $principalPayment  = round((float)$row['principal'], 2);
+                $interestPayment   = round((float)$row['interest'], 2);
+                $endingBalance     = round((float)$row['ending_balance'], 2);
+                $status            = strtolower($row['status'] ?? 'unpaid');
+
+                $stmtPrimary = $this->db->prepare("
+                    INSERT INTO primary_ledger
+                    (loan_id, installment_no, due_date, beginning_balance,
+                    principal, interest, ending_balance, status, date_created)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                ");
+
+                $stmtPrimary->execute([
+                    $loanId,
+                    $installmentNo,
+                    $dueDate,
+                    $beginningBalance,
+                    $principalPayment,
+                    $interestPayment,
+                    $endingBalance,
+                    $status
+                ]);
+            }
+
+            /* ============================================================
+            GENERATE SECONDARY LEDGER (ONLY IF GMS)
+            THIS IS CALCULATED SERVER-SIDE
+            ============================================================ */
+
+            if ($isGMS) {
+
+                $this->generateSecondaryLedger($loanId, [
+                    'net_proceeds'        => $netProceeds,
+                    'secondary_monthly'=> $data['secondary_monthly'] ?? $monthly,
+                    'term'                => $term,
+                    'date_granted'        => $data['pn_date']
                 ]);
             }
 
             $this->db->commit();
-            return ['status' => 'success', 'loan_id' => $loanId];
+
+            return [
+                'status' => 'success',
+                'loan_id' => $loanId
+            ];
 
         } catch (Exception $e) {
+
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }
-            return ['status' => 'error', 'message' => $e->getMessage()];
-        }
-        
-    }
 
-    private function generateAmortization($loan_id, $data) {
-        $balance = round((float)$data['net_proceeds'], 2);
-        $monthly = round((float)$data['monthly_amortization'], 2);
-        $startDate = new DateTime($data['date_granted']);
-        $monthly_eir = (float)$data['eir'] / 100;
-
-        for ($i = 1; $i <= (int)$data['term']; $i++) {
-            $startDate->modify('+1 month');
-            
-            // Interest based on fixed AOR logic
-            $interest = round($balance * $monthly_eir, 2);
-            $principal = round($monthly - $interest, 2);
-            $ending_balance = round($balance - $principal, 2);
-
-            // On the last month, force the balance to zero to handle rounding cents
-            if ($i == (int)$data['term']) {
-                $ending_balance = 0.00;
-                $principal = $balance;
-            }
-
-            $stmt = $this->db->prepare("INSERT INTO amortization_schedule 
-                (loan_id, payment_number, due_date, beginning_balance, principal, interest, ending_balance) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)");
-            
-            $stmt->execute([
-                $loan_id, 
-                $i, 
-                $startDate->format('Y-m-d'), 
-                $balance, 
-                $principal, 
-                $interest, 
-                $ending_balance
-            ]);
-            
-            $balance = $ending_balance;
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         }
     }
 }
+
+
