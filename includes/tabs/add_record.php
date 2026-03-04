@@ -63,18 +63,6 @@ $branches = $masterData->getBranches();
                     <?php endforeach; ?>
                 </select>
             </div>
-
-            <div class="col-span-2 md:col-span-2">
-                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Branch</label>
-                <select id="branchSelect" name="branch_id" required class="w-full border border-gray-200 rounded-lg p-0 bg-white focus:outline-none text-sm">
-                    <option value="">Select Branch</option>
-                    <?php foreach ($branches as $branch): ?>
-                        <option value="<?= htmlspecialchars($branch['branch_id']) ?>">
-                            <?= htmlspecialchars($branch['branch_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
         </div>
     </div>
 
@@ -99,12 +87,12 @@ $branches = $masterData->getBranches();
                 <input type="hidden" name="maturity_date" id="hiddenMaturity">
             </div>
 
-            <div class="mt-2">
+            <div class="mt-2 hidden">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Dealer's Incentives (5%)</label>
                 <input type="text" id="resIncentive" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
                 <input type="hidden" name="incentive" id="hiddenIncentive">
             </div>
-            <div class="mt-2">
+            <div class="mt-2 hidden">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Loan Amount with 5% off</label>
                 <input type="text" id="resNetLoan" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
                 <input type="hidden" name="net_proceeds" id="hiddenNetProceeds">
@@ -119,7 +107,10 @@ $branches = $masterData->getBranches();
                 <input type="text" id="resMonthly" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-red-600 font-bold text-sm font-mono">
                 <input type="hidden" name="monthly_amortization" id="hiddenMonthly">
             </div>
-            <div class="col-span-2 md:col-span-1">
+
+            <input type="hidden" id="hiddenSecondaryMonthly" name="secondary_monthly">
+            
+            <div class="col-span-2 md:col-span-1 hidden">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">EIR</label>
                 <input type="text" id="resEIR" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
                 <input type="hidden" name="eir" id="hiddenEIR">
@@ -143,7 +134,7 @@ $branches = $masterData->getBranches();
             </div>
             <div id="dateInstalledDiv">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Installed</label>
-                <input type="date" name="date_installed" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="date" id="dateInstalled" name="date_installed" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
         </div>
     </div>
