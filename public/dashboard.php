@@ -11,10 +11,27 @@ include('../includes/header.php');
     
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
-        background: radial-gradient(circle at top left, #450a0a, #111827 50%), #0f172a;
+        background: linear-gradient(135deg, #450a0a 0%, #290606 50%, #1a0303 100%);
+        background-attachment: fixed;
         color: #ffffff;
         min-height: 100vh;
         margin: 0;
+    }
+
+    .glass-panel {
+        background: rgba(255, 0, 0, 0.02);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    .glass-table-container {
+        background: rgba(10, 2, 2, 0.8); 
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(239, 68, 68, 0.1);
+        border-radius: 1.5rem;
+        overflow: hidden;
     }
 
     @keyframes contentFadeIn {
@@ -25,16 +42,7 @@ include('../includes/header.php');
     .animate-content {
         animation: contentFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
-    
-    .glass-panel {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    }
 
-    /* --- THE SEARCH BAR FIX --- */
     .header-content-inner {
         position: relative;
         display: flex;
@@ -47,11 +55,11 @@ include('../includes/header.php');
         z-index: 20; 
         transition: all 0.4s ease;
         width: 100%;
-        max-width: 70%; /* Prevents the bar from ever hitting the logo */
+        max-width: 70%; 
     }
 
     .sidebar-active .search-container {
-        max-width: 55%; /* Shrinks more when sidebar is open */
+        max-width: 55%; 
     }
 
     @media (max-width: 1024px) {
@@ -88,14 +96,6 @@ include('../includes/header.php');
         box-shadow: 0 8px 15px rgba(239, 68, 68, 0.3);
     }
 
-    .glass-table-container {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 1.5rem;
-        overflow: hidden;
-    }
-
     .table-crimson-dark thead { 
         background: linear-gradient(90deg, #ef4444 0%, #991b1b 100%); 
     }
@@ -112,15 +112,6 @@ include('../includes/header.php');
         background: rgba(0, 0, 0, 0.2) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         color: white !important;
-    }
-
-    .hero-stat-value {
-        font-size: 3.8rem;
-        line-height: 1;
-        font-weight: 900;
-        background: linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.5));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
 
     ::-webkit-scrollbar { width: 8px; }
@@ -203,23 +194,43 @@ include('../includes/header.php');
             </table>
         </div>
 
-        <div id="noRecordFound" class="hidden mb-12 p-8 glass-panel rounded-3xl flex items-center gap-6 text-red-400">
-            <h4 class="font-black text-xl">No Records Found matching your filters.</h4>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <div class="glass-panel p-12 rounded-[3rem] border-none relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-red-600/10 to-transparent rounded-[3rem]"></div>
-                <div class="relative z-10">
-                    <p class="stat-label text-red-500 mb-4">Grand Total Borrower</p>
-                    <h1 class="hero-stat-value">1,248,392</h1>
+        <div class="glass-panel p-8 lg:p-12 rounded-[3rem] border-none relative mb-12 overflow-hidden">
+            <div class="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-red-600/10 to-transparent pointer-events-none"></div>
+            <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-amber-600/10 to-transparent pointer-events-none"></div>
+            
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 divide-y md:divide-y-0 md:divide-x divide-white/10">
+                <div class="space-y-8">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-6 bg-red-500 rounded-full"></span>
+                        <p class="stat-label" style="font-size: 1.1rem;">Overall Portfolio</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <p class="stat-label text-red-500 mb-1">Total Borrowers</p>
+                            <h2 class="text-4xl lg:text-5xl font-black tracking-tighter text-white">1,248,392</h2>
+                        </div>
+                        <div>
+                            <p class="stat-label text-red-500 mb-1">Total Loan Amount</p>
+                            <h2 class="text-4xl lg:text-5xl font-black tracking-tighter text-white">₱4,290,150</h2>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="glass-panel p-12 rounded-[3rem] border-none relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent rounded-[3rem]"></div>
-                <div class="relative z-10">
-                    <p class="stat-label text-blue-400 mb-4">Grand Total Amounts</p>
-                    <h1 class="hero-stat-value">$4,290,150</h1>
+
+                <div class="md:pl-12 pt-8 md:pt-0 space-y-8">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-6 bg-amber-500 rounded-full"></span>
+                        <p class="stat-label" style="font-size: 1.1rem;">GMS Commissions</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <p class="stat-label text-amber-500 mb-1">GMS Users</p>
+                            <h2 class="text-4xl lg:text-5xl font-black tracking-tighter text-white">42,850</h2>
+                        </div>
+                        <div>
+                            <p class="stat-label text-amber-500 mb-1">Commission Total</p>
+                            <h2 class="text-4xl lg:text-5xl font-black tracking-tighter text-white">₱158,400</h2>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -229,20 +240,31 @@ include('../includes/header.php');
                 <div class="card-accent"></div>
                 <div class="flex justify-between items-start mb-8">
                     <div class="p-4 bg-red-500/20 text-red-400 rounded-2xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1" stroke-width="2"/></svg></div>
-                    <div class="text-right"><p class="stat-label">Borrower</p><p class="text-2xl font-black">12,402</p></div>
+                    <div class="text-right"><p class="stat-label">Borrower</p><p class="text-2xl font-black text-red-500">12,402</p></div>
                 </div>
                 <p class="stat-label">Total Car Loan</p>
-                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">$420,000</h4>
+                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">₱420,000</h4>
             </div>
 
             <div class="stats-card p-8" style="--accent-color: #3b82f6;">
                 <div class="card-accent"></div>
-                <div class="flex justify-between items-start mb-8">
-                    <div class="p-4 bg-blue-500/20 text-blue-400 rounded-2xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                    <div class="text-right"><p class="stat-label">Borrower</p><p class="text-2xl font-black text-blue-400">85,210</p></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-3 bg-blue-500/20 text-blue-400 rounded-xl"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <p class="stat-label" style="font-size: 1.1rem;">Total Motor Loans</p>
                 </div>
-                <p class="stat-label">Motor (2w/3w)</p>
-                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">$185,000</h4>
+                
+                <div class="grid grid-cols-2 gap-4 divide-x divide-white/10">
+                    <div class="pr-4">
+                        <p class="stat-label text-blue-400 mb-1">2-Wheels</p>
+                        <p class="text-xs text-gray-400 mb-1 font-bold">52,105 Borrowers</p>
+                        <h4 class="text-white text-xl font-black tracking-tight">₱115,000</h4>
+                    </div>
+                    <div class="pl-4">
+                        <p class="stat-label text-blue-400 mb-1">3-Wheels</p>
+                        <p class="text-xs text-gray-400 mb-1 font-bold">33,105 Borrowers</p>
+                        <h4 class="text-white text-xl font-black tracking-tight">₱70,000</h4>
+                    </div>
+                </div>
             </div>
 
             <div class="stats-card p-8" style="--accent-color: #f59e0b;">
@@ -252,7 +274,7 @@ include('../includes/header.php');
                     <div class="text-right"><p class="stat-label">Borrower</p><p class="text-2xl font-black text-amber-400">4,120</p></div>
                 </div>
                 <p class="stat-label">Total Home Loan</p>
-                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">$850,000</h4>
+                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">₱850,000</h4>
             </div>
 
             <div class="stats-card p-8" style="--accent-color: #10b981;">
@@ -262,7 +284,7 @@ include('../includes/header.php');
                     <div class="text-right"><p class="stat-label">Borrower</p><p class="text-2xl font-black text-emerald-400">214,500</p></div>
                 </div>
                 <p class="stat-label">Total Salary Loan</p>
-                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">$120,000</h4>
+                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">₱120,000</h4>
             </div>
 
             <div class="stats-card p-8" style="--accent-color: #8b5cf6;">
@@ -272,7 +294,7 @@ include('../includes/header.php');
                     <div class="text-right"><p class="stat-label">Borrower</p><p class="text-2xl font-black text-purple-400">31,040</p></div>
                 </div>
                 <p class="stat-label">Personal Property</p>
-                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">$245,000</h4>
+                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">₱245,000</h4>
             </div>
 
             <div class="stats-card p-8" style="--accent-color: #f43f5e;">
@@ -282,7 +304,7 @@ include('../includes/header.php');
                     <div class="text-right"><p class="stat-label">Borrower</p><p class="text-2xl font-black text-rose-400">1,050</p></div>
                 </div>
                 <p class="stat-label">Real Estate Loan</p>
-                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">$630,000</h4>
+                <h4 class="text-white text-4xl font-black mt-2 tracking-tighter">₱630,000</h4>
             </div>
         </div>
 
@@ -299,28 +321,22 @@ include('../includes/header.php');
 </div>
 
 <script>
-// --- SIDEBAR DETECTOR ---
+// Dashboard Logic
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.querySelector('aside');
     const layout = document.getElementById('layoutContainer');
-    
     if (sidebar && layout) {
         const checkSidebar = () => {
-            const isOpen = sidebar.classList.contains('active') || 
-                           sidebar.classList.contains('open') || 
-                           sidebar.offsetWidth > 100;
-            
+            const isOpen = sidebar.classList.contains('active') || sidebar.classList.contains('open') || sidebar.offsetWidth > 100;
             if (isOpen) layout.classList.add('sidebar-active');
             else layout.classList.remove('sidebar-active');
         };
-
         const observer = new MutationObserver(checkSidebar);
         observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
         checkSidebar(); 
     }
 });
 
-// --- CHART LOGIC ---
 const ctx = document.getElementById('loanChart').getContext('2d');
 const createGradient = (color) => {
     const g = ctx.createLinearGradient(0, 0, 0, 400);
@@ -334,20 +350,18 @@ new Chart(ctx, {
     data: {
         labels: ['2022', '2023', '2024', '2025', '2026'],
         datasets: [
-            { label: 'Car Loan', data: [150, 220, 310, 420, 500], borderColor: '#ef4444', backgroundColor: createGradient('#ef4444'), fill: true, tension: 0.4 },
+            { label: 'Car', data: [150, 220, 310, 420, 500], borderColor: '#ef4444', backgroundColor: createGradient('#ef4444'), fill: true, tension: 0.4 },
             { label: 'Motor', data: [80, 110, 145, 185, 230], borderColor: '#3b82f6', backgroundColor: createGradient('#3b82f6'), fill: true, tension: 0.4 },
-            { label: 'Home Loan', data: [500, 620, 740, 850, 980], borderColor: '#f59e0b', backgroundColor: createGradient('#f59e0b'), fill: true, tension: 0.4 },
-            { label: 'Salary Loan', data: [40, 65, 90, 120, 160], borderColor: '#10b981', backgroundColor: createGradient('#10b981'), fill: true, tension: 0.4 },
-            { label: 'Personal Property', data: [120, 160, 205, 245, 310], borderColor: '#8b5cf6', backgroundColor: createGradient('#8b5cf6'), fill: true, tension: 0.4 },
+            { label: 'Home', data: [500, 620, 740, 850, 980], borderColor: '#f59e0b', backgroundColor: createGradient('#f59e0b'), fill: true, tension: 0.4 },
+            { label: 'Salary', data: [40, 65, 90, 120, 160], borderColor: '#10b981', backgroundColor: createGradient('#10b981'), fill: true, tension: 0.4 },
+            { label: 'Property', data: [120, 160, 205, 245, 310], borderColor: '#8b5cf6', backgroundColor: createGradient('#8b5cf6'), fill: true, tension: 0.4 },
             { label: 'Real Estate', data: [350, 430, 510, 630, 780], borderColor: '#f43f5e', backgroundColor: createGradient('#f43f5e'), fill: true, tension: 0.4 }
         ]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'bottom', labels: { color: '#94a3b8', font: { weight: 'bold', size: 12 }, padding: 25 } }
-        },
+        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { weight: 'bold' } } } },
         scales: {
             y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { weight: 'bold' } } },
             x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { weight: 'bold' } } }
@@ -355,7 +369,6 @@ new Chart(ctx, {
     }
 });
 
-// --- FILTER LOGIC ---
 let currentMode = 'single';
 function setDateMode(mode) {
     currentMode = mode;

@@ -9,15 +9,13 @@ include_once '../includes/modals/status_modal.php';
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
 <body class="h-screen overflow-hidden flex flex-col bg-gray-50">
-    
-
     <div class="flex flex-1 overflow-hidden">
         <?php include('../includes/sidebar.php'); ?>
 
         <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
             <header class="mb-6">
                 <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add <span class="text-red-600">Loan</span></h2>
-    <p class="text-gray-500 font-medium mt-2 mb-8">Fill out the details below to register a new loan application.</p>
+                <p class="text-gray-500 font-medium mt-2 mb-8">Fill out the details below to register a new loan application.</p>
                 <div class="flex gap-8 border-b border-gray-200">
                     <button onclick="switchTab('add_record', this)" class="tab-btn pb-2 font-semibold text-red-600 border-b-2 border-red-600 transition-all">Add new record</button>
                     <button onclick="switchTab('import_file', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-red-600 transition-all">Import file</button>
@@ -39,13 +37,11 @@ include_once '../includes/modals/status_modal.php';
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div id="modalBody" class="p-6 overflow-auto custom-scrollbar bg-gray-50">
+            <div id="modalBody" class="p-6 overflow-hidden custom-scrollbar bg-gray-50 flex flex-col">
                 </div>
         </div>
     </div>
 
-
-    <!-- Import Status Modal -->
     <div id="importModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[999]">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
             <h2 id="modalTitle" class="text-xl font-bold mb-4"></h2>
@@ -58,54 +54,50 @@ include_once '../includes/modals/status_modal.php';
     
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-
     <script src="../assets/js/main.js"></script>
 
     <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
     let autoCloseTimer;
 
-    // --- Tab Management ---
     function switchTab(tabName, element) {
-    const contentArea = document.getElementById('tab-content-area');    
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
-        btn.classList.add('text-gray-500');
-    });
-    
-    element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
-    element.classList.remove('text-gray-500');
-    
-    fetch(`../includes/tabs/${tabName}.php`)
-        .then(response => {
-            if (!response.ok) throw new Error('File not found');
-            return response.text();
-        })
-        .then(html => {
-            contentArea.innerHTML = html;
-            
-            if (tabName === 'add_record') {
-                setTimeout(() => {
-                    // 1. Re-initialize dropdowns and calculators
-                    if (typeof initLoanCalculator === 'function') initLoanCalculator();
-                    if (typeof initSearchableDropdowns === 'function') initSearchableDropdowns();
-
-                    // 2. CRITICAL FIX: Re-bind the Submit event to the new form
-                    const form = document.getElementById('loanForm');
-                    if (form) {
-                        // Ensure we don't have duplicate listeners
-                        //form.removeEventListener('submit', handleFormSubmit); 
-                        //form.addEventListener('submit', handleFormSubmit);
-                    }
-                }, 50);
-            }
-        })
-        .catch(err => {
-            contentArea.innerHTML = `<p class="text-red-500">Error loading tab: ${err.message}</p>`;
+        const contentArea = document.getElementById('tab-content-area');    
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+            btn.classList.add('text-gray-500');
         });
+        
+        element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+        element.classList.remove('text-gray-500');
+        
+        fetch(`../includes/tabs/${tabName}.php`)
+            .then(response => {
+                if (!response.ok) throw new Error('File not found');
+                return response.text();
+            })
+            .then(html => {
+                contentArea.innerHTML = html;
+                if (tabName === 'add_record') {
+                    setTimeout(() => {
+                        // 1. Re-initialize dropdowns and calculators
+                        if (typeof initLoanCalculator === 'function') initLoanCalculator();
+                        if (typeof initSearchableDropdowns === 'function') initSearchableDropdowns();
+
+                        // 2. CRITICAL FIX: Re-bind the Submit event to the new form
+                        const form = document.getElementById('loanForm');
+                        if (form) {
+                            // Ensure we don't have duplicate listeners
+                            //form.removeEventListener('submit', handleFormSubmit); 
+                            //form.addEventListener('submit', handleFormSubmit);
+                        }
+                    }, 50);
+                }
+            })
+            .catch(err => {
+                contentArea.innerHTML = `<p class="text-red-500">Error loading tab: ${err.message}</p>`;
+            });
     }
 
-    // --- File Selection UI Logic ---
     document.addEventListener('change', function(e) {
         if (e.target && e.target.id === 'fileInput') {
             const file = e.target.files[0];
@@ -149,34 +141,23 @@ include_once '../includes/modals/status_modal.php';
         if (cancelBtn) cancelBtn.classList.add('hidden');
     }
 
-    // --- Upload Logic (Dynamic Tab Safe) ---
     document.addEventListener('click', function(e) {
-
         if (e.target && e.target.id === 'uploadBtn') {
-
             const fileInput = document.getElementById('fileInput');
-
-            // If fileInput doesn't exist, do nothing
             if (!fileInput) return;
-
             const file = fileInput.files[0];
-
             if (!file) {
                 alert("Please select a file first.");
                 return;
             }
-
             const allowedExtensions = ['xls', 'xlsx'];
             const extension = file.name.split('.').pop().toLowerCase();
-
             if (!allowedExtensions.includes(extension)) {
                 alert("Only Excel files (.xls, .xlsx) are allowed.");
                 return;
             }
-
             const formData = new FormData();
             formData.append('loan_file', file);
-
             e.target.disabled = true;
             e.target.innerText = "PROCESSING...";
 
@@ -186,28 +167,21 @@ include_once '../includes/modals/status_modal.php';
             })
             .then(response => response.text())
             .then(result => {
-                // Re-enable the button
                 e.target.disabled = false;
                 e.target.innerText = "UPLOAD";
-
                 const modal = document.getElementById('importModal');
                 const title = document.getElementById('modalTitle');
                 const msg = document.getElementById('modalMessage');
-
                 if (result.trim() === "success") {
-                    // SUCCESS CASE
                     title.innerText = "Import Successful!";
                     title.className = "text-2xl font-bold text-center mb-2 text-green-600";
                     msg.innerText = "The loan records have been added to the database.";
-                    resetFileInput(); // Clear the file input
+                    resetFileInput();
                 } else {
-                    // ERROR CASE
                     title.innerText = "Import Failed";
                     title.className = "text-2xl font-bold text-center mb-2 text-red-600";
                     msg.innerText = "Error: " + result;
                 }
-
-                // SHOW THE MODAL NOW
                 modal.classList.replace('hidden', 'flex');
             })
             .catch(error => {
@@ -215,35 +189,24 @@ include_once '../includes/modals/status_modal.php';
                 e.target.disabled = false;
                 e.target.innerText = "UPLOAD";
             });
-
         }
-
     });
 
-     function closeImportModal() {
+    function closeImportModal() {
         document.getElementById('importModal').classList.replace('flex', 'hidden');
-        // We refresh ONLY when the user clicks "Done" so they can see the new data
         window.location.reload();
     }
-    
 
-    // --- Scanning Logic ---
     document.addEventListener('click', async function(e) {
         if (e.target && e.target.id === 'uploadBtn') {
-
             const fileInput = document.getElementById('fileInput');
             const loanTypeElement = document.getElementById('loanTypeSelect');
-
-            // Only run scanning if loanTypeSelect exists (Add Record tab)
             if (!loanTypeElement) return;
-
             const loanType = loanTypeElement.value;
-
             if (!loanType || !fileInput.files.length) {
                 showStatusModal('error', 'Missing Information', 'Please select a loan type and a file.', false);
                 return;
             }
-
             const file = fileInput.files[0];
             file.type === "application/pdf"
                 ? scanPDF(file, loanType)
@@ -295,7 +258,6 @@ include_once '../includes/modals/status_modal.php';
         }
     }
 
-
     function openFileModal(file) {
         const modal = document.getElementById('fileModal');
         const modalBody = document.getElementById('modalBody');
@@ -303,7 +265,7 @@ include_once '../includes/modals/status_modal.php';
         modal.classList.replace('hidden', 'flex');
 
         if (file.type === "application/pdf") {
-            modalBody.innerHTML = '<div id="pdf-viewer" class="flex flex-col items-center"></div>';
+            modalBody.innerHTML = '<div id="pdf-viewer" class="flex flex-col items-center overflow-auto custom-scrollbar"></div>';
             const reader = new FileReader();
             reader.onload = function() {
                 const typedarray = new Uint8Array(this.result);
@@ -326,58 +288,50 @@ include_once '../includes/modals/status_modal.php';
             const reader = new FileReader();
             reader.onload = (e) => {
                 const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                
-                // Convert to HTML and wrap in a clean container
-                const htmlTable = XLSX.utils.sheet_to_html(sheet);
                 modalBody.innerHTML = `
-                    <div class="excel-preview-wrapper bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                        <div class="overflow-x-auto">
-                            ${htmlTable}
-                        </div>
+                    <div class="flex flex-col h-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <div id="excel-tab-navigation" class="flex bg-gray-50 border-b border-gray-300 overflow-x-auto"></div>
+                        <div id="active-sheet-content" class="flex-1 overflow-auto custom-scrollbar p-2"></div>
                     </div>`;
+
+                const contentArea = document.getElementById('active-sheet-content');
+                const navBar = document.getElementById('excel-tab-navigation');
+
+                workbook.SheetNames.forEach((name) => {
+                    const btn = document.createElement('button');
+                    btn.className = `px-6 py-3 text-sm font-bold border-r border-gray-300 transition-all hover:bg-white text-gray-500 sheet-tab-btn`;
+                    btn.innerText = name;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.sheet-tab-btn').forEach(b => {
+                            b.classList.remove('bg-white', 'text-red-600', 'border-b-4', 'border-red-600');
+                            b.classList.add('text-gray-500');
+                        });
+                        btn.classList.add('bg-white', 'text-red-600', 'border-b-4', 'border-red-600');
+                        btn.classList.remove('text-gray-500');
+                        contentArea.innerHTML = `<div class="excel-preview-wrapper">${XLSX.utils.sheet_to_html(workbook.Sheets[name])}</div>`;
+                    };
+                    navBar.appendChild(btn);
+                });
+
+                // Auto-trigger the first tab content
+                if (navBar.firstChild) navBar.firstChild.click();
             };
             reader.readAsArrayBuffer(file);
         }
     }
-
     </script>
 
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
         .pop-icon { animation: icon-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
         @keyframes icon-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        
-        /* Fixed Excel Preview Styles */
-        .excel-preview-wrapper table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            background: white;
-            font-size: 0.875rem;
-            color: #374151;
-        }
-        /* Header styling (First row) */
-        .excel-preview-wrapper tr:first-child {
-            background-color: #f8fafc;
-            font-weight: 700;
-            color: #1f2937;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        .excel-preview-wrapper td { 
-            border: 1px solid #e5e7eb; 
-            padding: 12px 16px; 
-            white-space: nowrap;
-        }
-        /* Zebra stripes */
-        .excel-preview-wrapper tr:nth-child(even) {
-            background-color: #fcfcfd;
-        }
-        /* Hover effect */
-        .excel-preview-wrapper tr:hover {
-            background-color: #f3f4f6;
-        }
+        .excel-preview-wrapper table { width: 100%; border-collapse: collapse; background: white; font-size: 0.875rem; color: #374151; }
+        .excel-preview-wrapper tr:first-child { background-color: #f8fafc; font-weight: 700; color: #1f2937; border-bottom: 2px solid #e2e8f0; }
+        .excel-preview-wrapper td { border: 1px solid #e5e7eb; padding: 12px 16px; white-space: nowrap; }
+        .excel-preview-wrapper tr:nth-child(even) { background-color: #fcfcfd; }
+        .excel-preview-wrapper tr:hover { background-color: #f3f4f6; }
+        .sheet-tab-btn { outline: none; cursor: pointer; border-bottom: 4px solid transparent; }
     </style>
-    
 </body>
 </html>
