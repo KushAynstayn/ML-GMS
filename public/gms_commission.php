@@ -1,16 +1,16 @@
 <?php include('../includes/header.php'); ?>
 
 <?php
-// 1. UPDATED DATA ARRAY (Using your specific labels)
+// 1. DATA ARRAY (Device key remains in data but won't be displayed)
 $records = [
-    ['date' => '2026-02-23', 'ref' => 'REF-GMS001', 'name' => 'JUAN DELA CRUZ', 'vehicle' => 'Car', 'device' => 'GPS Tracker', 'rate' => '10%', 'val' => 1500, 'status' => 'FULLY PAID', 'paid' => 1500, 'p_date' => '2026-02-23'],
-    ['date' => '2026-02-22', 'ref' => 'REF-GMS002', 'name' => 'MARIA CLARA', 'vehicle' => 'Motor 2-Wheels', 'device' => 'MCCS Unit', 'rate' => '10%', 'val' => 500, 'status' => 'PARTIAL', 'paid' => 250, 'p_date' => '2026-02-23'],
-    ['date' => '2026-02-20', 'ref' => 'REF-GMS003', 'name' => 'RICARDO DALISAY', 'vehicle' => 'Car', 'device' => 'IOT Sensor', 'rate' => '5%', 'val' => 2500, 'status' => 'NOT PAID', 'paid' => 0, 'p_date' => null],
-    ['date' => '2026-02-18', 'ref' => 'REF-GMS004', 'name' => 'LEONORA RIVERA', 'vehicle' => 'Motor 2-Wheels', 'device' => 'GPS Tracker', 'rate' => '10%', 'val' => 800, 'status' => 'FULLY PAID', 'paid' => 800, 'p_date' => '2026-02-19'],
-    ['date' => '2026-02-15', 'ref' => 'REF-GMS005', 'name' => 'CRISOSTOMO IBARRA', 'vehicle' => 'Motor 3-Wheels', 'device' => 'MCCS Unit', 'rate' => '15%', 'val' => 3200, 'status' => 'PARTIAL', 'paid' => 1000, 'p_date' => '2026-02-16']
+    ['date' => '2026-02-23', 'ref' => 'REF-GMS001', 'name' => 'JUAN DELA CRUZ', 'vehicle' => 'Car', 'rate' => '10%', 'val' => 1500, 'status' => 'FULLY PAID', 'paid' => 1500, 'p_date' => '2026-02-23'],
+    ['date' => '2026-02-22', 'ref' => 'REF-GMS002', 'name' => 'MARIA CLARA', 'vehicle' => 'Motor 2-Wheels', 'rate' => '10%', 'val' => 500, 'status' => 'PARTIAL', 'paid' => 250, 'p_date' => '2026-02-23'],
+    ['date' => '2026-02-20', 'ref' => 'REF-GMS003', 'name' => 'RICARDO DALISAY', 'vehicle' => 'Car', 'rate' => '5%', 'val' => 2500, 'status' => 'NOT PAID', 'paid' => 0, 'p_date' => null],
+    ['date' => '2026-02-18', 'ref' => 'REF-GMS004', 'name' => 'LEONORA RIVERA', 'vehicle' => 'Motor 2-Wheels', 'rate' => '10%', 'val' => 800, 'status' => 'FULLY PAID', 'paid' => 800, 'p_date' => '2026-02-19'],
+    ['date' => '2026-02-15', 'ref' => 'REF-GMS005', 'name' => 'CRISOSTOMO IBARRA', 'vehicle' => 'Motor 3-Wheels', 'rate' => '15%', 'val' => 3200, 'status' => 'PARTIAL', 'paid' => 1000, 'p_date' => '2026-02-16']
 ];
 
-// 2. STATISTICS CALCULATIONS (Matching the new labels)
+// 2. STATISTICS CALCULATIONS
 $totalCarVal = 0; $carBorrowers = [];
 $totalMotor2Val = 0; $motor2Borrowers = [];
 $totalMotor3Val = 0; $motor3Borrowers = [];
@@ -121,7 +121,6 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Ref #</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Account Name</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Vehicle</th>
-                        <th class="px-4 py-4 text-[10px] font-bold uppercase">Device</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Rate</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Value</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Status</th>
@@ -144,7 +143,6 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                             <td class="px-4 py-4 text-xs font-mono font-bold"><?php echo $row['ref']; ?></td>
                             <td class="px-4 py-4 text-xs font-semibold uppercase"><?php echo $row['name']; ?></td>
                             <td class="px-4 py-4 text-xs text-gray-600"><?php echo $row['vehicle']; ?></td>
-                            <td class="px-4 py-4 text-xs text-gray-600"><?php echo $row['device']; ?></td>
                             <td class="px-4 py-4 text-xs text-gray-600"><?php echo $row['rate']; ?></td>
                             <td class="px-4 py-4 text-xs font-bold">₱<?php echo number_format($row['val'], 2); ?></td>
                             <td class="px-4 py-4 text-[10px]">
@@ -197,9 +195,8 @@ function filterTable() {
     rows.forEach(row => {
         const dateStr = row.cells[0].textContent.trim();
         const accountText = row.cells[2].textContent.toUpperCase();
-        const vehicleText = row.cells[3].textContent.toUpperCase().trim();
+        const vehicleText = row.cells[3].textContent.toUpperCase().trim(); // Still at index 3
         
-        // Date Parsing
         const [day, month, year] = dateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);
@@ -218,12 +215,10 @@ function filterTable() {
 
         const textMatch = accountText.includes(searchText);
 
-        // STRICT VEHICLE MATCHING
         let vehicleMatch = false;
         if (vehicleType === 'ALL') {
             vehicleMatch = true;
         } else {
-            // Checks if the cell text exactly matches or starts with the filter value
             vehicleMatch = (vehicleText === vehicleType);
         }
 
