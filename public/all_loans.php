@@ -1,20 +1,22 @@
 <?php 
-include('../includes/header.php'); 
 require_once '../vendor/autoload.php';
 use Cadc20239999\MlGms\Database;
+include('../includes/header.php'); 
+
 
 $type = $_GET['type'] ?? 'car'; 
 
 $loan_configs = [
-    'car'         => ['title' => 'Car', 'has_tabs' => true],
-    'motor'       => ['title' => 'Motor', 'has_tabs' => true, 'show_wheels' => true],
-    'home'        => ['title' => 'Home', 'has_tabs' => false],
-    'salary'      => ['title' => 'Salary', 'has_tabs' => false],
-    'personal'    => ['title' => 'Personal Property', 'has_tabs' => false],
-    'realestate'  => ['title' => 'Real Estate', 'has_tabs' => false]
+    'car'         => ['id' => 1, 'title' => 'Car', 'has_tabs' => true],
+    'motor'       => ['id' => 2, 'title' => 'Motor', 'has_tabs' => true, 'show_wheels' => true],
+    'home'        => ['id' => 3, 'title' => 'Home', 'has_tabs' => false],
+    'salary'      => ['id' => 4, 'title' => 'Salary', 'has_tabs' => false],
+    'personal'    => ['id' => 5, 'title' => 'Personal Property', 'has_tabs' => false],
+    'realestate'  => ['id' => 6, 'title' => 'Real Estate', 'has_tabs' => false]
 ];
 
 $current_config = $loan_configs[$type] ?? $loan_configs['car'];
+$type_id = $current_config['id']; // Use this for SQL queries
 $isMotor = ($type === 'motor');
 $hasTabs = $current_config['has_tabs'];
 ?>
@@ -97,8 +99,11 @@ $hasTabs = $current_config['has_tabs'];
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
                     <?php 
+                        // Define the type for the included file
+                        $type = $_GET['type'] ?? 'car';
+
                         // Default to Primary Ledger for all pages
-                        $primaryFile = dirname(__DIR__) . '/includes/primary_ledger.php';
+                        $primaryFile = dirname(__DIR__) . '/includes/tabs/primary_ledger.php';
                         if (file_exists($primaryFile)) {
                             include($primaryFile);
                         } else {
@@ -147,19 +152,29 @@ function switchLedger(tabName, element) {
         btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
         btn.classList.add('text-gray-500');
     });
+
     element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
     element.classList.remove('text-gray-500');
 
-    tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">Updating records...</td></tr>';
+    tableBody.innerHTML =
+        '<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">Updating records...</td></tr>';
 
-    fetch(`../includes/${tabName}_ledger.php?type=${loanType}`)
-        .then(response => response.text())
+    // ✅ Correct relative path (public → ../includes)
+    fetch(`../includes/tabs/${tabName}_ledger.php?type=${loanType}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("File not found");
+            }
+            return response.text();
+        })
         .then(html => {
             tableBody.innerHTML = html;
-            filterTable(); 
+            filterTable();
         })
-        .catch(err => {
-            tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">No records found.</td></tr>';
+        .catch(error => {
+            tableBody.innerHTML =
+                '<tr><td colspan="5" class="p-10 text-center text-red-500 italic">Ledger file not found.</td></tr>';
+            console.error(error);
         });
 }
 
@@ -208,7 +223,6 @@ function filterTable() {
         }
     });
 
-    document.getElementById('noRecordFound').classList.toggle('hidden', visibleRows > 0 || rows.length === 0);
 }
 
 document.getElementById('searchInput').addEventListener('keyup', filterTable);
