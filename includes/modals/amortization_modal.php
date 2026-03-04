@@ -79,15 +79,23 @@
                 <div class="grid grid-cols-12 border-b border-gray-300">
                     <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Contact Number</div>
                     <div class="col-span-4 p-2 border-r border-gray font-bold" id="modalDispContact">---</div>
-                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Loan Amount (Principal) :</div>
-                    <div class="col-span-3 p-2 font-bold text-right" id="modalDispPrincipal">0.00</div>
+                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300" id="principalLabel">
+                        Loan Amount (Principal) :
+                    </div>
+                    <div class="col-span-3 p-2 font-bold text-right" id="principalWrapper">
+                        <span id="modalDispPrincipal">0.00</span>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-12 border-b border-gray-300">
                     <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Reference Number :</div>
                     <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispRef">---</div>
-                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Amount (5% off) :</div>
-                    <div class="col-span-3 p-2 font-bold text-right" id="modalDispAmount">0.00</div>
+                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300" id="netLabel">
+                        Amount (5% off) :
+                    </div>
+                    <div class="col-span-3 p-2 font-bold text-right" id="netWrapper">
+                        <span id="modalDispAmount">0.00</span>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-12 border-b border-gray-300">
@@ -112,7 +120,7 @@
             </div>
 
             <!-- Primary Ledger Table -->
-            <h4 class="font-bold text-sm mb-1">PRIMARY LEDGER</h4>
+            <h4 class="font-bold text-sm mb-1" id="primaryLedgerTitle">PRIMARY LEDGER</h4>
             <div class="overflow-x-auto mb-6">
                 <table class="w-full text-[12px] border-collapse text-black" id="primaryLedgerTable">
                     <thead>
