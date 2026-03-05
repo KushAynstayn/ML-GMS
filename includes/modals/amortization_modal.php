@@ -24,11 +24,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <div id="amortizationModal" class="hidden fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center py-6 px-4">
     <div class="bg-white w-full max-w-6xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col">
         
-        <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
             <button onclick="closeAmortization()" class="text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,67 +61,57 @@
             </div>
         </div>
 
-        <!-- Logo & Secondary Ledger Title -->
         <div class="flex flex-col items-center justify-center px-6 py-4 border-b border-gray-100 gap-2">
             <img src="../assets/images/ml.png" id="mlLogo" alt="M Lhuillier" class="h-8">
-            <h4 class="text-sm font-semibold text-gray-500 mt-1">LEDGER DETAILS</h4>
+            <h4 class="text-sm font-semibold text-gray-500 mt-1 uppercase" id="dynamicLedgerHeader">PRIMARY LEDGER</h4>
         </div>
 
-        <!-- Modal Body -->
         <div id="amortizationPrintArea" class="p-6 overflow-y-auto max-h-[70vh]">
 
-            <!-- Borrower Info -->
             <div class="border border-gray-300 rounded-sm overflow-hidden text-black text-[13px] mb-4">
+                
                 <div class="grid grid-cols-12 border-b border-gray-300">
                     <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Account Name :</div>
-                    <div class="col-span-10 p-2 font-bold" id="modalDispName">---</div>
+                    <div class="col-span-4 p-2 font-bold border-r border-gray-300" id="modalDispName">---</div>
+                    
+                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">
+                        <span id="principalLabel">Loan Amount (Principal) :</span>
+                        <span id="netLabel" class="hidden">Amount (5%) :</span>
+                    </div>
+                    <div class="col-span-3 p-2 font-bold text-right">
+                        <div id="principalWrapper"><span id="modalDispPrincipal">0.00</span></div>
+                        <div id="netWrapper" class="hidden"><span id="modalDispAmount">0.00</span></div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-12 border-b border-gray-300">
                     <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Contact Number</div>
-                    <div class="col-span-4 p-2 border-r border-gray font-bold" id="modalDispContact">---</div>
-                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300" id="principalLabel">
-                        Loan Amount (Principal) :
-                    </div>
-                    <div class="col-span-3 p-2 font-bold text-right" id="principalWrapper">
-                        <span id="modalDispPrincipal">0.00</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-12 border-b border-gray-300">
-                    <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Reference Number :</div>
-                    <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispRef">---</div>
-                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300" id="netLabel">
-                        Amount (5% off) :
-                    </div>
-                    <div class="col-span-3 p-2 font-bold text-right" id="netWrapper">
-                        <span id="modalDispAmount">0.00</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-12 border-b border-gray-300">
-                    <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Date Granted :</div>
-                    <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispDate">---</div>
+                    <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispContact">---</div>
                     <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Term :</div>
                     <div class="col-span-3 p-2 text-right font-bold"><span id="modalDispTerm">0</span> <span class="text-gray-400 font-normal">months</span></div>
                 </div>
 
                 <div class="grid grid-cols-12 border-b border-gray-300">
-                    <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Maturity Date :</div>
-                    <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispMaturity">---</div>
+                    <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Reference Number :</div>
+                    <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispRef">---</div>
                     <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Interest Rate (AOR)</div>
                     <div class="col-span-3 p-2 text-right font-bold" id="modalDispRate">0%</div>
                 </div>
 
-                <div class="grid grid-cols-12 bg-gray-50 items-center border-b border-gray-300">
-                    <div class="col-span-6 border-r border-gray-300 h-full"></div> 
-                    <div class="col-span-3 p-2 font-bold border-r border-gray-300 tracking-wider">Monthly Amortization</div>
+                <div class="grid grid-cols-12 border-b border-gray-300">
+                    <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Date Granted :</div>
+                    <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispDate">---</div>
+                    <div class="col-span-3 bg-gray-50 p-2 font-bold border-r border-gray-300">Monthly Amortization</div>
                     <div class="col-span-3 p-2 font-bold text-right text-base text-black" id="modalDispMonthly">0.00</div>
+                </div>
+
+                <div class="grid grid-cols-12 border-b border-gray-300">
+                    <div class="col-span-2 bg-gray-50 p-2 font-bold border-r border-gray-300">Maturity Date :</div>
+                    <div class="col-span-4 p-2 border-r border-gray-300 font-bold" id="modalDispMaturity">---</div>
+                    <div class="col-span-6 bg-gray-50 p-2"></div>
                 </div>
             </div>
 
-            <!-- Primary Ledger Table -->
-            <h4 class="font-bold text-sm mb-1" id="primaryLedgerTitle">PRIMARY LEDGER</h4>
             <div class="overflow-x-auto mb-6">
                 <table class="w-full text-[12px] border-collapse text-black" id="primaryLedgerTable">
                     <thead>
@@ -138,8 +129,6 @@
                 </table>
             </div>
 
-            <!-- Secondary Ledger Table (GMS only) -->
-            <h4 class="font-bold text-sm mb-1 hidden" id="secondaryLedgerTitle">SECONDARY LEDGER (GMS)</h4>
             <div class="overflow-x-auto hidden" id="secondaryLedgerWrapper">
                 <table class="w-full text-[12px] border-collapse text-black" id="secondaryLedgerTable">
                     <thead>
@@ -157,7 +146,6 @@
                 </table>
             </div>
 
-            <!-- Prepared / Checked / Conforme Section -->
             <div class="mt-8 grid grid-cols-2 gap-x-12 text-[13px] text-black">
                 <div>
                     <p class="mb-4">Prepared by:</p>
@@ -196,7 +184,7 @@
 <script>
 function toggleAmortizationDropdown() {
     const menu = document.getElementById('amortizationDropdownMenu');
-    menu.classList.toggle('hidden');
+    if (menu) menu.classList.toggle('hidden');
 }
 
 window.addEventListener('click', function(event) {
@@ -208,6 +196,46 @@ window.addEventListener('click', function(event) {
 });
 
 function closeAmortization() {
-    document.getElementById('amortizationModal').classList.add('hidden');
+    const modal = document.getElementById('amortizationModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+/**
+ * AUTOMATIC HEADER SWITCHER
+ * This observes your secondaryLedgerWrapper. 
+ * If your existing tab-switch script removes the 'hidden' class from it,
+ * the header will automatically change to "SECONDARY LEDGER (GMS)".
+ */
+const observer = new MutationObserver(() => {
+    const secondaryWrapper = document.getElementById('secondaryLedgerWrapper');
+    const isSecondary = !secondaryWrapper.classList.contains('hidden');
+    updateAmortizationHeader(isSecondary);
+});
+
+const targetNode = document.getElementById('secondaryLedgerWrapper');
+if (targetNode) {
+    observer.observe(targetNode, { attributes: true, attributeFilter: ['class'] });
+}
+
+function updateAmortizationHeader(isSecondary) {
+    const header = document.getElementById('dynamicLedgerHeader');
+    const pLabel = document.getElementById('principalLabel');
+    const nLabel = document.getElementById('netLabel');
+    const pWrap = document.getElementById('principalWrapper');
+    const nWrap = document.getElementById('netWrapper');
+
+    if (isSecondary) {
+        header.innerText = "SECONDARY LEDGER (GMS)";
+        if(pLabel) pLabel.classList.add('hidden');
+        if(pWrap) pWrap.classList.add('hidden');
+        if(nLabel) nLabel.classList.remove('hidden');
+        if(nWrap) nWrap.classList.remove('hidden');
+    } else {
+        header.innerText = "PRIMARY LEDGER";
+        if(pLabel) pLabel.classList.remove('hidden');
+        if(pWrap) pWrap.classList.remove('hidden');
+        if(nLabel) nLabel.classList.add('hidden');
+        if(nWrap) nWrap.classList.add('hidden');
+    }
 }
 </script>
