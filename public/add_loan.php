@@ -169,25 +169,21 @@ include_once '../includes/modals/status_modal.php';
             .then(result => {
                 e.target.disabled = false;
                 e.target.innerText = "UPLOAD";
-                const modal = document.getElementById('importModal');
-                const title = document.getElementById('modalTitle');
-                const msg = document.getElementById('modalMessage');
+
                 if (result.trim() === "success") {
-                    title.innerText = "Import Successful!";
-                    title.className = "text-2xl font-bold text-center mb-2 text-green-600";
-                    msg.innerText = "The loan records have been added to the database.";
+                    // Use your existing status modal with auto-close (true)
+                    showStatusModal('success', 'Success!', 'Records imported successfully.', true);
                     resetFileInput();
                 } else {
-                    title.innerText = "Import Failed";
-                    title.className = "text-2xl font-bold text-center mb-2 text-red-600";
-                    msg.innerText = "Error: " + result;
+                    // Show error without auto-close so the user can read the error (false)
+                    showStatusModal('error', 'Import Failed', 'Error: ' + result, false);
                 }
-                modal.classList.replace('hidden', 'flex');
             })
             .catch(error => {
-                alert("System error. Check console.");
                 e.target.disabled = false;
                 e.target.innerText = "UPLOAD";
+                showStatusModal('error', 'System Error', 'Check console for details.', false);
+                console.error(error);
             });
         }
     });

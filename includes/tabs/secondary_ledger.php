@@ -15,12 +15,15 @@ try {
         $sql = "SELECT l.loan_id, l.reference_number, l.pn_date, CONCAT(l.first_name, ' ', l.last_name) AS full_name 
                 FROM loans l 
                 INNER JOIN car_loans c ON l.loan_id = c.loan_id 
-                WHERE l.loan_type_id = 1 AND c.gps_provider = 'GMS'";
+                WHERE l.loan_type_id = 1 AND c.gps_provider = 'GMS'
+                ORDER BY l.pn_date DESC, l.loan_id DESC";
     } else if ($type === 'motor') {
         $sql = "SELECT l.loan_id, l.reference_number, l.pn_date, CONCAT(l.first_name, ' ', l.last_name) AS full_name, m.type AS wheel_type 
                 FROM loans l 
                 INNER JOIN motor_loans m ON l.loan_id = m.loan_id 
-                WHERE l.loan_type_id = 2 AND m.gps_provider = 'GMS'";
+                WHERE l.loan_type_id = 2 AND m.gps_provider = 'GMS'
+                ORDER BY l.pn_date DESC, l.loan_id DESC";
+                
     }
 
     $stmt = $db->prepare($sql);
@@ -31,8 +34,7 @@ try {
         foreach ($loans as $loan) {
             // Reusing the same render logic
             $date = date("d/m/Y", strtotime($loan['pn_date']));
-            $wheelCell = ($type === 'motor') ? "<td class='px-6 py-4 text-sm font-bold'>".htmlspecialchars($loan['wheel_type'])."</td>" : "";
-            echo "
+            $wheelCell = ($type === 'motor') ? "<td class='px-6 py-4 text-sm font-normal text-gray-500'>".htmlspecialchars($loan['wheel_type'])."</td>" : "";            echo "
             <tr onclick=\"viewAmortization('{$loan['loan_id']}', 'secondary')\" class='hover:bg-pink-50 transition-colors cursor-pointer'>
                 <td class='px-6 py-4 text-sm text-gray-600'>$date</td>
                 <td class='px-6 py-4 text-sm font-semibold text-gray-700'>".htmlspecialchars($loan['full_name'])."</td>

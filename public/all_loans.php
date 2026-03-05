@@ -81,10 +81,6 @@ $hasTabs = $current_config['has_tabs'];
             </div>
         </header>
 
-        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-700">
-            <span class="font-medium">No records found matching your selection.</span>
-        </div>
-        
         <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
             <table class="w-full text-left" id="loansTable">
                 <thead class="bg-red-600">
@@ -98,6 +94,11 @@ $hasTabs = $current_config['has_tabs'];
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
+                    <tr id="noResultsRow" class="hidden">
+                        <td colspan="<?php echo ($isMotor ? '4' : '3'); ?>" class="px-6 py-12 text-center text-gray-400 text-sm italic">
+                            No records found.
+                        </td>
+                    </tr>
                     <?php 
                         // Define the type for the included file
                         $type = $_GET['type'] ?? 'car';
@@ -120,7 +121,6 @@ $hasTabs = $current_config['has_tabs'];
 <script src="../assets/js/amortization.js"></script>
 
 <script>
-// Date and Filtering logic remains the same...
 let dateMode = 'single';
 
 function setDateMode(mode) {
@@ -159,7 +159,6 @@ function switchLedger(tabName, element) {
     tableBody.innerHTML =
         '<tr><td colspan="5" class="p-10 text-center text-gray-400 italic">Updating records...</td></tr>';
 
-    // ✅ Correct relative path (public → ../includes)
     fetch(`../includes/tabs/${tabName}_ledger.php?type=${loanType}`)
         .then(response => {
             if (!response.ok) {
@@ -169,6 +168,9 @@ function switchLedger(tabName, element) {
         })
         .then(html => {
             tableBody.innerHTML = html;
+            // Reinject the noResultsRow after fetching new tab data
+            const noResultsHTML = `<tr id="noResultsRow" class="hidden"><td colspan="<?php echo $isMotor ? '4' : '3'; ?>" class="px-6 py-12 text-center text-gray-400 text-sm italic">No records found.</td></tr>`;
+            tableBody.insertAdjacentHTML('afterbegin', noResultsHTML);
             filterTable();
         })
         .catch(error => {
@@ -185,10 +187,12 @@ function filterTable() {
     const wheelValue = document.getElementById('wheelFilter')?.value.toUpperCase() || "";
 
     const rows = document.querySelectorAll('#tableBody tr');
+    const noResultsRow = document.getElementById('noResultsRow');
     let visibleRows = 0;
 
     rows.forEach(row => {
-        if(row.cells.length < 3) return; 
+        // Skip the message row itself
+        if(row.id === 'noResultsRow' || row.cells.length < 3) return; 
 
         const dateText = row.cells[0].textContent.trim();
         const nameText = row.cells[1].textContent.toUpperCase();
@@ -223,6 +227,16 @@ function filterTable() {
         }
     });
 
+    // Handle the "No Record Found" display
+    if (noResultsRow) {
+        if (visibleRows === 0) {
+            noResultsRow.classList.remove('hidden');
+            noResultsRow.style.display = "table-row";
+        } else {
+            noResultsRow.classList.add('hidden');
+            noResultsRow.style.display = "none";
+        }
+    }
 }
 
 document.getElementById('searchInput').addEventListener('keyup', filterTable);
