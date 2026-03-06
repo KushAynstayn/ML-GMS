@@ -16,14 +16,32 @@ $branches = $masterData->getBranches();
         <div class="grid grid-cols-2 md:grid-cols-6 gap-x-8 gap-y-4">
             <div class="col-span-2 md:col-span-6">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Type of Loan</label>
-                <select id="loanType" name="loan_type_id" required class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm">
-                    <option value="">Select Type</option>
+                <select id="loanType" name="loan_type_id" required class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm text-gray-700">
+                    <option value="" class="text-gray-500">Select Type</option>
                     <?php foreach ($loanTypes as $type): ?>
                         <option value="<?= $type['loan_type_id'] ?>"><?= $type['loan_type_name'] ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
+            <div id="classificationDiv" class="col-span-2 md:col-span-6 hidden">
+                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Classification</label>
+                <select name="classification" required class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm text-gray-700">
+                    <option value="" class="text-gray-500">Select Classification</option>
+                    <option value="Prenda">Prenda</option>
+                    <option value="Pre-owned">Pre-owned</option>
+                    <option value="Surplus">Surplus</option>
+                </select>
+            </div>
+
+            <div id="motorTypeDiv" class="col-span-2 md:col-span-6 hidden">
+                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Motorcycle Type</label>
+                <select name="vehicle_type" required class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm focus:outline-none text-gray-700">
+                    <option value="" class="text-gray-500">Select Type</option>
+                    <option value="2-WHEELS">2-WHEELS</option>
+                    <option value="3-WHEELS">3-WHEELS</option>
+                </select>
+            </div>
             <div class="col-span-2 md:col-span-6">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Reference Number</label>
                 <input type="text" 
@@ -56,8 +74,8 @@ $branches = $masterData->getBranches();
 
             <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Region</label>
-                <select id="regionSelect" name="region_id" required class="w-full border border-gray-200 rounded-lg p-0 bg-white focus:outline-none text-sm">
-                    <option value="">Select Region</option>
+                <select id="regionSelect" name="region_id" required class="w-full border border-gray-200 rounded-lg p-0 bg-white focus:outline-none text-sm text-gray-700">
+                    <option value="" class="text-gray-500">Select Region</option>
                     <?php foreach ($regions as $region): ?>
                         <option value="<?= $region['id'] ?>"><?= $region['region_description'] ?></option>
                     <?php endforeach; ?>
@@ -79,7 +97,7 @@ $branches = $masterData->getBranches();
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Granted</label>
-                <input type="date" name="date_granted" id="calcDateGranted" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="date" name="date_granted" id="calcDateGranted" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm text-gray-500">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Maturity Date</label>
@@ -124,17 +142,9 @@ $branches = $masterData->getBranches();
     <div id="vehicleFields" class="hidden mb-8">
         <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">VEHICLE DETAILS</h3>
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div id="motorTypeDiv" class="hidden">
-                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Motorcycle Type</label>
-                <select name="vehicle_type" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white text-sm focus:outline-none">
-                    <option readonly value="">Select Type</option>
-                    <option value="2-WHEELS">2-WHEELS</option>
-                    <option value="3-WHEELS">3-WHEELS</option>
-                </select>
-            </div>
             <div id="dateInstalledDiv">
-                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Installed</label>
-                <input type="date" id="dateInstalled" name="date_installed" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Installed (If Device Installed)</label>
+                <input type="date" id="dateInstalled" name="date_installed" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm text-gray-500">
             </div>
         </div>
     </div>
@@ -152,11 +162,31 @@ $branches = $masterData->getBranches();
     </div>
 
     <div class="flex justify-end">
-        <button type="submit" id="submitBtn" disabled class="bg-gray-400 text-white px-8 py-2.5 rounded-lg font-bold transition-all text-sm cursor-not-allowed opacity-70">
+        <button type="submit" id="submitBtn" disabled class="bg-gray-500 text-white px-8 py-2.5 rounded-lg font-bold transition-all text-sm cursor-not-allowed opacity-70">
             SAVE LOAN
         </button>
     </div>
 </form>
+
+<script>
+document.getElementById('loanType').addEventListener('change', function() {
+    const val = this.options[this.selectedIndex].text.toLowerCase();
+    const classDiv = document.getElementById('classificationDiv');
+    const motorDiv = document.getElementById('motorTypeDiv');
+    const vehicleFields = document.getElementById('vehicleFields');
+
+    classDiv.classList.add('hidden');
+    motorDiv.classList.add('hidden');
+    vehicleFields.classList.add('hidden');
+
+    if (val.includes('car')) {
+        classDiv.classList.remove('hidden');
+    } else if (val.includes('motor')) {
+        motorDiv.classList.remove('hidden');
+        vehicleFields.classList.remove('hidden');
+    }
+});
+</script>
 
 <style>
 .ts-wrapper.single .ts-control {
