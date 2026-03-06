@@ -199,34 +199,62 @@ class LoanService {
     SECONDARY LEDGER (AMORTIZATION MATCHING EXCEL)
     ============================================================ */
     private function generateSecondaryLedger($loanId, $data) {
+
         $balance = round((float)$data['net_proceeds'], 2);
         $monthly = round((float)$data['secondary_monthly'], 2);
         $term = (int)$data['term'];
         $startDate = new DateTime($data['date_granted']);
-        $monthlyRate = 0.02;
+
+        $monthlyRate = $this->getEIRRate(
+            $term,
+            -$monthly,
+            $balance
+        );
 
         for ($i = 1; $i <= $term; $i++) {
+
             $startDate->modify('+1 month');
 
             if ($balance <= 0) {
+
                 $interest = 0.00;
                 $principal = 0.00;
                 $ending_balance = 0.00;
+
             } else {
+
                 $interest = round($balance * $monthlyRate, 2);
+
                 $principal = round($monthly - $interest, 2);
 
                 if ($i === $term || $principal >= $balance) {
+
                     $principal = $balance;
                     $ending_balance = 0.00;
+
                     $interest = round($monthly - $principal, 2);
-                    if ($interest < 0) $interest = 0.00;
+
+                    if ($interest < 0) {
+                        $interest = 0.00;
+                    }
+
                 } else {
+
                     $ending_balance = round($balance - $principal, 2);
+
                 }
             }
 
-            $this->saveToLedger('secondary_ledger', $loanId, $i, $startDate->format('Y-m-d'), $balance, $principal, $interest, $ending_balance);
+            $this->saveToLedger(
+                'secondary_ledger',
+                $loanId,
+                $i,
+                $startDate->format('Y-m-d'),
+                $balance,
+                $principal,
+                $interest,
+                $ending_balance
+            );
 
             $balance = $ending_balance;
         }
@@ -256,21 +284,105 @@ class LoanService {
             SANITIZE NUMERIC VALUES
             ============================================================ */
 
-            $principal       = round((float)$data['principal_amount'], 2);
-            $term            = (int)$data['term_months'];
-            $monthly         = round((float)$data['monthly_amortization'], 2);
-            $dealerIncentive = $isGMS ? round((float)($data['dealer_incentive'] ?? 0), 2) : 0.00;
-            $netProceeds     = $isGMS
-                ? round((float)($data['net_proceeds'] ?? ($principal - $dealerIncentive)), 2)
-                : $principal;
+            $principal = round((float)$data['principal_amount'], 2);
+            $term      = (int)$data['term_months'];
+            $monthly   = round((float)$data['monthly_amortization'], 2);
+
+            /* ============================================================
+            DEALER INCENTIVE
+            If not provided in Excel, compute 5%
+            ============================================================ */
+
+            if ($isGMS) {
+
+                if (!empty($data['dealer_incentive'])) {
+                    $dealerIncentive = round((float)$data['dealer_incentive'], 2);
+                } else {
+                    $dealerIncentive = round($principal * 0.05, 2);
+                }
+
+            } else {
+                $dealerIncentive = 0.00;
+            }
+
+            /* ============================================================
+            NET PROCEEDS
+            ============================================================ */
+
+            $netProceeds = $isGMS
+                ? round($principal - $dealerIncentive, 2)
+                : null;
+
+            /* ============================================================
+            SECONDARY MONTHLY (IF GMS)
+            Formula used in ML computation:
+            (((net proceeds * 2%) * term) + net proceeds) / term
+            ============================================================ */
+
+            if ($isGMS) {
+
+                if (!empty($data['secondary_monthly'])) {
+
+                    $secondaryMonthly = round((float)$data['secondary_monthly'], 2);
+
+                } else {
+
+                    $interestPerMonth = $netProceeds * 0.02;
+                    $totalInterest = $interestPerMonth * $term;
+
+                    $secondaryMonthly = round(
+                        ($netProceeds + $totalInterest) / $term,
+                        2
+                    );
+                }
+
+            } else {
+
+                $secondaryMonthly = null;
+
+            }
+
+            /* ============================================================
+            INTEREST RATE
+            ============================================================ */
 
             $interestRate = isset($data['interest_rate'])
                 ? round((float)$data['interest_rate'], 6)
                 : 0.00;
 
-            $eir = $isGMS && isset($data['eir'])
-                ? round((float)$data['eir'], 6)
-                : null;
+            /* ============================================================
+            EIR CALCULATION (using Newton-Raphson solver)
+            ============================================================ */
+
+            if ($isGMS) {
+
+                if (!empty($data['eir'])) {
+
+                    $eir = round((float)$data['eir'], 6);
+
+                } else {
+
+                    $monthlyRate = $this->getEIRRate(
+                        $term,
+                        -$secondaryMonthly,
+                        $netProceeds
+                    );
+
+                    $eir = round($monthlyRate, 10);
+
+                }
+
+            } else {
+
+                $eir = null;
+
+            }
+
+            /* ============================================================
+            SAVE SECONDARY MONTHLY BACK TO DATA
+            ============================================================ */
+
+            $data['secondary_monthly'] = $secondaryMonthly;
 
             /* ============================================================
             INSERT INTO LOANS
@@ -292,12 +404,13 @@ class LoanService {
                 interest_rate,
                 eir,
                 monthly_amortization,
+                secondary_monthly,
                 region_name,
                 source,
                 status,
                 date_created,
                 created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'import', 'active', NOW(), ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'import', 'active', NOW(), ?)";
 
             $stmt = $this->db->prepare($sqlLoan);
             $stmt->execute([
@@ -316,6 +429,7 @@ class LoanService {
                 $interestRate,
                 $eir,
                 $monthly,
+                $secondaryMonthly,
                 $data['region_name'] ?? '',
                 $currentUserName
             ]);
@@ -422,7 +536,37 @@ class LoanService {
                 'status' => 'error',
                 'message' => $e->getMessage()
             ];
+        } 
+    }
+
+
+    private function getEIRRate($nper, $pmt, $pv, $guess = 0.01){
+        $tol = 1e-10;
+        $maxIter = 100;
+        $rate = $guess;
+
+        for ($i = 0; $i < $maxIter; $i++) {
+
+            $f = $pv;
+            $df = 0;
+
+            for ($t = 1; $t <= $nper; $t++) {
+
+                $f += $pmt / pow(1 + $rate, $t);
+                $df += -$t * $pmt / pow(1 + $rate, $t + 1);
+
+            }
+
+            $newRate = $rate - $f / $df;
+
+            if (abs($newRate - $rate) < $tol) {
+                return $newRate;
+            }
+
+            $rate = $newRate;
         }
+
+        return $rate;
     }
 }
 
