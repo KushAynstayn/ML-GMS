@@ -24,7 +24,7 @@ try {
         $sql .= " FROM loans l ";
     }
     
-    $sql .= " WHERE l.loan_type_id = :type_id ORDER BY l.loan_id DESC";
+    $sql .= " WHERE l.loan_type_id = :type_id ORDER BY l.pn_date DESC, l.loan_id DESC";
 
     $stmt = $db->prepare($sql);
     $stmt->execute(['type_id' => $target_id]);
@@ -45,8 +45,7 @@ try {
 // Helper function to keep code clean
 function renderLoanRow($loan, $type) {
     $date = date("d/m/Y", strtotime($loan['pn_date']));
-    $wheelCell = ($type === 'motor') ? "<td class='px-6 py-4 text-sm font-bold'>".htmlspecialchars($loan['wheel_type'])."</td>" : "";
-    
+    $wheelCell = ($type === 'motor') ? "<td class='px-6 py-4 text-sm font-normal text-gray-500'>".htmlspecialchars($loan['wheel_type'])."</td>" : "";    
     return "
     <tr onclick=\"viewAmortization('{$loan['loan_id']}', 'primary')\" class='hover:bg-pink-50 transition-colors cursor-pointer'>
         <td class='px-6 py-4 text-sm text-gray-600'>$date</td>
