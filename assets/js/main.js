@@ -182,6 +182,35 @@ function getEIRRate(nper, pmt, pv, guess = 0.01) {
 }
 
 
+const loanRates = {
+
+        "PRE-OWNED": {
+            factor: 1.50,
+            aor: {12:18,24:36,36:54}
+        },
+
+        "PRENDA": {
+            factor: 1.75,
+            aor: {12:21,24:42,36:63}
+        },
+
+        "SURPLUS": {
+            factor: 2.75,
+            aor: {12:33,24:66,36:99}
+        },
+
+        "2-WHEELS": {
+            factor: 1.75,
+            aor: {12:21,24:42,36:63}
+        },
+
+        "3-WHEELS": {
+            factor: 2.00,
+            aor: {12:24,24:48,36:72}
+        }
+
+    };
+
 
 
 function calculateLoan() {
@@ -215,7 +244,25 @@ function calculateLoan() {
     const hiddenMaturity = document.getElementById('hiddenMaturity');
     const hiddenAOR = document.getElementById('hiddenAOR');
 
-    const flatRate = 0.02; // 2% monthly flat
+    const classificationSelect = document.querySelector('[name="classification"]');
+const vehicleTypeSelect = document.querySelector('[name="vehicle_type"]');
+
+let selectedClass = "";
+
+if (classificationSelect && classificationSelect.value) {
+    selectedClass = classificationSelect.value.toUpperCase();
+}
+
+if (vehicleTypeSelect && vehicleTypeSelect.value) {
+    selectedClass = vehicleTypeSelect.value.toUpperCase();
+}
+
+if (!loanRates[selectedClass]) return;
+
+const monthlyFactor = loanRates[selectedClass].factor;
+const monthlyRate = monthlyFactor / 100;
+
+const aorDisplay = loanRates[selectedClass].aor[term] || 0;
 
     if (principal <= 0 || term <= 0) return;
 
@@ -241,7 +288,7 @@ function calculateLoan() {
     // 2️⃣ PRIMARY LEDGER (AMORTIZED - REDUCING BALANCE)
     // =====================================================
 
-    const monthlyRate = 0.02;
+   
 
     // Proper amortized monthly payment formula
     const primaryMonthlyPayment = Number(
@@ -291,9 +338,13 @@ function calculateLoan() {
     if (resMonthly) resMonthly.value = primaryMonthlyPayment.toFixed(2);
     if (hiddenMonthly) hiddenMonthly.value = primaryMonthlyPayment.toFixed(2);
 
-    const aorDisplay = flatRate * term * 100;
-    if (resAOR) resAOR.value = aorDisplay.toFixed(2) + "%";
-    if (hiddenAOR) hiddenAOR.value = aorDisplay.toFixed(2);
+    if (resAOR) resAOR.value = aorDisplay + "%";
+    if (hiddenAOR) hiddenAOR.value = aorDisplay;
+
+    const hiddenMonthlyFactor = document.getElementById("hiddenMonthlyFactor");
+    if(hiddenMonthlyFactor){
+        hiddenMonthlyFactor.value = monthlyFactor;
+    }
 
     const computedEIRPrimary = getEIRRate(term, -primaryMonthlyPayment, principal);
     const eirPercentagePrimary = computedEIRPrimary * 100;
