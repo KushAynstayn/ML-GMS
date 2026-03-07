@@ -26,7 +26,7 @@ $branches = $masterData->getBranches();
 
             <div id="classificationDiv" class="col-span-2 md:col-span-6 hidden">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Classification</label>
-                <select name="classification" required class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm text-gray-700">
+                <select id="classificationSelect" name="classification" class="w-full border border-gray-200 rounded-lg p-2 bg-white focus:outline-none focus:ring-1 focus:ring-red-500 transition-all text-sm text-gray-700">
                     <option value="" class="text-gray-500">Select Classification</option>
                     <option value="Prenda">Prenda</option>
                     <option value="Pre-owned">Pre-owned</option>
@@ -36,7 +36,7 @@ $branches = $masterData->getBranches();
 
             <div id="motorTypeDiv" class="col-span-2 md:col-span-6 hidden">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Motorcycle Type</label>
-                <select name="vehicle_type" required class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm focus:outline-none text-gray-700">
+                <select id="motorTypeSelect" name="vehicle_type" class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm focus:outline-none text-gray-700">
                     <option value="" class="text-gray-500">Select Type</option>
                     <option value="2-WHEELS">2-WHEELS</option>
                     <option value="3-WHEELS">3-WHEELS</option>
@@ -171,19 +171,29 @@ $branches = $masterData->getBranches();
 <script>
 document.getElementById('loanType').addEventListener('change', function() {
     const val = this.options[this.selectedIndex].text.toLowerCase();
+    
+    // UI Containers
     const classDiv = document.getElementById('classificationDiv');
     const motorDiv = document.getElementById('motorTypeDiv');
-    const vehicleFields = document.getElementById('vehicleFields');
-
+    
+    // Select Inputs
+    const classSelect = document.getElementById('classificationSelect');
+    const motorSelect = document.getElementById('motorTypeSelect');
+    
+    // 1. Hide everything and disable required by default
     classDiv.classList.add('hidden');
-    motorDiv.classList.add('hidden');
-    vehicleFields.classList.add('hidden');
+    classSelect.required = false;
 
+    motorDiv.classList.add('hidden');
+    motorSelect.required = false;
+
+    // 2. Show only the correct one and enable required
     if (val.includes('car')) {
         classDiv.classList.remove('hidden');
+        classSelect.required = true;
     } else if (val.includes('motor')) {
         motorDiv.classList.remove('hidden');
-        vehicleFields.classList.remove('hidden');
+        motorSelect.required = true;
     }
 });
 </script>
