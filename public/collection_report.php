@@ -16,8 +16,9 @@
     }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 <div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
@@ -95,61 +96,75 @@
             <span class="font-medium">No records found matching your selection.</span>
         </div>
         
-        <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
-            <table id="collectionTable" class="w-full text-left border-collapse min-w-[1800px]">
-                <thead class="bg-red-600">
-                    <tr>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Release Date</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Installment Date</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white">Account Name</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Monthly Amort.</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Principal</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Interest</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Term</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Reference #</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Amort. Period</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Date Paid</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Device Installed</th>
-                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="divide-y divide-gray-100">
-                    <tr class="hover:bg-pink-50 transition-colors" data-loan-type="car">
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">08/08/2025</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">31/07/2025</td>
-                        <td class="px-4 py-4 text-sm text-gray-800 font-medium">Leah Faye Genson</td>
-                        <td class="px-4 py-4 text-sm text-gray-700 text-center">24,940.67</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">12,551.77</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">12,388.89</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">48 months</td>
-                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MCRVMWQTW</td>
-                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Dec 2025</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">09/01/2026</td>
-                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-bold uppercase">Yes</span></td>
-                        <td class="px-4 py-4 text-sm text-center">
-                            <span class="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Fully Paid</span>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-pink-50 transition-colors" data-loan-type="motor" data-wheels="2-wheels">
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">10/01/2026</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">01/01/2026</td>
-                        <td class="px-4 py-4 text-sm text-gray-800 font-medium">Motorbike User (2W)</td>
-                        <td class="px-4 py-4 text-sm text-gray-700 text-center">3,200.00</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">2,000.00</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">1,200.00</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">12 months</td>
-                        <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MOT999XXX</td>
-                        <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                        <td class="px-4 py-4 text-sm text-gray-600 text-center">---</td>
-                        <td class="px-4 py-4 text-sm text-center"><span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-[10px] font-bold uppercase">No</span></td>
-                        <td class="px-4 py-4 text-sm text-center">
-                            <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Repossessed</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
+<div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
+    <table id="collectionTable" class="w-full text-left border-collapse min-w-[2100px]">
+        <thead class="bg-red-600">
+            <tr>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Released Date</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Installation Date</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white">Account Name</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Unit</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Monthly Amortization</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Principal</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Interest</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Loan Term</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Loan Reference Number</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Paid Amortization</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Date Paid</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody" class="divide-y divide-gray-100">
+            <tr class="hover:bg-pink-50 transition-colors" data-loan-type="car">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">08/08/2025</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">31/07/2025</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Leah Faye Genson</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">FORD FIESTA RED</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">24,940.67</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12,551.77</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12,388.89</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">48 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MCRVMWQTW</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Dec 2025</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">09/01/2026</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Fully Paid</span>
+                </td>
+            </tr>
+            <tr class="hover:bg-pink-50 transition-colors" data-loan-type="motor" data-wheels="2-wheels" style="display:none">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">10/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">01/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">John Doe</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">YAMAHA NMAX</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">3,200.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">2,000.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,200.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR2W001</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">---</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Repossessed</span>
+                </td>
+            </tr>
+            <tr class="hover:bg-pink-50 transition-colors" data-loan-type="motor" data-wheels="3-wheels" style="display:none">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">BAJAJ RE</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-red-600 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <script>
@@ -210,7 +225,7 @@ function filterTable() {
     rows.forEach(row => {
         const releaseDateStr = row.cells[0].textContent.trim();
         const nameText = row.cells[2].textContent.toUpperCase();
-        const refText = row.cells[7].textContent.toUpperCase();
+        const refText = row.cells[8].textContent.toUpperCase(); // Adjusted index to 8 for Ref Number
         const rowLoanType = row.getAttribute('data-loan-type');
         const rowWheels = row.getAttribute('data-wheels');
 
@@ -262,58 +277,150 @@ window.onload = function() {
 
 // --- Updated Download Functions ---
 
-function downloadExcel() {
-    const table = document.getElementById('collectionTable');
-    const worksheet = XLSX.utils.table_to_sheet(table);
-    // Adjusted for 12 columns
-    const colWidths = [
-        { wch: 14 }, { wch: 16 }, { wch: 28 }, { wch: 15 }, { wch: 12 },
-        { wch: 12 }, { wch: 10 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, 
-        { wch: 14 }, { wch: 16 }
-    ];
-    worksheet['!cols'] = colWidths;
-
-    for (let cell in worksheet) {
-        if (cell[0] === '!') continue; 
-        const row = parseInt(cell.replace(/[^\d]/g, ''));
-        if (row === 1) {
-            worksheet[cell].s = {
-                fill: { fgColor: { rgb: "DC2626" } }, 
-                font: { bold: true, sz: 10, color: { rgb: "FFFFFF" } },
-                alignment: { horizontal: "center", vertical: "center" }
-            };
-        }
-    }
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Collections");
-    XLSX.writeFile(workbook, "Collection-Report.xlsx");
-}
-
 function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4');
+    
+    const doc = new jsPDF('p', 'mm', 'letter');
+    
     const img = new Image();
     img.src = '../assets/images/ml.png';
-    
+
+    const now = new Date();
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const dateStr = `As of ${lastDay.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+
+    // Determine Display Title
+    let displayTab = currentTab.toUpperCase();
+    if (displayTab === "CAR") {
+        displayTab = "CAR LOAN";
+    } else if (displayTab === "MOTOR") {
+        const wheelFilter = document.getElementById('wheelFilter').value;
+        if (wheelFilter === '2-wheels') {
+            displayTab = "MOTOR LOAN (2-WHEELS)";
+        } else if (wheelFilter === '3-wheels') {
+            displayTab = "MOTOR LOAN (3-WHEELS)";
+        } else {
+            displayTab = "MOTOR LOAN";
+        }
+    }
+
     img.onload = function() {
-        doc.addImage(img, 'PNG', 131, 10, 35, 7); 
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text("LOANS DEPARTMENT", 148.5, 25, { align: "center" });
-        doc.text("COLLECTION REPORT", 148.5, 32, { align: "center" });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const centerX = pageWidth / 2;
+
+        doc.addImage(img, 'PNG', centerX - 17.5, 10, 35, 7);
         
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(100, 100, 100);
+        doc.text("LOANS DEPARTMENT", centerX, 22, { align: "center" });
+        doc.text("COLLECTION REPORT", centerX, 27, { align: "center" });
+        
+        doc.setFont("helvetica", "normal");
+        doc.text(dateStr, centerX, 32, { align: "center" });
+        
+        doc.setFontSize(10);
+        doc.text(displayTab, 14, 40);
+
         doc.autoTable({
             html: '#collectionTable',
-            startY: 40,
+            startY: 45,
             theme: 'grid',
-            styles: { fontSize: 7, halign: 'center' },
-            headStyles: { fillColor: [220, 38, 38], textColor: [255, 255, 255] },
-            columnStyles: {
-                2: { halign: 'left', fontStyle: 'bold' }, // Name
-                11: { fontStyle: 'bold' } // Status
-            }
+            styles: { 
+                fontSize: 6, 
+                halign: 'center', 
+                textColor: [0, 0, 0], 
+                lineColor: [200, 200, 200] 
+            },
+            headStyles: { 
+                fillColor: [220, 38, 38], 
+                textColor: [255, 255, 255] 
+            },
+            margin: { left: 14, right: 14 }
         });
-        doc.save("Collection-Report.pdf");
+        
+        doc.save(`Collection_Report_${currentTab}.pdf`);
     };
+}
+
+async function downloadExcel() {
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Collections');
+
+        // 1. Add Logo centered at column F
+        const response = await fetch('../assets/images/ml.png');
+        const buffer = await response.arrayBuffer();
+        const logoId = workbook.addImage({ buffer: buffer, extension: 'png' });
+
+        // We set col: 5 (Column F). 
+        // The 'offset' properties move the image slightly to the right 
+        // within the cell to achieve a true centered look.
+        worksheet.addImage(logoId, {
+            tl: { col: 5, row: 0 },
+            ext: { width: 120, height: 40 },
+            editAs: 'oneCell' 
+        });
+
+        // 2. Title Rows (No merge, placed in Column F/Index 6)
+        worksheet.getCell('F3').value = "LOANS DEPARTMENT";
+        worksheet.getCell('F3').font = { bold: true, size: 14 };
+        worksheet.getCell('F3').alignment = { horizontal: 'center' };
+
+        worksheet.getCell('F4').value = "COLLECTION REPORT";
+        worksheet.getCell('F4').font = { bold: true, size: 12 };
+        worksheet.getCell('F4').alignment = { horizontal: 'center' };
+
+        // 3. Loan Type Info
+        let loanTypeDisplay = currentTab === 'motor' 
+            ? "MOTOR LOAN (" + document.getElementById('wheelFilter').value.toUpperCase() + ")" 
+            : "CAR LOAN";
+        worksheet.getCell('A5').value = loanTypeDisplay;
+        worksheet.getCell('F5').font = { bold: true };
+        worksheet.getCell('F5').alignment = { horizontal: 'center' };
+
+        // 4. Data Extraction - Get ONLY visible rows from table
+        const table = document.getElementById('collectionTable');
+        const allRows = Array.from(table.querySelectorAll('tr'));
+        const visibleRows = allRows.filter(tr => tr.style.display !== 'none');
+
+        visibleRows.forEach((tr, rowIndex) => {
+            const cells = Array.from(tr.querySelectorAll('th, td'));
+            const excelRow = worksheet.getRow(rowIndex + 6);
+
+            // Column A: "#"
+            const hashCell = excelRow.getCell(1);
+            hashCell.value = (rowIndex === 0) ? "#" : rowIndex;
+            hashCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            
+            // Apply Red Header styling to "#"
+            if (rowIndex === 0) {
+                hashCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDC2626' } };
+                hashCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            }
+            hashCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Fill Columns B through N
+            cells.forEach((cell, colIndex) => {
+                const excelCell = excelRow.getCell(colIndex + 2);
+                excelCell.value = cell.innerText.trim();    
+                excelCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+                if (rowIndex === 0) {
+                    excelCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDC2626' } };
+                    excelCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                }
+                excelCell.alignment = { horizontal: 'center', vertical: 'middle' };
+            });
+        });
+
+        worksheet.columns.forEach(col => col.width = 18);
+
+        const excelBuffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([excelBuffer]), `Collection_Report_${currentTab}.xlsx`);
+    } catch (error) {
+        console.error("Error generating Excel:", error);
+        alert("Failed to download Excel. Please check the console for details.");
+    }
 }
 </script>
