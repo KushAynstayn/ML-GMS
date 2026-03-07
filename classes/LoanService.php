@@ -46,50 +46,54 @@ class LoanService {
                INSERT INTO LOANS
             ============================ */
             $sqlLoan = "INSERT INTO loans (
-                reference_number,
-                loan_type_id,
-                first_name,
-                middle_name,
-                last_name,
-                contact_number,
-                pn_date,
-                pn_maturity_date,
-                principal_amount,
-                term_months,
-                dealer_incentive,
-                net_proceeds,
-                interest_rate,
-                eir,
-                monthly_amortization,
-                secondary_monthly,
-                region_name,
-                source,
-                status,
-                date_created,
-                created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'active', NOW(), ?)";
+            reference_number,
+            loan_type_id,
+            classification,
+            monthly_factor,
+            first_name,
+            middle_name,
+            last_name,
+            contact_number,
+            pn_date,
+            pn_maturity_date,
+            principal_amount,
+            term_months,
+            dealer_incentive,
+            net_proceeds,
+            interest_rate,
+            eir,
+            monthly_amortization,
+            secondary_monthly,
+            region_name,
+            source,
+            status,
+            date_created,
+            created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'active', NOW(), ?)";
 
             $stmt = $this->db->prepare($sqlLoan);
             $stmt->execute([
-                $data['ref_no'],
-                $data['loan_type_id'],
-                strtoupper($data['first_name']),
-                strtoupper($data['middle_name'] ?? ''),
-                strtoupper($data['last_name']),
-                $data['contact'],
-                $data['date_granted'],
-                $data['maturity_date'],
-                $principal,
-                $data['term'],
-                $dealerIncentive,
-                $netProceeds,
-                $data['aor'],
-                $eir,
-                $data['monthly_amortization'],
-                $secondaryMonthly,
-                $data['region_name'] ?? '',
-                $currentUserName
-            ]);
+            $data['ref_no'],
+            $data['loan_type_id'],
+            strtoupper($data['classification'] ?? ''),
+            $data['monthly_factor'] ?? 0,
+            strtoupper($data['first_name']),
+            strtoupper($data['middle_name'] ?? ''),
+            strtoupper($data['last_name']),
+            $data['contact'],
+            $data['date_granted'],
+            $data['maturity_date'],
+            $principal,
+            $data['term'],
+            $dealerIncentive,
+            $netProceeds,
+            $data['aor'],
+            $eir,
+            $data['monthly_amortization'],
+            $secondaryMonthly,
+            $data['region_name'] ?? '',
+            $currentUserName
+        ]);
 
             $loanId = $this->db->lastInsertId();
 
@@ -160,7 +164,7 @@ class LoanService {
         $startDate = new DateTime($data['date_granted']);
         
         // To match your Excel, the rate must be applied to the REMAINING balance
-        $monthlyRate = 0.02; 
+        $monthlyRate = ((float)$data['monthly_factor']) / 100;
 
         for ($i = 1; $i <= $term; $i++) {
             $startDate->modify('+1 month');
