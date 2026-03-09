@@ -605,7 +605,7 @@ function showStatusModal(type, title, msg, shouldRefresh) {
 
     // 2. Set the text
     document.getElementById('statusTitle').innerText = title;
-    document.getElementById('statusMsg').innerText = msg;
+    document.getElementById('statusMsg').innerHTML = msg;
 
     // 3. Set the icon, colors, and handle the Timer/Button logic
     if (type === 'success') {

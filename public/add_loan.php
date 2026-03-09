@@ -79,17 +79,9 @@ include_once '../includes/modals/status_modal.php';
                 contentArea.innerHTML = html;
                 if (tabName === 'add_record') {
                     setTimeout(() => {
-                        // 1. Re-initialize dropdowns and calculators
                         if (typeof initLoanCalculator === 'function') initLoanCalculator();
                         if (typeof initSearchableDropdowns === 'function') initSearchableDropdowns();
-
-                        // 2. CRITICAL FIX: Re-bind the Submit event to the new form
                         const form = document.getElementById('loanForm');
-                        if (form) {
-                            // Ensure we don't have duplicate listeners
-                            //form.removeEventListener('submit', handleFormSubmit); 
-                            //form.addEventListener('submit', handleFormSubmit);
-                        }
                     }, 50);
                 }
             })
@@ -171,13 +163,21 @@ include_once '../includes/modals/status_modal.php';
                 e.target.innerText = "UPLOAD";
 
                 if (result.trim() === "success") {
-                    // Use your existing status modal with auto-close (true)
                     showStatusModal('success', 'Success!', 'Records imported successfully.', true);
                     resetFileInput();
                 } else {
-                    // Show error without auto-close so the user can read the error (false)
-                    showStatusModal('error', 'Import Failed', 'Error: ' + result, false);
+                // Enhanced Error Logic
+                let displayError = result;
+                if (result.includes("Duplicate entry")) {
+                    // Extract the reference number using regex
+                    const match = result.match(/'([^']+)'/);
+                    const refNo = match ? match[1] : "Unknown";
+                    
+                    // Wrapped refNo in <strong> tags to make it bold
+                    displayError = `Duplicate reference number: <strong>${refNo}</strong>. Please check your file and try again.`;
                 }
+                showStatusModal('error', 'Import Failed', displayError, false);
+            }
             })
             .catch(error => {
                 e.target.disabled = false;
@@ -309,7 +309,6 @@ include_once '../includes/modals/status_modal.php';
                     navBar.appendChild(btn);
                 });
 
-                // Auto-trigger the first tab content
                 if (navBar.firstChild) navBar.firstChild.click();
             };
             reader.readAsArrayBuffer(file);
