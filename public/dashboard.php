@@ -320,6 +320,8 @@ include('../includes/header.php');
     </main>
 </div>
 
+<?php include '../includes/modals/change_password_modal.php'; ?>
+
 <script>
 // Dashboard Logic
 document.addEventListener('DOMContentLoaded', function() {
@@ -438,4 +440,21 @@ function filterDashboard() {
         noRecordFound.classList.add('hidden');
     }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const forceChange = <?php echo isset($_SESSION['force_password_change']) ? 'true' : 'false'; ?>;
+    const modal = document.getElementById("changePasswordModal");
+
+    if (forceChange && modal) {
+        modal.style.display = "flex";
+    }
+
+    // Optional: block ESC so user cannot bypass password change
+    document.addEventListener("keydown", function(e) {
+        if (forceChange && e.key === "Escape") {
+            e.preventDefault();
+        }
+    });
+});
+
 </script>

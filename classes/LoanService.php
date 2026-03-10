@@ -331,11 +331,10 @@ class LoanService {
 
                 } else {
 
-                    $interestPerMonth = $netProceeds * 0.02;
-                    $totalInterest = $interestPerMonth * $term;
+                    $monthlyFactor = (float)$data['monthly_factor'] / 100;
 
                     $secondaryMonthly = round(
-                        ($netProceeds + $totalInterest) / $term,
+                        ((($netProceeds * $monthlyFactor) * $term) + $netProceeds) / $term,
                         2
                     );
                 }
