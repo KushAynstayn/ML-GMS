@@ -14,12 +14,12 @@ include_once '../includes/modals/status_modal.php';
 
         <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
             <header class="mb-6">
-                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add <span class="text-red-600">Loan</span></h2>
+                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add <span class="text-[#D50000]">Loan</span></h2>
                 <p class="text-gray-500 font-medium mt-2 mb-8">Fill out the details below to register a new loan application.</p>
                 <div class="flex gap-8 border-b border-gray-200">
-                    <button onclick="switchTab('add_record', this)" class="tab-btn pb-2 font-semibold text-red-600 border-b-2 border-red-600 transition-all">Add new record</button>
-                    <button onclick="switchTab('import_file', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-red-600 transition-all">Import file</button>
-                    <button onclick="switchTab('import_payment', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-red-600 transition-all">Import payment</button>
+                    <button onclick="switchTab('add_record', this)" class="tab-btn pb-2 font-semibold text-[#D50000] border-b-2 border-[#D50000] transition-all">Add new record</button>
+                    <button onclick="switchTab('import_file', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">Import file</button>
+                    <button onclick="switchTab('import_payment', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">Import payment</button>
                 </div>
             </header>
 
@@ -63,11 +63,11 @@ include_once '../includes/modals/status_modal.php';
     function switchTab(tabName, element) {
         const contentArea = document.getElementById('tab-content-area');    
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+            btn.classList.remove('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
             btn.classList.add('text-gray-500');
         });
         
-        element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+        element.classList.add('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
         element.classList.remove('text-gray-500');
         
         fetch(`../includes/tabs/${tabName}.php`)
@@ -101,12 +101,12 @@ include_once '../includes/modals/status_modal.php';
 
                 if (titleDisplay) titleDisplay.innerText = "File Selected";
                 if (fileNameDisplay) {
-                    fileNameDisplay.innerHTML = `Selected: <span class="text-red-600 font-bold">${file.name}</span>`;
+                    fileNameDisplay.innerHTML = `Selected: <span class="text-[#D50000] font-bold">${file.name}</span>`;
                 }
 
                 if (selectBtn) {
                     selectBtn.innerText = "View File";
-                    selectBtn.className = "bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition-colors"; 
+                    selectBtn.className = "bg-gray-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-900 transition-colors"; 
                     selectBtn.onclick = function(event) {
                         event.preventDefault();
                         openFileModal(file);
@@ -126,7 +126,7 @@ include_once '../includes/modals/status_modal.php';
         const selectBtn = document.getElementById('selectBtn');
         if (selectBtn) {
             selectBtn.innerText = "Select File";
-            selectBtn.className = "bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition-colors";
+            selectBtn.className = "bg-gray-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-900 transition-colors";
             selectBtn.onclick = () => { document.getElementById('fileInput').click(); };
         }
         const cancelBtn = document.getElementById('cancelBtn');
@@ -299,10 +299,10 @@ include_once '../includes/modals/status_modal.php';
                     btn.innerText = name;
                     btn.onclick = () => {
                         document.querySelectorAll('.sheet-tab-btn').forEach(b => {
-                            b.classList.remove('bg-white', 'text-red-600', 'border-b-4', 'border-red-600');
+                            b.classList.remove('bg-white', 'text-[#D50000]', 'border-b-4', 'border-[#D50000]');
                             b.classList.add('text-gray-500');
                         });
-                        btn.classList.add('bg-white', 'text-red-600', 'border-b-4', 'border-red-600');
+                        btn.classList.add('bg-white', 'text-[#D50000]', 'border-b-4', 'border-[#D50000]');
                         btn.classList.remove('text-gray-500');
                         contentArea.innerHTML = `<div class="excel-preview-wrapper">${XLSX.utils.sheet_to_html(workbook.Sheets[name])}</div>`;
                     };

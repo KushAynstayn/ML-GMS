@@ -32,22 +32,22 @@ $menu_items = [
 ];
 ?>
 
-<aside id="sidebar" class="z-20 w-16 hover:w-64 transition-all duration-300 ease-in-out bg-white border-r border-gray-100 flex flex-col justify-between py-6 relative group shrink-0 shadow-[4px_0_8px_rgba(0,0,0,0.05)]">
+<aside id="sidebar" class="z-20 w-16 hover:w-64 transition-all duration-300 ease-in-out bg-[#D50000] border-r border-red-500 flex flex-col justify-between py-6 relative group shrink-0 shadow-[4px_0_8px_rgba(0,0,0,0.2)]">
     <div>
         <div class="px-5 flex items-center h-10 mb-2 relative">
             <div class="flex items-center min-w-[32px]">
-                <img src="../assets/images/mlhuillier-red.png" alt="Logo" class="w-6 h-6 object-contain grayscale-[0.2]">
+                <img src="../assets/images/mlhuillier-red.png" alt="Logo" class="w-6 h-6 object-contain invert brightness-0">
                 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&display=swap" rel="stylesheet">
-                <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 sidebar-text ml-4 text-[#8b1a1a] font-['Cinzel'] text-lg tracking-wider">
+                <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 sidebar-text ml-4 text-white font-['Cinzel'] text-lg tracking-wider">
                     ML LOANS
                 </span>
             </div>
-            <button id="logo-lock-btn" class="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-50 rounded-md text-slate-400">
+            <button id="logo-lock-btn" class="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-700 rounded-md text-red-100">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
 
-        <div class="mx-4 mb-4 border-b border-gray-50"></div>
+        <div class="mx-4 mb-4 border-b border-red-700"></div>
 
         <nav class="px-3 space-y-1">
             <?php foreach ($menu_items as $item): 
@@ -60,10 +60,10 @@ $menu_items = [
             ?>
                 <div class="relative">
                     <a href="<?php echo $hasSubmenu ? '#' : $item['file']; ?>" 
-                       <?php if($hasSubmenu) echo 'onclick="toggleSubmenu(event, this)"'; ?>
-                       class="flex items-center gap-4 px-3 py-2.5 rounded-lg transition-all duration-200 group/item <?php echo $isActive ? 'bg-slate-50 text-red-600 font-medium' : 'text-slate-500 hover:bg-gray-50 hover:text-slate-900'; ?>">
+                    <?php if($hasSubmenu) echo 'onclick="toggleSubmenu(event, this)"'; ?>
+                    class="flex items-center gap-4 px-3 py-2.5 rounded-lg transition-all duration-200 group/item <?php echo $isActive ? 'bg-red-800 text-white font-medium' : 'text-red-100 hover:bg-red-600 hover:text-white'; ?>">
                         <div class="flex items-center justify-center min-w-[20px]">
-                            <svg class="w-5 h-5 <?php echo $isActive ? 'text-red-600' : 'text-slate-400 group-hover/item:text-slate-600'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 <?php echo $isActive ? 'text-white' : 'text-red-100 group-hover/item:text-white'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="<?php echo $item['icon']; ?>"></path>
                             </svg>
                         </div>
@@ -76,18 +76,18 @@ $menu_items = [
                         <?php endif; ?>
 
                         <?php if($isActive): ?>
-                            <div class="absolute left-0 w-1 h-6 bg-red-600 rounded-r-full"></div>
+                            <div class="absolute left-0 w-1 h-6 bg-white rounded-r-full"></div>
                         <?php endif; ?>
                     </a>
 
                     <?php if($hasSubmenu): ?>
-                        <div class="submenu overflow-hidden transition-all duration-300 bg-gray-50/50 rounded-b-lg mx-1" 
-                             style="max-height: <?php echo ($current_page === 'all_loans.php') ? '500px' : '0px'; ?>;">
+                        <div class="submenu overflow-hidden transition-all duration-300 bg-black/10 rounded-b-lg mx-1" 
+                            style="max-height: <?php echo ($current_page === 'all_loans.php') ? '500px' : '0px'; ?>;">
                             <?php foreach($item['sub_menu'] as $sub): 
                                 $isSubActive = ($current_type === $sub['type']);
                             ?>
                                 <a href="all_loans.php?type=<?php echo $sub['type']; ?>" 
-                                   class="flex items-center gap-4 pl-12 pr-3 py-2 text-xs transition-colors rounded-md <?php echo $isSubActive ? 'text-red-600 font-bold bg-red-50' : 'text-slate-500 hover:text-red-600 hover:bg-red-50/50'; ?>">
+                                class="flex items-center gap-4 pl-12 pr-3 py-2 text-xs transition-colors rounded-md <?php echo $isSubActive ? 'text-white font-bold bg-red-800' : 'text-red-100 hover:text-white hover:bg-red-600/50'; ?>">
                                     <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity sidebar-text">
                                         <?php echo $sub['label']; ?>
                                     </span>
@@ -98,11 +98,11 @@ $menu_items = [
                 </div>
             <?php endforeach; ?>
 
-            <div class="my-4 border-t border-gray-50 mx-2"></div>
+            <div class="my-4 border-t border-red-700 mx-2"></div>
 
-            <a href="../actions/logout.php" class="flex items-center gap-4 px-3 py-2 text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all group/logout">
+            <a href="../actions/logout.php" class="flex items-center gap-4 px-3 py-2 text-red-100 hover:bg-red-600 hover:text-white rounded-lg transition-all group/logout">
                 <div class="flex items-center justify-center min-w-[20px]">
-                    <svg class="w-5 h-5 transition-colors group-hover/logout:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 transition-colors group-hover/logout:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                     </svg>
                 </div>
@@ -112,17 +112,17 @@ $menu_items = [
     </div>
 
     <div class="px-5">
-        <div class="flex items-center gap-3 py-3 border-t border-gray-50 transition-all duration-300">
-            <div class="w-8 h-8 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center text-slate-500">
+        <div class="flex items-center gap-3 py-3 border-t border-red-700 transition-all duration-300">
+            <div class="w-8 h-8 rounded-full bg-red-900 flex-shrink-0 flex items-center justify-center text-red-100">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
                 </svg>
             </div>
             <div class="flex flex-col whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity sidebar-text overflow-hidden">
-                <span class="text-[13px] font-semibold text-slate-700 leading-tight">
+                <span class="text-[13px] font-semibold text-white leading-tight">
                     <?php echo htmlspecialchars($display_name); ?>
                 </span>
-                <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                <span class="text-[10px] text-red-100 font-medium uppercase tracking-wider">
                     <?php echo $display_role; ?>
                 </span>
             </div>
@@ -141,8 +141,8 @@ $menu_items = [
 
     .sidebar-locked #logo-lock-btn {
         opacity: 1 !important;
-        color: #dc2626;
-        background-color: #fef2f2;
+        color: white;
+        background-color: #B20000;
     }
 
     #sidebar:not(:hover):not(.sidebar-locked) .sidebar-text {

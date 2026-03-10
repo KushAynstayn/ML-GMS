@@ -9,13 +9,22 @@ include('../includes/header.php');
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
+    /* Background and Wave Styles */
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
-        background: linear-gradient(135deg, #450a0a 0%, #290606 50%, #1a0303 100%);
-        background-attachment: fixed;
-        color: #ffffff;
+        background-color: #5d0101; /* Solid base color */        color: #ffffff;
         min-height: 100vh;
         margin: 0;
+        overflow-x: hidden;
+    }
+
+    #waveCanvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1; /* Keeps it behind all content */
     }
 
     .glass-panel {
@@ -27,7 +36,7 @@ include('../includes/header.php');
     }
 
     .glass-table-container {
-        background: rgba(10, 2, 2, 0.8); 
+        background: rgba(75, 2, 2, 0.8); 
         backdrop-filter: blur(15px);
         border: 1px solid rgba(239, 68, 68, 0.1);
         border-radius: 1.5rem;
@@ -118,6 +127,8 @@ include('../includes/header.php');
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
 </style>
+
+<canvas id="waveCanvas"></canvas>
 
 <div id="layoutContainer" class="flex overflow-hidden" style="min-height: calc(100vh - 64px); flex: 1;">
     <?php include('../includes/sidebar.php'); ?>
@@ -321,7 +332,45 @@ include('../includes/header.php');
 </div>
 
 <script>
-// Dashboard Logic
+// --- Wave Animation Logic ---
+const canvas = document.getElementById('waveCanvas');
+const ctxWave = canvas.getContext('2d');
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+let offset = 0;
+function drawWaves() {
+    ctxWave.fillStyle = '#220303'; // Base dark red
+    ctxWave.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctxWave.beginPath();
+    ctxWave.moveTo(0, canvas.height);
+    
+    // Draw 3 layers of waves
+    for (let i = 0; i < 3; i++) {
+        ctxWave.fillStyle = `rgba(200, 0, 0, ${0.1 + (i * 0.05)})`;
+        ctxWave.beginPath();
+        ctxWave.moveTo(0, canvas.height);
+        for (let x = 0; x <= canvas.width; x++) {
+            let y = Math.sin(x * 0.003 + offset + (i * 2)) * 50 + (canvas.height - (i * 100) - 100);
+            ctxWave.lineTo(x, y);
+        }
+        ctxWave.lineTo(canvas.width, canvas.height);
+        ctxWave.fill();
+    }
+    
+    offset += 0.01;
+    requestAnimationFrame(drawWaves);
+}
+drawWaves();
+// --- End Wave Animation ---
+
+// Existing Dashboard Logic
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.querySelector('aside');
     const layout = document.getElementById('layoutContainer');
