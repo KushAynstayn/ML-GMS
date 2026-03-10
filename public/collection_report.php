@@ -21,27 +21,27 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
-<div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
+<div class="flex h-screen overflow-hidden">
     <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
+    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content h-full">
         <header class="mb-8">
             <div class="flex justify-between items-start">
                 <div>
-                    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Collection <span class="text-red-600">Report</span></h2>
+                    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Collection <span class="text-[#D50000]">Report</span></h2>
                     <p class="text-gray-500 font-medium mt-2 mb-6">Access detailed borrower insights and track all collection data.</p>
                 </div>
             </div>
 
             <div class="flex gap-8 border-b border-gray-200 mb-6">
-                <button onclick="switchTab('car', this)" id="tabCar" class="tab-btn pb-2 font-semibold text-red-600 border-b-2 border-red-600 transition-all">Car Loan</button>
-                <button onclick="switchTab('motor', this)" id="tabMotor" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-red-600 transition-all">Motor Loan</button>
+                <button onclick="switchTab('car', this)" id="tabCar" class="tab-btn pb-2 font-semibold text-[#D50000] border-b-2 border-[#D50000] transition-all">Car Loan</button>
+                <button onclick="switchTab('motor', this)" id="tabMotor" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">Motor Loan</button>
             </div>
 
             <div class="flex flex-nowrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 
                 <div class="flex-1 min-w-[200px] relative">
-                    <input type="text" id="searchInput" placeholder="Search account or reference..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-0 text-gray-600 placeholder-gray-400">
+                    <input type="text" id="searchInput" placeholder="Search account or reference..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D50000]/20 text-gray-600 placeholder-gray-400">
                     <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -56,7 +56,7 @@
                 </div>
 
                 <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all bg-white text-red-600 shadow-sm">Single Date</button>
+                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
                     <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
                 </div>
 
@@ -73,7 +73,7 @@
                 </div>
 
                 <div class="relative inline-block text-left shrink-0" id="downloadDropdown">
-                    <button onclick="toggleDropdown()" class="flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 transition-all shadow-sm text-sm">
+                    <button onclick="toggleDropdown()" class="flex items-center gap-2 bg-[#D50000] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#B70000] transition-all shadow-sm text-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
@@ -84,21 +84,21 @@
                             <span class="text-green-600 font-bold">EXCEL</span> 
                         </button>
                         <button onclick="downloadPDF()" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-t border-gray-100">
-                            <span class="text-red-600 font-bold">PDF</span> 
+                            <span class="text-[#D50000] font-bold">PDF</span> 
                         </button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-700">
+        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-[#D50000]">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span class="font-medium">No records found matching your selection.</span>
         </div>
         
 <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
     <table id="collectionTable" class="w-full text-left border-collapse min-w-[2100px]">
-        <thead class="bg-red-600">
+        <thead class="bg-[#D50000]">
             <tr>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Released Date</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Installation Date</th>
@@ -115,7 +115,7 @@
             </tr>
         </thead>
         <tbody id="tableBody" class="divide-y divide-gray-100">
-            <tr class="hover:bg-pink-50 transition-colors" data-loan-type="car">
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="car">
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">08/08/2025</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">31/07/2025</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">Leah Faye Genson</td>
@@ -131,7 +131,7 @@
                     <span class="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Fully Paid</span>
                 </td>
             </tr>
-            <tr class="hover:bg-pink-50 transition-colors" data-loan-type="motor" data-wheels="2-wheels" style="display:none">
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="2-wheels" style="display:none">
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">10/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">01/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">John Doe</td>
@@ -147,7 +147,7 @@
                     <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Repossessed</span>
                 </td>
             </tr>
-            <tr class="hover:bg-pink-50 transition-colors" data-loan-type="motor" data-wheels="3-wheels" style="display:none">
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels" style="display:none">
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
@@ -160,7 +160,7 @@
                 <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
                 <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-red-600 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
                 </td>
             </tr>
         </tbody>
@@ -176,11 +176,11 @@ function switchTab(tabName, element) {
     const motorFilter = document.getElementById('motorFilterContainer');
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+        btn.classList.remove('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
         btn.classList.add('text-gray-500');
     });
     
-    element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+    element.classList.add('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
     element.classList.remove('text-gray-500');
 
     if (tabName === 'motor') {
@@ -202,14 +202,14 @@ function setDateMode(mode) {
     if (mode === 'single') {
         toContainer.classList.add('hidden');
         dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
         document.getElementById('endDate').value = ""; 
     } else {
         toContainer.classList.remove('hidden');
         dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
     }
     filterTable(); 
 }
@@ -333,7 +333,7 @@ function downloadPDF() {
                 lineColor: [200, 200, 200] 
             },
             headStyles: { 
-                fillColor: [220, 38, 38], 
+                fillColor: [213, 0, 0], // #D50000
                 textColor: [255, 255, 255] 
             },
             margin: { left: 14, right: 14 }
@@ -395,7 +395,7 @@ async function downloadExcel() {
             
             // Apply Red Header styling to "#"
             if (rowIndex === 0) {
-                hashCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDC2626' } };
+                hashCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD50000' } };
                 hashCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
             }
             hashCell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -407,7 +407,7 @@ async function downloadExcel() {
                 excelCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
 
                 if (rowIndex === 0) {
-                    excelCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDC2626' } };
+                    excelCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD50000' } };
                     excelCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
                 }
                 excelCell.alignment = { horizontal: 'center', vertical: 'middle' };

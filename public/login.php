@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/init.php';
 <head>
    <meta charset="UTF-8">
    <title>Login - ML LOANS</title>
+   <link rel="icon" type="image/png" href="../assets/images/mlcircle.png">
    <script src="https://cdn.tailwindcss.com"></script>
    <link rel="icon" href="../assets/images/MLW logo.png" type="image/png">
    <link rel="stylesheet" href="../assets/css/style.css">

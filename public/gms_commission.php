@@ -35,7 +35,8 @@ $countMotor2 = count(array_unique($motor2Borrowers));
 $countMotor3 = count(array_unique($motor3Borrowers));
 ?>
 
-<div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
+<body class="h-screen overflow-hidden flex flex-col bg-gray-50"></body>
+    <div class="flex flex-1 overflow-hidden">
     <?php include('../includes/sidebar.php'); ?>
 
     <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
@@ -43,7 +44,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
             <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 items-center">
                 <div class="xl:col-span-7">
                     <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight whitespace-nowrap">
-                        Global Mobility Service <span class="text-red-600">Commissions</span>
+                        Global Mobility Service <span class="text-[#D50000]">Commissions</span>
                     </h2>
                     <p class="text-gray-500 font-medium mt-1 text-sm">Track and manage GMS installment commissions and payment status.</p>
                 </div>
@@ -60,9 +61,9 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                     <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center h-24">
                         <div class="flex justify-between items-start mb-1">
                             <p class="text-[9px] font-bold text-gray-400 uppercase leading-tight">Motor<br>(2-Wheels)</p>
-                            <span class="bg-red-50 text-red-600 text-[8px] px-1.5 py-0.5 rounded-full font-bold"><?php echo $countMotor2; ?> Pax</span>
+                            <span class="bg-red-50 text-[#D50000] text-[8px] px-1.5 py-0.5 rounded-full font-bold"><?php echo $countMotor2; ?> Pax</span>
                         </div>
-                        <p class="text-xl font-black text-red-600">₱<?php echo number_format($totalMotor2Val, 0); ?></p>
+                        <p class="text-xl font-black text-[#D50000]">₱<?php echo number_format($totalMotor2Val, 0); ?></p>
                     </div>
 
                     <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center h-24">
@@ -77,7 +78,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
 
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 mt-8">
                 <div class="flex-1 min-w-[200px] relative">
-                    <input type="text" id="searchInput" placeholder="Search account..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 text-sm">
+                    <input type="text" id="searchInput" placeholder="Search account..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D50000]/20 text-sm">
                     <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </div>
 
@@ -92,7 +93,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                 </div>
 
                 <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-red-600 shadow-sm">Single Date</button>
+                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
                     <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all text-gray-500">Select Range</button>
                 </div>
 
@@ -109,13 +110,13 @@ $countMotor3 = count(array_unique($motor3Borrowers));
             </div>
         </header>
 
-        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-700">
+        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-[#D50000]">
             <span class="font-medium">No matching records found.</span>
         </div>
         
         <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
             <table class="w-full text-left border-collapse" id="commissionsTable">
-                <thead class="bg-red-600 text-white">
+                <thead class="bg-[#D50000] text-white">
                     <tr class="whitespace-nowrap">
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Installment Date</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Ref #</th>
@@ -134,7 +135,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                         $statusColor = match($status) {
                             'FULLY PAID' => 'bg-green-100 text-green-700 border-green-200',
                             'PARTIAL'    => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                            'NOT PAID'   => 'bg-red-100 text-red-700 border-red-200',
+                            'NOT PAID'   => 'bg-red-100 text-[#D50000] border-red-200',
                             default      => 'bg-gray-100 text-gray-700',
                         };
                     ?>
@@ -173,13 +174,13 @@ function setDateMode(mode) {
     if (mode === 'single') {
         toContainer.classList.add('hidden');
         dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
     } else {
         toContainer.classList.remove('hidden');
         dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
     }
     filterTable(); 
 }
