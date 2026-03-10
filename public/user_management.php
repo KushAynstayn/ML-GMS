@@ -7,7 +7,7 @@ if ($_SESSION['user_type'] !== 'admin') {
 }
 
 try {
-    // UPDATED: Sorted by date_created DESC (Newest to Oldest)
+    // Sorted by date_created DESC (Newest to Oldest)
     $stmt = $loanConn->prepare("SELECT * FROM users ORDER BY date_created DESC");
     $stmt->execute();
     $users = $stmt->fetchAll();
@@ -20,21 +20,21 @@ try {
 <?php include('../includes/header.php'); ?>
 <?php include '../includes/modals/add_user_modal.php'; ?>
 
-<div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
+<div class="flex h-screen overflow-hidden">
     <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
+    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content h-full">
         <header class="mb-8">
-            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">User <span class="text-red-600">Management</span></h2>
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">User <span class="text-[#D50000]">Management</span></h2>
             <p class="text-gray-500 font-medium mt-2 mb-8">View, edit, and track system users.</p>
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex-1 min-w-[200px] relative">
-                    <input type="text" id="searchInput" placeholder="Search by name, email, or ID..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20">
+                    <input type="text" id="searchInput" placeholder="Search by name, email, or ID..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D50000]/20">
                     <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
 
                 <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-red-600 shadow-sm">Single Date</button>
+                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
                     <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
                 </div>
 
@@ -58,14 +58,14 @@ try {
             </div>
         </header>
 
-        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-700">
+        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-[#D50000]">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span class="font-medium">No records found matching your search.</span>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
             <table class="w-full text-left" id="userTable">
-                <thead class="bg-red-600 border-b border-red-700">
+                <thead class="bg-[#D50000]">
                     <tr>
                         <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">ID Number</th>
                         <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Username</th>
@@ -83,7 +83,7 @@ try {
                         $typeClass = ($user['user_type'] === 'admin') ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700';
                         $statusClass = ($user['status'] === 'active') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
                     ?>
-                        <tr onclick='openEditModal(<?php echo json_encode($user); ?>)' class="hover:bg-pink-50 transition-colors group cursor-pointer">
+                        <tr onclick='openEditModal(<?php echo json_encode($user); ?>)' class="hover:bg-red-50/50 transition-colors group cursor-pointer">
                             <td class="px-4 py-4 text-sm font-mono text-gray-500"><?php echo htmlspecialchars($user['id_number']); ?></td>
                             <td class="px-4 py-4 text-sm text-gray-600"><?php echo htmlspecialchars($user['email']); ?></td>
                             <td class="px-4 py-4 text-sm font-semibold text-gray-700"><?php echo htmlspecialchars($fullName); ?></td>
@@ -102,9 +102,9 @@ try {
 
 <div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-        <div class="bg-red-600 p-6 flex justify-between items-center">
+        <div class="bg-[#D50000] p-6 flex justify-between items-center">
             <h3 class="text-white font-bold text-xl">Edit User Details</h3>
-            <button onclick="closeEditModal()" class="text-white/80 hover:text-white">&times;</button>
+            <button onclick="closeEditModal()" class="text-white/80 hover:text-white text-2xl">&times;</button>
         </div>
         <form action="../actions/update_user.php" method="POST" class="p-6 space-y-4">
             <div>
@@ -114,28 +114,28 @@ try {
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">First Name</label>
-                    <input type="text" name="first_name" id="edit_fname" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-red-500/20 outline-none">
+                    <input type="text" name="first_name" id="edit_fname" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-[#D50000]/20 outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Last Name</label>
-                    <input type="text" name="last_name" id="edit_lname" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-red-500/20 outline-none">
+                    <input type="text" name="last_name" id="edit_lname" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-[#D50000]/20 outline-none">
                 </div>
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Username</label>
-                <input type="text" name="email" id="edit_user" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-red-500/20 outline-none">
+                <input type="text" name="email" id="edit_user" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-[#D50000]/20 outline-none">
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">User Type</label>
-                    <select name="user_type" id="edit_type" class="w-full border border-gray-200 p-2 rounded-lg outline-none">
+                    <select name="user_type" id="edit_type" class="w-full border border-gray-200 p-2 rounded-lg outline-none cursor-pointer">
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                    <select name="status" id="edit_status" class="w-full border border-gray-200 p-2 rounded-lg outline-none">
+                    <select name="status" id="edit_status" class="w-full border border-gray-200 p-2 rounded-lg outline-none cursor-pointer">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
@@ -143,7 +143,7 @@ try {
             </div>
             <div class="pt-4 flex gap-3">
                 <button type="button" onclick="closeEditModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition-colors">Cancel</button>
-                <button type="submit" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 shadow-md transition-colors">Save Changes</button>
+                <button type="submit" class="flex-1 px-4 py-2 bg-[#D50000] text-white rounded-lg font-bold hover:bg-[#B70000] shadow-md transition-colors">Save Changes</button>
             </div>
         </form>
     </div>
@@ -152,9 +152,9 @@ try {
 
 <?php if (isset($_GET['update']) && $_GET['update'] === 'error'): ?>
 <div id="errorModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
-    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden border-t-4 border-red-600">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden border-t-4 border-[#D50000]">
         <div class="p-6 text-center">
-            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="w-16 h-16 bg-red-100 text-[#D50000] rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                 </svg>
@@ -226,14 +226,14 @@ function setDateMode(mode) {
     if (mode === 'single') {
         toContainer.classList.add('hidden');
         dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
         document.getElementById('endDate').value = ""; 
     } else {
         toContainer.classList.remove('hidden');
         dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
     }
     filterTable(); 
 }

@@ -21,24 +21,25 @@ $isMotor = ($type === 'motor');
 $hasTabs = $current_config['has_tabs'];
 ?>
 
-<div class="flex overflow-hidden" style="height: calc(100vh - 64px);">
-    <?php include('../includes/sidebar.php'); ?>
+<body class="h-screen overflow-hidden flex flex-col bg-gray-50"></body>
+    <div class="flex flex-1 overflow-hidden">
+        <?php include('../includes/sidebar.php'); ?>
 
     <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
         <header class="mb-6">
             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                <?php echo $current_config['title']; ?> <span class="text-red-600">Loans</span>
+                <?php echo $current_config['title']; ?> <span class="text-[#D50000]">Loans</span>
             </h2>
             <p class="text-gray-500 font-medium mt-2 mb-8">View and track the status of <?php echo strtolower($current_config['title']); ?> loan records.</p>
 
             <?php if ($hasTabs): ?>
             <div class="flex gap-8 border-b border-gray-200 mb-8">
                 <button onclick="switchLedger('primary', this)" 
-                        class="ledger-tab-btn pb-2 font-semibold text-red-600 border-b-2 border-red-600 transition-all">
+                        class="ledger-tab-btn pb-2 font-semibold text-[#D50000] border-b-2 border-[#D50000] transition-all">
                     Primary Ledger
                 </button>
                 <button onclick="switchLedger('secondary', this)" 
-                        class="ledger-tab-btn pb-2 font-semibold text-gray-500 hover:text-red-600 transition-all">
+                        class="ledger-tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">
                     Secondary Ledger
                 </button>
             </div>
@@ -46,7 +47,7 @@ $hasTabs = $current_config['has_tabs'];
 
             <div class="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <div class="flex-1 min-w-[200px] relative">
-                    <input type="text" id="searchInput" placeholder="Search account or reference..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20">
+                    <input type="text" id="searchInput" placeholder="Search account or reference..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D50000]/20">
                     <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -63,7 +64,7 @@ $hasTabs = $current_config['has_tabs'];
                 <?php endif; ?>
 
                 <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-red-600 shadow-sm">Single Date</button>
+                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
                     <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
                 </div>
 
@@ -83,7 +84,7 @@ $hasTabs = $current_config['has_tabs'];
 
         <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
             <table class="w-full text-left" id="loansTable">
-                <thead class="bg-red-600">
+                <thead class="bg-[#D50000]">
                     <tr>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Released</th>
                         <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-white">Account Name</th>
@@ -133,13 +134,13 @@ function setDateMode(mode) {
     if (mode === 'single') {
         toContainer.classList.add('hidden');
         dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
     } else {
         toContainer.classList.remove('hidden');
         dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-red-600', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
+        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
     }
     filterTable(); 
 }
@@ -149,11 +150,11 @@ function switchLedger(tabName, element) {
     const loanType = "<?php echo $type; ?>";
 
     document.querySelectorAll('.ledger-tab-btn').forEach(btn => {
-        btn.classList.remove('text-red-600', 'border-b-2', 'border-red-600');
+        btn.classList.remove('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
         btn.classList.add('text-gray-500');
     });
 
-    element.classList.add('text-red-600', 'border-b-2', 'border-red-600');
+    element.classList.add('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
     element.classList.remove('text-gray-500');
 
     tableBody.innerHTML =
