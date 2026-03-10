@@ -18,6 +18,7 @@ try {
 ?>
 
 <?php include('../includes/header.php'); ?>
+<?php include '../includes/modals/add_user_modal.php'; ?>
 
 <div class="flex h-screen overflow-hidden">
     <?php include('../includes/sidebar.php'); ?>
@@ -48,9 +49,12 @@ try {
                     </div>
                 </div>
                 
-                <a href="../public/register_form.php" class="bg-[#D50000] hover:bg-[#B70000] text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm">
+                <button 
+                    onclick="openAddUserModal()" 
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm"
+                >
                     + Add User
-                </a>
+                </button>
             </div>
         </header>
 
@@ -176,6 +180,18 @@ try {
 <?php endif; ?>
 
 <script>
+
+function openAddUserModal() {
+    document.getElementById("addUserModal").classList.remove("hidden");
+    document.getElementById("addUserModal").classList.add("flex");
+}
+
+function closeAddUserModal() {
+    document.getElementById("addUserModal").classList.remove("flex");
+    document.getElementById("addUserModal").classList.add("hidden");
+}
+
+
 function openEditModal(user) {
     document.getElementById('edit_id').value = user.id_number;
     document.getElementById('edit_fname').value = user.first_name;

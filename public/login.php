@@ -49,13 +49,6 @@ require_once __DIR__ . '/../includes/init.php';
          </div>
          
          <div class="text-center mt-6 flex flex-col gap-2">
-            <p class="text-sm text-gray-500">
-               Don't have an account? 
-               <a href="register_form.php" class="font-bold text-red-600 hover:underline">
-                     Register here
-               </a>
-            </p>
-
             <a href="landing.php" class="text-xs font-semibold text-gray-400 underline decoration-1 underline-offset-4 hover:text-gray-800 transition-colors">
                Back to home
             </a>
@@ -63,12 +56,9 @@ require_once __DIR__ . '/../includes/init.php';
       </form>
    </div>
 
-   <?php include '../includes/modals/change_password_modal.php'; ?>
-
    <script>
       const sessionSuccess = "<?php echo $_SESSION['success_message'] ?? ''; ?>";
       const sessionError = "<?php echo $_SESSION['error_message'] ?? ''; ?>";
-      const forceChange = <?php echo isset($_SESSION['force_password_change']) ? 'true' : 'false'; ?>;
    </script>
    <script src="../assets/js/login.js"></script>
 </body>

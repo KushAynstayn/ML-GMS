@@ -33,6 +33,36 @@ document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
 
 function initLoanCalculator() {
     const loanTypeSelect = document.getElementById('loanType');
+    const classDiv = document.getElementById('classificationDiv');
+    const classSelect = document.getElementById('classificationSelect');
+
+    const motorDiv = document.getElementById('motorTypeDiv');
+    const motorSelect = document.getElementById('motorTypeSelect');
+
+    function toggleClassificationFields() {
+        if (!loanTypeSelect) return;
+
+        const val = loanTypeSelect.options[loanTypeSelect.selectedIndex]?.text.toLowerCase() || "";
+
+        if (classDiv) classDiv.classList.add('hidden');
+        if (motorDiv) motorDiv.classList.add('hidden');
+
+        if (classSelect) classSelect.required = false;
+        if (motorSelect) motorSelect.required = false;
+
+        if (val.includes('car')) {
+            if (classDiv) classDiv.classList.remove('hidden');
+            if (classSelect) classSelect.required = true;
+        }
+
+        if (val.includes('motor')) {
+            if (motorDiv) motorDiv.classList.remove('hidden');
+            if (motorSelect) motorSelect.required = true;
+        }
+    }
+
+    loanTypeSelect.addEventListener('change', toggleClassificationFields);
+    toggleClassificationFields();
     const vehicleFields = document.getElementById('vehicleFields');
 
     const loanAmtInp = document.getElementById('calcLoanAmount');
@@ -245,24 +275,32 @@ function calculateLoan() {
     const hiddenAOR = document.getElementById('hiddenAOR');
 
     const classificationSelect = document.querySelector('[name="classification"]');
-const vehicleTypeSelect = document.querySelector('[name="vehicle_type"]');
+    const vehicleTypeSelect = document.querySelector('[name="vehicle_type"]');
 
-let selectedClass = "";
+    let selectedClass = "";
 
-if (classificationSelect && classificationSelect.value) {
-    selectedClass = classificationSelect.value.toUpperCase();
-}
+    if (classificationSelect) {
+    classificationSelect.addEventListener("change", calculateLoan);
+    }
 
-if (vehicleTypeSelect && vehicleTypeSelect.value) {
-    selectedClass = vehicleTypeSelect.value.toUpperCase();
-}
+    if (vehicleTypeSelect) {
+        vehicleTypeSelect.addEventListener("change", calculateLoan);
+    }
 
-if (!loanRates[selectedClass]) return;
+    if (classificationSelect && classificationSelect.value) {
+        selectedClass = classificationSelect.value.toUpperCase();
+    }
 
-const monthlyFactor = loanRates[selectedClass].factor;
-const monthlyRate = monthlyFactor / 100;
+    if (vehicleTypeSelect && vehicleTypeSelect.value) {
+        selectedClass = vehicleTypeSelect.value.toUpperCase();
+    }
 
-const aorDisplay = loanRates[selectedClass].aor[term] || 0;
+    if (!loanRates[selectedClass]) return;
+
+    const monthlyFactor = loanRates[selectedClass].factor;
+    const monthlyRate = monthlyFactor / 100;
+
+    const aorDisplay = loanRates[selectedClass].aor[term] || 0;
 
     if (principal <= 0 || term <= 0) return;
 
@@ -292,10 +330,9 @@ const aorDisplay = loanRates[selectedClass].aor[term] || 0;
 
     // Proper amortized monthly payment formula
     const primaryMonthlyPayment = Number(
-        (
-            (principal * monthlyRate) /
-            (1 - Math.pow(1 + monthlyRate, -term))
-        ).toFixed(2)
+    (
+        (((principal * monthlyRate) * term) + principal) / term
+    ).toFixed(2)
     );
 
     let primaryBalance = Number(principal.toFixed(2));
@@ -367,10 +404,9 @@ const aorDisplay = loanRates[selectedClass].aor[term] || 0;
         const netLoan = Number((principal - incentive).toFixed(2));
 
         const secondaryMonthlyPayment = Number(
-            (
-                (netLoan * monthlyRate) /
-                (1 - Math.pow(1 + monthlyRate, -term))
-            ).toFixed(2)
+        (
+            (((netLoan * monthlyRate) * term) + netLoan) / term
+        ).toFixed(2)
         );
         console.log("Calculated Secondary Monthly:", secondaryMonthlyPayment);
 
