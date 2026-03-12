@@ -35,7 +35,7 @@ $countMotor2 = count(array_unique($motor2Borrowers));
 $countMotor3 = count(array_unique($motor3Borrowers));
 ?>
 
-<body class="h-screen overflow-hidden flex flex-col bg-gray-50"></body>
+<body class="h-screen overflow-hidden flex flex-col bg-gray-50">
     <div class="flex flex-1 overflow-hidden">
     <?php include('../includes/sidebar.php'); ?>
 
@@ -109,11 +109,6 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                 </div>
             </div>
         </header>
-
-        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-[#D50000]">
-            <span class="font-medium">No matching records found.</span>
-        </div>
-        
         <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
             <table class="w-full text-left border-collapse" id="commissionsTable">
                 <thead class="bg-[#D50000] text-white">
@@ -130,6 +125,9 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
+                    <tr id="noRecordFound" class="hidden">
+                        <td colspan="9" class="px-4 py-12 text-center text-gray-400 italic">No records found.</td>
+                    </tr>
                     <?php foreach ($records as $row): 
                         $status = strtoupper($row['status']);
                         $statusColor = match($status) {
@@ -159,7 +157,8 @@ $countMotor3 = count(array_unique($motor3Borrowers));
             </table>
         </div>
     </main>
-</div>
+    </div>
+</body>
 
 <script>
 let dateMode = 'single';
@@ -190,7 +189,7 @@ function filterTable() {
     const vehicleType = document.getElementById('vehicleFilter').value.toUpperCase();
     const startDateValue = document.getElementById('startDate').value;
     const endDateValue = document.getElementById('endDate').value;
-    const rows = document.querySelectorAll('#tableBody tr');
+    const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
     let hasMatch = false;
 
     rows.forEach(row => {

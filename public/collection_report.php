@@ -91,11 +91,6 @@
             </div>
         </header>
 
-        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-[#D50000]">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span class="font-medium">No records found matching your selection.</span>
-        </div>
-        
 <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
     <table id="collectionTable" class="w-full text-left border-collapse min-w-[2100px]">
         <thead class="bg-[#D50000]">
@@ -115,6 +110,9 @@
             </tr>
         </thead>
         <tbody id="tableBody" class="divide-y divide-gray-100">
+            <tr id="noRecordFound" class="hidden">
+                <td colspan="12" class="px-4 py-12 text-center text-sm text-gray-400 italic">No records found.</td>
+            </tr>
             <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="car">
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">08/08/2025</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">31/07/2025</td>
@@ -219,7 +217,7 @@ function filterTable() {
     const startDateVal = document.getElementById('startDate').value;
     const endDateVal = document.getElementById('endDate').value;
     const wheelVal = document.getElementById('wheelFilter').value;
-    const rows = document.querySelectorAll('#tableBody tr');
+    const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
     let hasMatch = false;
 
     rows.forEach(row => {
@@ -237,13 +235,15 @@ function filterTable() {
         rowDate.setHours(0, 0, 0, 0);
 
         const filterStart = startDateVal ? new Date(startDateVal) : null;
+        if(filterStart) filterStart.setHours(0,0,0,0);
         const filterEnd = endDateVal ? new Date(endDateVal) : null;
+        if(filterEnd) filterEnd.setHours(0,0,0,0);
 
         let dateMatch = true;
         if (dateMode === 'single' && filterStart) {
-            dateMatch = rowDate.getTime() === new Date(startDateVal).setHours(0,0,0,0);
+            dateMatch = rowDate.getTime() === filterStart.getTime();
         } else if (dateMode === 'range' && filterStart && filterEnd) {
-            dateMatch = rowDate >= new Date(startDateVal).setHours(0,0,0,0) && rowDate <= new Date(endDateVal).setHours(0,0,0,0);
+            dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
         }
 
         const textMatch = nameText.includes(searchText) || refText.includes(searchText);
@@ -382,7 +382,7 @@ async function downloadExcel() {
         // 4. Data Extraction - Get ONLY visible rows from table
         const table = document.getElementById('collectionTable');
         const allRows = Array.from(table.querySelectorAll('tr'));
-        const visibleRows = allRows.filter(tr => tr.style.display !== 'none');
+        const visibleRows = allRows.filter(tr => tr.style.display !== 'none' && tr.id !== 'noRecordFound');
 
         visibleRows.forEach((tr, rowIndex) => {
             const cells = Array.from(tr.querySelectorAll('th, td'));

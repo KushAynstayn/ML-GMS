@@ -58,11 +58,6 @@ try {
             </div>
         </header>
 
-        <div id="noRecordFound" class="hidden mb-4 p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-[#D50000]">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span class="font-medium">No records found matching your search.</span>
-        </div>
-
         <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
             <table class="w-full text-left" id="userTable">
                 <thead class="bg-[#D50000]">
@@ -78,6 +73,9 @@ try {
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
+                    <tr id="noRecordFound" class="hidden">
+                        <td colspan="8" class="px-4 py-12 text-center text-sm text-gray-400 italic">No records found.</td>
+                    </tr>
                     <?php foreach ($users as $user): 
                         $fullName = $user['first_name'] . ' ' . $user['last_name'];
                         $typeClass = ($user['user_type'] === 'admin') ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700';
@@ -242,7 +240,7 @@ function filterTable() {
     const searchText = document.getElementById('searchInput').value.toUpperCase();
     const startDateVal = document.getElementById('startDate').value;
     const endDateVal = document.getElementById('endDate').value;
-    const rows = document.querySelectorAll('#tableBody tr');
+    const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
     let hasMatch = false;
 
     rows.forEach(row => {

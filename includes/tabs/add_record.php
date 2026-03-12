@@ -86,10 +86,15 @@ $branches = $masterData->getBranches();
 
     <div class="mb-8">
         <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">LOAN COMPUTATION</h3>
-        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Loan Amount (Principal)</label>
                 <input type="text" name="principal" id="calcLoanAmount" placeholder="0.00" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Interest Rate (AOR)</label>
+                <input type="text" id="resAOR" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
+                <input type="hidden" name="aor" id="hiddenAOR">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Term (Months)</label>
@@ -116,11 +121,6 @@ $branches = $masterData->getBranches();
                 <input type="hidden" name="net_proceeds" id="hiddenNetProceeds">
             </div>
             <div>
-                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Interest Rate (AOR)</label>
-                <input type="text" id="resAOR" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
-                <input type="hidden" name="aor" id="hiddenAOR">
-            </div>
-            <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Monthly Amortization</label>
                 <input type="text" id="resMonthly" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-red-600 font-bold text-sm font-mono">
                 <input type="hidden" name="monthly_amortization" id="hiddenMonthly">
@@ -142,7 +142,7 @@ $branches = $masterData->getBranches();
 
     <div id="vehicleFields" class="hidden mb-8">
         <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">VEHICLE DETAILS</h3>
-        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
             <div id="dateInstalledDiv">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Installed (If Device Installed)</label>
                 <input type="date" id="dateInstalled" name="date_installed" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm text-gray-500">
@@ -163,7 +163,7 @@ $branches = $masterData->getBranches();
     </div>
 
     <div class="flex justify-end">
-        <button type="submit" id="submitBtn" disabled class="bg-gray-500 text-white px-8 py-2.5 rounded-lg font-bold transition-all text-sm cursor-not-allowed opacity-70">
+        <button type="submit" id="submitBtn" disabled class="bg-gray-400 text-white px-8 py-2.5 rounded-lg font-bold transition-all text-sm cursor-not-allowed opacity-70">
             SAVE LOAN
         </button>
     </div>
