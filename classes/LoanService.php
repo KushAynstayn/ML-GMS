@@ -136,11 +136,12 @@ class LoanService {
 
             if ($data['loan_type_text'] === 'CAR LOAN') {
                 $stmtCar = $this->db->prepare("
-                    INSERT INTO car_loans (loan_id, date_installed, gps_provider, date_created)
-                    VALUES (?, ?, ?, NOW())
+                    INSERT INTO car_loans (loan_id, classification, date_installed, gps_provider, date_created)
+                    VALUES (?, ?, ?, ?, NOW())
                 ");
                 $stmtCar->execute([
                     $loanId,
+                    strtoupper($data['classification'] ?? ''),
                     $data['date_installed'] ?: null,
                     $isGMS ? 'GMS' : null
                 ]);
@@ -484,12 +485,13 @@ class LoanService {
 
                 $stmtCar = $this->db->prepare("
                     INSERT INTO car_loans
-                    (loan_id, date_installed, gps_provider, date_created)
-                    VALUES (?, ?, ?, NOW())
+                    (loan_id, classification, date_installed, gps_provider, date_created)
+                    VALUES (?, ?, ?, ?, NOW())
                 ");
 
                 $stmtCar->execute([
                     $loanId,
+                    strtoupper($data['classification'] ?? ''),
                     $data['date_installed'] ?? null,
                     $isGMS ? 'GMS' : null
                 ]);
