@@ -6,7 +6,6 @@
 // Ensure this is at the top of main.js
 function initSearchableDropdowns() {
     const regionSelect = document.querySelector('#regionSelect');
-    const branchSelect = document.querySelector('#branchSelect');
 
     if (regionSelect) {
         if (regionSelect.tomselect) regionSelect.tomselect.destroy();
@@ -17,19 +16,12 @@ function initSearchableDropdowns() {
         });
     }
 
-    if (branchSelect) {
-        if (branchSelect.tomselect) branchSelect.tomselect.destroy();
-        new TomSelect(branchSelect, {
-            maxOptions: 500,
-            create: false,
-            placeholder: "Select Branch...",
-        });
-    }
 }
 
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', initSearchableDropdowns);
+document.addEventListener('DOMContentLoaded', initReferenceNumberValidation);
 
 function initLoanCalculator() {
     const loanTypeSelect = document.getElementById('loanType');
@@ -112,8 +104,6 @@ function initLoanCalculator() {
         }
     }
 
-    // Load branches immediately
-    loadAllBranches();
 
     loanTypeSelect.removeEventListener('change', toggleVehicleSection);
     loanTypeSelect.addEventListener('change', function () {
@@ -518,53 +508,6 @@ function formatDate(dateStr) {
 // Initialize on first load
 document.addEventListener('DOMContentLoaded', initLoanCalculator);
 
-// Handle Region/Branch changes (delegated listener to handle dynamic tab loading)
-//document.addEventListener('change', function(e) {
-//    if (e.target && e.target.name === 'region_id') {
-//        const regionId = e.target.value;
-//        const branchSelect = document.querySelector('[name="branch_id"]');
-//        if (!branchSelect) return;
-
-//        branchSelect.innerHTML = '<option>Loading...</option>';
-//        fetch(`api/get_branches.php?region_id=${regionId}`)
-//            .then(res => res.json())
-//            .then(data => {
-//                branchSelect.innerHTML = '<option value="">Select Branch</option>';
-//                data.forEach(branch => {
-//                    let opt = document.createElement('option');
-//                    opt.value = branch.branch_id;
-//                    opt.textContent = branch.branch_name;
-//                    branchSelect.appendChild(opt);
-//                });
-//            });
-//    }
-//});
-
-function loadAllBranches() {
-    const branchSelect = document.getElementById('branchSelect');
-    if (!branchSelect) return;
-
-    // Optional: Only fetch if the dropdown is empty (prevents redundant calls)
-    if (branchSelect.options.length > 1) return; 
-
-    branchSelect.innerHTML = '<option>Loading branches...</option>';
-
-    fetch('api/get_branches.php')
-        .then(res => res.json())
-        .then(data => {
-            branchSelect.innerHTML = '<option value="">Select Branch</option>';
-            data.forEach(branch => {
-                let opt = document.createElement('option');
-                opt.value = branch.branch_id;
-                opt.textContent = branch.branch_name;
-                branchSelect.appendChild(opt);
-            });
-        })
-        .catch(err => {
-            console.error("Error loading branches:", err);
-            branchSelect.innerHTML = '<option value="">Error loading data</option>';
-        });
-}
 
 // --- 1. Validation Modal (Keep this for missing fields) ---
 function showErrorModal(fields) {
@@ -695,42 +638,44 @@ function closeStatusModal() {
 }
 
 
-document.addEventListener('DOMContentLoaded', function() {
+function initReferenceNumberValidation() {
     const refInput = document.getElementById('ref_no');
     const errorDisplay = document.getElementById('ref-error');
 
-    if (refInput) {
-        refInput.addEventListener('input', function() {
-            // 1. Force Uppercase and limit to 11
-            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); 
-            
-            const val = this.value;
+    if (!refInput || !errorDisplay) return;
 
-            // 2. Clear errors if empty
-            if (val.length === 0) {
-                hideError();
-                return;
-            }
+    // Prevent duplicate binding if tab is reopened
+    if (refInput.dataset.refInit === 'true') return;
+    refInput.dataset.refInit = 'true';
 
-            // 3. Trapping: Check if less than 11
-            if (val.length < 11) {
-                showError("Reference must be exactly 11 characters.");
-            } 
-            // 4. Trapping: If exactly 11, check Database
-            else if (val.length === 11) {
-                fetch(`../api/check_reference.php?ref=${val}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.exists) {
-                            showError("Reference number already exists in the database.");
-                        } else {
-                            hideError(); // Valid and Unique!
-                        }
-                    })
-                    .catch(err => console.error("Error checking reference:", err));
-            }
-        });
-    }
+    refInput.addEventListener('input', function () {
+        // Force uppercase and remove invalid chars
+        this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+        const val = this.value;
+
+        if (val.length === 0) {
+            hideError();
+            return;
+        }
+
+        if (val.length < 11) {
+            showError("Reference must be exactly 11 characters.");
+        } else if (val.length === 11) {
+            fetch(`../api/check_reference.php?ref=${encodeURIComponent(val)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.exists) {
+                        showError("Reference number already exists in the database.");
+                    } else {
+                        hideError();
+                    }
+                })
+                .catch(err => {
+                    console.error("Error checking reference:", err);
+                });
+        }
+    });
 
     function showError(msg) {
         errorDisplay.textContent = msg;
@@ -739,10 +684,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function hideError() {
+        errorDisplay.textContent = '';
         errorDisplay.classList.add('hidden');
         refInput.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
     }
-});
+}
 
 
 

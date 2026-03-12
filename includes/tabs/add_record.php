@@ -50,7 +50,7 @@ $branches = $masterData->getBranches();
                     required 
                     maxlength="11" 
                     autocomplete="off"
-                    class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm transition-all">
+                    class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm transition-all uppercase">
                 <p id="ref-error" class="text-red-500 text-[10px] mt-1 hidden font-bold italic"></p>
             </div>
 

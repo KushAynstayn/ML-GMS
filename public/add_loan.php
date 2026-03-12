@@ -81,6 +81,7 @@ include_once '../includes/modals/status_modal.php';
                     setTimeout(() => {
                         if (typeof initLoanCalculator === 'function') initLoanCalculator();
                         if (typeof initSearchableDropdowns === 'function') initSearchableDropdowns();
+                        if (typeof initReferenceNumberValidation === 'function') initReferenceNumberValidation();
                         const form = document.getElementById('loanForm');
                     }, 50);
                 }

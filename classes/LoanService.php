@@ -7,9 +7,30 @@ use DateTime;
 class LoanService {
 
     private $db;
+    private $masterDb;
 
     public function __construct() {
-        $this->db = (new Database())->connect('LOAN');
+        $database = new Database();
+        $this->db = $database->connect('LOAN');
+        $this->masterDb = $database->connect('MASTER');
+    }
+
+    private function getRegionNameById($regionId) {
+        if (empty($regionId)) {
+            return '';
+        }
+
+        $stmt = $this->masterDb->prepare("
+            SELECT region_description 
+            FROM region_masterfile 
+            WHERE id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$regionId]);
+
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $row['region_description'] ?? '';
     }
 
     /* ============================================================
@@ -34,13 +55,15 @@ class LoanService {
 
             $netProceeds = $isGMS 
                 ? round($principal - $dealerIncentive, 2) 
-                : $principal;
-            $eir = $isGMS ? (float)$data['eir'] : null;
+                : 0.00;
+            $eir = $isGMS ? (float)$data['eir'] : 0.00;
 
 
             $secondaryMonthly = $isGMS
                 ? round((float)($data['secondary_monthly'] ?? 0), 2)
-                : null;
+                : 0.00;
+            
+            $regionName = $this->getRegionNameById($data['region_id'] ?? null);
 
             /* ============================
                INSERT INTO LOANS
@@ -48,7 +71,6 @@ class LoanService {
             $sqlLoan = "INSERT INTO loans (
             reference_number,
             loan_type_id,
-            classification,
             monthly_factor,
             first_name,
             middle_name,
@@ -69,13 +91,12 @@ class LoanService {
             status,
             date_created,
             created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'active', NOW(), ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'active', NOW(), ?)";
 
             $stmt = $this->db->prepare($sqlLoan);
             $stmt->execute([
             $data['ref_no'],
             $data['loan_type_id'],
-            strtoupper($data['classification'] ?? ''),
             $data['monthly_factor'] ?? 0,
             strtoupper($data['first_name']),
             strtoupper($data['middle_name'] ?? ''),
@@ -91,7 +112,7 @@ class LoanService {
             $eir,
             $data['monthly_amortization'],
             $secondaryMonthly,
-            $data['region_name'] ?? '',
+            $regionName,
             $currentUserName
         ]);
 
