@@ -194,6 +194,9 @@ include('../includes/header.php');
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="text-gray-300">
+                    <tr id="noRecordFound" class="hidden">
+                        <td colspan="3" class="px-8 py-12 text-center text-gray-400 italic">No records found.</td>
+                    </tr>
                     <tr class="border-b border-white/5 hover:bg-white/10 transition-colors">
                         <td class="px-8 py-5 font-medium text-sm">08/08/2025</td>
                         <td class="px-8 py-5 font-bold text-white">Leah Faye Genson</td>
@@ -447,7 +450,7 @@ function filterDashboard() {
     const endDate = document.getElementById('endDate').value;
     const tableContainer = document.getElementById('searchTableContainer');
     const noRecordFound = document.getElementById('noRecordFound');
-    const tableRows = document.querySelectorAll('#tableBody tr');
+    const tableRows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
 
     let visibleCount = 0;
     const isSearching = searchInput.length > 0 || startDate !== '';
@@ -477,16 +480,14 @@ function filterDashboard() {
     });
 
     if (isSearching) {
+        tableContainer.classList.remove('hidden');
         if (visibleCount > 0) {
-            tableContainer.classList.remove('hidden');
             noRecordFound.classList.add('hidden');
         } else {
-            tableContainer.classList.add('hidden');
             noRecordFound.classList.remove('hidden');
         }
     } else {
         tableContainer.classList.add('hidden');
-        noRecordFound.classList.add('hidden');
     }
 }
 
