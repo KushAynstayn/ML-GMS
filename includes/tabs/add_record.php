@@ -50,26 +50,27 @@ $branches = $masterData->getBranches();
                     required 
                     maxlength="11" 
                     autocomplete="off"
+                    placeholder="MCRABCDEFGH"
                     class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm transition-all uppercase">
                 <p id="ref-error" class="text-red-500 text-[10px] mt-1 hidden font-bold italic"></p>
             </div>
 
             <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">First Name</label>
-                <input type="text" name="first_name" required class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="first_name" placeholder="JUAN" required class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Middle Name</label>
-                <input type="text" name="middle_name" class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="middle_name" placeholder="A." class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Last Name</label>
-                <input type="text" name="last_name" required class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="last_name" placeholder="DELA CRUZ" required class="uppercase w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
 
             <div class="col-span-2 md:col-span-2">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Contact Number</label>
-                <input type="text" name="contact" class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <input type="text" name="contact" placeholder="e.g. 09*********"class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
 
             <div class="col-span-2 md:col-span-2">
@@ -93,7 +94,7 @@ $branches = $masterData->getBranches();
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Interest Rate (AOR)</label>
-                <input type="text" id="resAOR" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
+                <input type="text" id="resAOR" placeholder="e.g. 54%" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-whit focus:outline-none text-sm">
                 <input type="hidden" name="aor" id="hiddenAOR">
             </div>
             <div>
