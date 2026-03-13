@@ -14,7 +14,15 @@ include_once '../includes/modals/status_modal.php';
 
         <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
             <header class="mb-6">
-                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add <span class="text-[#D50000]">Loan</span></h2>
+                <div class="flex items-center gap-4 mb-2">
+                    <button onclick="history.back()" class="group flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-500 hover:text-[#D50000] hover:border-[#D50000] transition-all shadow-sm -ml-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add <span class="text-[#D50000]">Loan</span></h2>
+                </div>
+                
                 <p class="text-gray-500 font-medium mt-2 mb-8">Fill out the details below to register a new loan application.</p>
                 <div class="flex gap-8 border-b border-gray-200">
                     <button onclick="switchTab('add_record', this)" class="tab-btn pb-2 font-semibold text-[#D50000] border-b-2 border-[#D50000] transition-all">Add new record</button>

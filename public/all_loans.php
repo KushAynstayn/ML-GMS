@@ -21,7 +21,7 @@ $isMotor = ($type === 'motor');
 $hasTabs = $current_config['has_tabs'];
 ?>
 
-<body class="h-screen overflow-hidden flex flex-col bg-gray-50"></body>
+<body class="h-screen overflow-hidden flex flex-col bg-gray-50">
     <div class="flex flex-1 overflow-hidden">
         <?php include('../includes/sidebar.php'); ?>
 
@@ -78,6 +78,10 @@ $hasTabs = $current_config['has_tabs'];
                         <span class="text-xs font-bold uppercase">To</span>
                         <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer text-sm">
                     </div>
+
+                    <a href="add_loan.php" class="bg-[#D50000] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-[#b00000] transition-all shadow-sm">
+                        Add Loan
+                    </a>
                 </div>
             </div>
         </header>

@@ -10,7 +10,6 @@ $display_role = ($u_type == 'admin') ? 'Administrator' : 'Standard User';
 
 $menu_items = [
     ['file' => 'dashboard.php', 'label' => 'Dashboard', 'icon' => 'M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z', 'admin_only' => false],
-    ['file' => 'add_loan.php', 'label' => 'Add Loan', 'icon' => 'M12 4v16m8-8H4', 'admin_only' => false],
     [
         'file' => 'all_loans.php', 
         'label' => 'All Loans', 
@@ -26,8 +25,18 @@ $menu_items = [
             ['label' => 'Real Estate Loan', 'type' => 'realestate'],
         ]
     ],
-    ['file' => 'gms_commission.php', 'label' => 'GMS Commissions', 'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z', 'admin_only' => false],
-    ['file' => 'collection_report.php', 'label' => 'Collection Report', 'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'admin_only' => false],
+    // --- REPORTS DROPDOWN (Rearranged) ---
+    [
+        'file' => '#', 
+        'label' => 'Reports', 
+        'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 
+        'admin_only' => false,
+        'sub_menu' => [
+            ['label' => 'GMS Commissions', 'file' => 'gms_commission.php'],
+            ['label' => 'Running Receivables', 'file' => 'running_receivable_report.php'],
+            ['label' => 'Collection Report', 'file' => 'collection_report.php'],
+        ]
+    ],
     ['file' => 'user_management.php', 'label' => 'User Management', 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', 'admin_only' => true]
 ];
 ?>
@@ -55,8 +64,19 @@ $menu_items = [
                 $hasSubmenu = isset($item['sub_menu']);
                 $isActive = ($current_page === $item['file']);
                 
-                // Keep "All Loans" menu active if any sub-loan is selected
-                if ($hasSubmenu && $current_page === 'all_loans.php') $isActive = true;
+                // Keep "Reports" active if child is active
+                if ($hasSubmenu) {
+                    foreach($item['sub_menu'] as $sub) {
+                        $subFile = $sub['file'] ?? 'all_loans.php';
+                        if ($current_page === $subFile) {
+                            if (isset($sub['type'])) {
+                                if ($current_type === $sub['type']) $isActive = true;
+                            } else {
+                                $isActive = true;
+                            }
+                        }
+                    }
+                }
             ?>
                 <div class="relative">
                     <a href="<?php echo $hasSubmenu ? '#' : $item['file']; ?>" 
@@ -72,7 +92,7 @@ $menu_items = [
                         </span>
                         
                         <?php if($hasSubmenu): ?>
-                            <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-transform duration-200 sidebar-text transform submenu-arrow <?php echo ($current_page === 'all_loans.php') ? 'rotate-180' : ''; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-transform duration-200 sidebar-text transform submenu-arrow <?php echo $isActive ? 'rotate-180' : ''; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         <?php endif; ?>
 
                         <?php if($isActive): ?>
@@ -82,12 +102,18 @@ $menu_items = [
 
                     <?php if($hasSubmenu): ?>
                         <div class="submenu overflow-hidden transition-all duration-300 bg-black/10 rounded-b-lg mx-1" 
-                            style="max-height: <?php echo ($current_page === 'all_loans.php') ? '500px' : '0px'; ?>;">
+                            style="max-height: <?php echo $isActive ? '500px' : '0px'; ?>;">
                             <?php foreach($item['sub_menu'] as $sub): 
-                                $isSubActive = ($current_type === $sub['type']);
+                                if (isset($sub['type'])) {
+                                    $subActive = ($current_type === $sub['type']);
+                                    $link = "all_loans.php?type=" . $sub['type'];
+                                } else {
+                                    $subActive = ($current_page === $sub['file']);
+                                    $link = $sub['file'];
+                                }
                             ?>
-                                <a href="all_loans.php?type=<?php echo $sub['type']; ?>" 
-                                class="flex items-center gap-4 pl-12 pr-3 py-2 text-xs transition-colors rounded-md <?php echo $isSubActive ? 'text-white font-bold bg-red-800' : 'text-red-100 hover:text-white hover:bg-red-600/50'; ?>">
+                                <a href="<?php echo $link; ?>" 
+                                class="flex items-center gap-4 pl-12 pr-3 py-2 text-xs transition-colors rounded-md <?php echo $subActive ? 'text-white font-bold bg-red-800' : 'text-red-100 hover:text-white hover:bg-red-600/50'; ?>">
                                     <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity sidebar-text">
                                         <?php echo $sub['label']; ?>
                                     </span>
