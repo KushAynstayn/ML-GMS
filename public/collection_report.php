@@ -98,7 +98,6 @@
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Released Date</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Installation Date</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white">Account Name</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Unit</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Monthly Amortization</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Principal</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Interest</th>
@@ -111,13 +110,12 @@
         </thead>
         <tbody id="tableBody" class="divide-y divide-gray-100">
             <tr id="noRecordFound" class="hidden">
-                <td colspan="12" class="px-4 py-12 text-center text-sm text-gray-400 italic">No records found.</td>
+                <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">No records found.</td>
             </tr>
             <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="car">
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">08/08/2025</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">31/07/2025</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">Leah Faye Genson</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">FORD FIESTA RED</td>
                 <td class="px-4 py-4 text-sm text-gray-700 text-center">24,940.67</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">12,551.77</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">12,388.89</td>
@@ -133,7 +131,6 @@
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">10/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">01/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">John Doe</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">YAMAHA NMAX</td>
                 <td class="px-4 py-4 text-sm text-gray-700 text-center">3,200.00</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">2,000.00</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">1,200.00</td>
@@ -149,7 +146,6 @@
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">BAJAJ RE</td>
                 <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
@@ -223,7 +219,7 @@ function filterTable() {
     rows.forEach(row => {
         const releaseDateStr = row.cells[0].textContent.trim();
         const nameText = row.cells[2].textContent.toUpperCase();
-        const refText = row.cells[8].textContent.toUpperCase(); // Adjusted index to 8 for Ref Number
+        const refText = row.cells[7].textContent.toUpperCase(); // Index adjusted from 8 to 7 due to Unit removal
         const rowLoanType = row.getAttribute('data-loan-type');
         const rowWheels = row.getAttribute('data-wheels');
 
