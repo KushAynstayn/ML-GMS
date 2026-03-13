@@ -94,7 +94,7 @@ $branches = $masterData->getBranches();
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Interest Rate (AOR)</label>
-                <input type="text" id="resAOR" placeholder="e.g. 54%" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-whit focus:outline-none text-sm">
+                <input type="text" name="aor_display" id="resAOR" placeholder="e.g. 54" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
                 <input type="hidden" name="aor" id="hiddenAOR">
             </div>
             <div>
@@ -129,6 +129,7 @@ $branches = $masterData->getBranches();
 
             <input type="hidden" name="monthly_factor" id="hiddenMonthlyFactor">
             <input type="hidden" id="hiddenSecondaryMonthly" name="secondary_monthly">
+            <input type="hidden" name="ey" id="hiddenEY">
             
             <div class="col-span-2 md:col-span-1 hidden">
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">EIR</label>

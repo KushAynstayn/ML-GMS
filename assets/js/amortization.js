@@ -23,10 +23,14 @@ async function viewAmortization(loanId, sourceTab) {
         document.getElementById('modalDispTerm').innerText = loan.term_months || '0';
         document.getElementById('modalDispMaturity').innerText = formatDate(loan.pn_maturity_date);
         document.getElementById('modalDispRate').innerText = (loan.interest_rate || 0) + '%';
-        document.getElementById('modalDispMonthly').innerText = formatCurrency(loan.monthly_amortization);
+        if (sourceTab === 'secondary') {
+            document.getElementById('modalDispMonthly').innerText = formatCurrency(loan.secondary_monthly || 0);
+        } else {
+            document.getElementById('modalDispMonthly').innerText = formatCurrency(loan.monthly_amortization || 0);
+        }
+        
         const principalLabel = document.getElementById('principalLabel');
         const principalWrapper = document.getElementById('principalWrapper');
-
         const netLabel = document.getElementById('netLabel');
         const netWrapper = document.getElementById('netWrapper');
 

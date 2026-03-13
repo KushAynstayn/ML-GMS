@@ -31,9 +31,24 @@ function initLoanCalculator() {
     const motorDiv = document.getElementById('motorTypeDiv');
     const motorSelect = document.getElementById('motorTypeSelect');
 
-    function toggleClassificationFields() {
-        if (!loanTypeSelect) return;
+    const vehicleFields = document.getElementById('vehicleFields');
 
+    const loanAmtInp = document.getElementById('calcLoanAmount');
+    const termInp = document.getElementById('calcTerm');
+    const dateGrantedInp = document.getElementById('calcDateGranted');
+    const aorInp = document.getElementById('resAOR');
+    const dateInstalledInp = document.getElementById('dateInstalled');
+
+    const verifyCheckbox = document.getElementById('verifyCheckbox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Stop if form not in DOM yet
+    if (!loanTypeSelect || !vehicleFields) return;
+
+    // =============================
+    // 1. TOGGLE CLASSIFICATION / MOTOR TYPE FIELDS
+    // =============================
+    function toggleClassificationFields() {
         const val = loanTypeSelect.options[loanTypeSelect.selectedIndex]?.text.toLowerCase() || "";
 
         if (classDiv) classDiv.classList.add('hidden');
@@ -53,34 +68,18 @@ function initLoanCalculator() {
         }
     }
 
-    loanTypeSelect.addEventListener('change', toggleClassificationFields);
-    toggleClassificationFields();
-    const vehicleFields = document.getElementById('vehicleFields');
-
-    const loanAmtInp = document.getElementById('calcLoanAmount');
-    const termInp = document.getElementById('calcTerm');
-    const dateGrantedInp = document.getElementById('calcDateGranted');
-    
-    // ✅ Additional elements for Verification
-    const verifyCheckbox = document.getElementById('verifyCheckbox');
-    const submitBtn = document.getElementById('submitBtn');
-
-    // Stop if form not in DOM yet
-    if (!loanTypeSelect || !vehicleFields) return;
-
     // =============================
-    // 1. TOGGLE VEHICLE SECTION
+    // 2. TOGGLE VEHICLE SECTION
     // =============================
     function toggleVehicleSection() {
         const selectedOption = loanTypeSelect.options[loanTypeSelect.selectedIndex];
-        if (!selectedOption) return; // Safety check
+        if (!selectedOption) return;
 
         const selectedText = selectedOption.text.trim().toUpperCase();
         const motorTypeDiv = document.getElementById('motorTypeDiv');
         const carLoanFlag = document.getElementById('is_car_loan_flag');
         const loanTypeTextFlag = document.getElementById('loan_type_text_flag');
 
-        // 1. Safe assignment for Loan Type Text
         if (loanTypeTextFlag) {
             loanTypeTextFlag.value = selectedText;
         } else {
@@ -89,8 +88,7 @@ function initLoanCalculator() {
 
         if (selectedText === 'CAR LOAN' || selectedText === 'MOTOR LOAN') {
             vehicleFields.classList.remove('hidden');
-            
-            // 2. Safe assignment for Car Loan Flag
+
             if (carLoanFlag) carLoanFlag.value = '1';
 
             if (selectedText === 'MOTOR LOAN') {
@@ -104,41 +102,72 @@ function initLoanCalculator() {
         }
     }
 
-
-    loanTypeSelect.removeEventListener('change', toggleVehicleSection);
-    loanTypeSelect.addEventListener('change', function () {
+    // =============================
+    // 3. LOAN TYPE CHANGE HANDLER
+    // =============================
+    loanTypeSelect.onchange = function () {
+        toggleClassificationFields();
         toggleVehicleSection();
         calculateLoan();
-    });
-
+    };
 
     // =============================
-    // 3. CALCULATION LISTENERS
+    // 4. CALCULATION LISTENERS
+    // Equivalent of your requested:
+    // document.addEventListener('input'...)
+    // document.addEventListener('change'...)
+    // but attached safely to the actual form elements
     // =============================
-    [loanAmtInp, termInp, dateGrantedInp].forEach(el => {
+    [loanAmtInp, termInp, dateGrantedInp, aorInp].forEach(el => {
         if (!el) return;
 
-        el.removeEventListener('input', calculateLoan);
-        el.addEventListener('input', calculateLoan);
+        el.oninput = function () {
+            calculateLoan();
+        };
+
+        el.onchange = function () {
+            calculateLoan();
+        };
     });
 
+    if (dateInstalledInp) {
+        dateInstalledInp.oninput = function () {
+            calculateLoan();
+        };
+
+        dateInstalledInp.onchange = function () {
+            calculateLoan();
+        };
+    }
+
+    if (classSelect) {
+        classSelect.onchange = function () {
+            calculateLoan();
+        };
+    }
+
+    if (motorSelect) {
+        motorSelect.onchange = function () {
+            calculateLoan();
+        };
+    }
+
     // =============================
-    // 4. VERIFICATION CHECKBOX LOGIC WITH ERROR TRAPPING
+    // 5. VERIFICATION CHECKBOX LOGIC
     // =============================
     if (verifyCheckbox && submitBtn) {
-        verifyCheckbox.addEventListener('change', function() {
+        verifyCheckbox.onchange = function () {
             if (this.checked) {
                 const form = document.getElementById('loanForm');
                 const requiredFields = form.querySelectorAll('[required]');
                 let missingFields = [];
 
                 requiredFields.forEach(field => {
-                    // Only validate fields that are currently VISIBLE to the user
                     if (!field.value.trim() && field.offsetParent !== null) {
-                        const label = field.closest('div').querySelector('label');
+                        const label = field.closest('div')?.querySelector('label');
                         const labelName = label ? label.innerText.replace(':', '').trim() : field.name;
                         missingFields.push(labelName);
-                        
+
                         field.classList.add('border-red-500', 'bg-red-50');
                     } else {
                         field.classList.remove('border-red-500', 'bg-red-50');
@@ -146,12 +175,12 @@ function initLoanCalculator() {
                 });
 
                 if (missingFields.length > 0) {
-                    this.checked = false; 
-                    showErrorModal(missingFields); // Calls your new includes/modals/error_modal.php
-                    
+                    this.checked = false;
+                    showErrorModal(missingFields);
+
                     submitBtn.disabled = true;
                     submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed', 'opacity-70');
-                    submitBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                    submitBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'cursor-pointer');
                 } else {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed', 'opacity-70');
@@ -160,16 +189,17 @@ function initLoanCalculator() {
             } else {
                 submitBtn.disabled = true;
                 submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed', 'opacity-70');
-                submitBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                submitBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'cursor-pointer');
             }
-        });
+        };
     }
 
     // =============================
-    // 5. FORCE INITIAL STATE
+    // 6. FORCE INITIAL STATE
     // =============================
+    toggleClassificationFields();
     toggleVehicleSection();
-    calculateLoan(); 
+    calculateLoan();
 }
 
 // Keep the global math functions outside of init so calculateLoan is always available
@@ -202,102 +232,64 @@ function getEIRRate(nper, pmt, pv, guess = 0.01) {
 }
 
 
-const loanRates = {
-
-        "PRE-OWNED": {
-            factor: 1.50,
-            aor: {12:18,24:36,36:54}
-        },
-
-        "PRENDA": {
-            factor: 1.75,
-            aor: {12:21,24:42,36:63}
-        },
-
-        "SURPLUS": {
-            factor: 2.75,
-            aor: {12:33,24:66,36:99}
-        },
-
-        "2-WHEELS": {
-            factor: 1.75,
-            aor: {12:21,24:42,36:63}
-        },
-
-        "3-WHEELS": {
-            factor: 2.00,
-            aor: {12:24,24:48,36:72}
-        }
-
-    };
-
-
 
 function calculateLoan() {
-
     const loanAmtInp = document.getElementById('calcLoanAmount');
     const termInp = document.getElementById('calcTerm');
     const dateGrantedInp = document.getElementById('calcDateGranted');
-    const dateInstalledInp = document.getElementById('dateInstalled'); // GMS trigger
-    if (dateInstalledInp) {
-        dateInstalledInp.addEventListener('change', calculateLoan);
-        // Also trigger on 'input' for better compatibility with some datepickers
-        dateInstalledInp.addEventListener('input', calculateLoan); 
-    }
+    const dateInstalledInp = document.getElementById('dateInstalled');
+    const aorInp = document.getElementById('resAOR');
 
-    if (!loanAmtInp || !termInp) return;
+    if (!loanAmtInp || !termInp || !aorInp) return;
 
-    const principal = parseFloat(loanAmtInp.value) || 0;
+    const principal = parseFloat((loanAmtInp.value || '').replace(/,/g, '')) || 0;
     const term = parseInt(termInp.value) || 0;
     const dateGranted = dateGrantedInp?.value || "";
+    const aor = parseFloat((aorInp.value || '').replace('%', '').replace(/,/g, '')) || 0;
 
     const resMaturity = document.getElementById('resMaturity');
     const resMonthly = document.getElementById('resMonthly');
-    const resAOR = document.getElementById('resAOR');
     const resEIR = document.getElementById('resEIR');
+    const resEY = document.getElementById('resEY');
 
     const hiddenIncentive = document.getElementById('hiddenIncentive');
     const hiddenNetProceeds = document.getElementById('hiddenNetProceeds');
     const hiddenMonthly = document.getElementById('hiddenMonthly');
     const hiddenSecondaryMonthly = document.getElementById('hiddenSecondaryMonthly');
     const hiddenEIR = document.getElementById('hiddenEIR');
+    const hiddenEY = document.getElementById('hiddenEY');
     const hiddenMaturity = document.getElementById('hiddenMaturity');
     const hiddenAOR = document.getElementById('hiddenAOR');
+    const hiddenMonthlyFactor = document.getElementById('hiddenMonthlyFactor');
 
-    const classificationSelect = document.querySelector('[name="classification"]');
-    const vehicleTypeSelect = document.querySelector('[name="vehicle_type"]');
-
-    let selectedClass = "";
-
-    if (classificationSelect) {
-    classificationSelect.addEventListener("change", calculateLoan);
+    if (principal <= 0 || term <= 0 || aor <= 0) {
+        if (resMonthly) resMonthly.value = "";
+        if (resEIR) resEIR.value = "";
+        if (resEY) resEY.value = "";
+        if (hiddenMonthly) hiddenMonthly.value = "";
+        if (hiddenEIR) hiddenEIR.value = "";
+        if (hiddenEY) hiddenEY.value = "";
+        if (hiddenMonthlyFactor) hiddenMonthlyFactor.value = "";
+        return;
     }
 
-    if (vehicleTypeSelect) {
-        vehicleTypeSelect.addEventListener("change", calculateLoan);
+    // Monthly factor based on new formula:
+    // (AOR / term) * 100 => display percent
+    // decimal equivalent = (AOR / term) / 100
+    const monthlyFactorPercent = aor / term;
+    const monthlyRate = monthlyFactorPercent / 100;
+
+    if (hiddenMonthlyFactor) {
+        hiddenMonthlyFactor.value = monthlyFactorPercent.toFixed(6);
     }
 
-    if (classificationSelect && classificationSelect.value) {
-        selectedClass = classificationSelect.value.toUpperCase();
+    if (hiddenAOR) {
+        hiddenAOR.value = aor.toFixed(6);
     }
-
-    if (vehicleTypeSelect && vehicleTypeSelect.value) {
-        selectedClass = vehicleTypeSelect.value.toUpperCase();
-    }
-
-    if (!loanRates[selectedClass]) return;
-
-    const monthlyFactor = loanRates[selectedClass].factor;
-    const monthlyRate = monthlyFactor / 100;
-
-    const aorDisplay = loanRates[selectedClass].aor[term] || 0;
-
-    if (principal <= 0 || term <= 0) return;
 
     // ===============================
     // 1️⃣ MATURITY DATE
     // ===============================
-
     if (dateGranted && term > 0) {
         let d = new Date(dateGranted);
         d.setMonth(d.getMonth() + term);
@@ -310,42 +302,37 @@ function calculateLoan() {
         if (hiddenMaturity) hiddenMaturity.value = `${yyyy}-${mm}-${dd}`;
     } else {
         if (resMaturity) resMaturity.value = "";
+        if (hiddenMaturity) hiddenMaturity.value = "";
     }
 
-    // =====================================================
-    // 2️⃣ PRIMARY LEDGER (AMORTIZED - REDUCING BALANCE)
-    // =====================================================
-
-   
-
-    // Proper amortized monthly payment formula
+    // ===============================
+    // 2️⃣ PRIMARY LEDGER
+    // ===============================
     const primaryMonthlyPayment = Number(
-    (
-        (((principal * monthlyRate) * term) + principal) / term
-    ).toFixed(2)
+        (
+            (((principal * monthlyRate) * term) + principal) / term
+        ).toFixed(2)
     );
+
+    // EY = RATE(term, -monthly amortization, principal) * 12
+    const primaryMonthlyEY = getEIRRate(term, -primaryMonthlyPayment, principal);
+    const annualEY = primaryMonthlyEY * 12; // store annual EY
+    const scheduleMonthlyEY = annualEY / 12; // monthly rate used in schedule
 
     let primaryBalance = Number(principal.toFixed(2));
     const primarySchedule = [];
 
     for (let i = 1; i <= term; i++) {
+        let interest = Number((primaryBalance * scheduleMonthlyEY).toFixed(2));
+        let principalPayment = Number((primaryMonthlyPayment - interest).toFixed(2));
 
-        let interest = Number((primaryBalance * monthlyRate).toFixed(2));
-        let principalPayment = Number(
-            (primaryMonthlyPayment - interest).toFixed(2)
-        );
-
-        // Final month adjustment
         if (i === term || principalPayment >= primaryBalance) {
             principalPayment = primaryBalance;
             interest = Number((primaryMonthlyPayment - principalPayment).toFixed(2));
             if (interest < 0) interest = 0;
         }
 
-        let endingBalance = Number(
-            (primaryBalance - principalPayment).toFixed(2)
-        );
-
+        let endingBalance = Number((primaryBalance - principalPayment).toFixed(2));
         if (endingBalance < 0) endingBalance = 0;
 
         primarySchedule.push({
@@ -361,71 +348,47 @@ function calculateLoan() {
         primaryBalance = endingBalance;
     }
 
-    // Display Primary Results
     if (resMonthly) resMonthly.value = primaryMonthlyPayment.toFixed(2);
     if (hiddenMonthly) hiddenMonthly.value = primaryMonthlyPayment.toFixed(2);
 
-    if (resAOR) resAOR.value = aorDisplay + "%";
-    if (hiddenAOR) hiddenAOR.value = aorDisplay;
-
-    const hiddenMonthlyFactor = document.getElementById("hiddenMonthlyFactor");
-    if(hiddenMonthlyFactor){
-        hiddenMonthlyFactor.value = monthlyFactor;
-    }
-
-    const computedEIRPrimary = getEIRRate(term, -primaryMonthlyPayment, principal);
-    const eirPercentagePrimary = computedEIRPrimary * 100;
-
-    if (resEIR) resEIR.value = eirPercentagePrimary.toFixed(6) + "%";
-    if (hiddenEIR) hiddenEIR.value = eirPercentagePrimary.toFixed(6);
+    if (resEY) resEY.value = (annualEY * 100).toFixed(6) + "%";
+    if (hiddenEY) hiddenEY.value = (annualEY * 100).toFixed(6);
 
     renderAmortizationTable(primarySchedule);
 
-    // =====================================================
-    // 3️⃣ SECONDARY LEDGER (ONLY IF GMS)
-    // =====================================================
-
+    // ===============================
+    // 3️⃣ SECONDARY LEDGER (IF GMS)
+    // ===============================
     const isGMS = dateInstalledInp && dateInstalledInp.value.trim() !== "";
-    console.log("Is GMS active?", isGMS); // Debug line
 
     if (isGMS) {
-
         const incentive = Number((principal * 0.05).toFixed(2));
         const netLoan = Number((principal - incentive).toFixed(2));
 
         const secondaryMonthlyPayment = Number(
-        (
-            (((netLoan * monthlyRate) * term) + netLoan) / term
-        ).toFixed(2)
+            (
+                (((netLoan * monthlyRate) * term) + netLoan) / term
+            ).toFixed(2)
         );
-        console.log("Calculated Secondary Monthly:", secondaryMonthlyPayment);
-
-        if (hiddenSecondaryMonthly) {
-            hiddenSecondaryMonthly.value = secondaryMonthlyPayment.toFixed(2);
-        }
 
         let secondaryBalance = netLoan;
         const secondarySchedule = [];
 
+        // EIR for secondary
+        const secondaryMonthlyEIR = getEIRRate(term, -secondaryMonthlyPayment, netLoan);
+        const annualEIR = secondaryMonthlyEIR * 12;
+
         for (let i = 1; i <= term; i++) {
+            let interest = Number((secondaryBalance * secondaryMonthlyEIR).toFixed(2));
+            let principalPayment = Number((secondaryMonthlyPayment - interest).toFixed(2));
 
-            let interest = Number((secondaryBalance * monthlyRate).toFixed(2));
-
-            let principalPayment = Number(
-                (secondaryMonthlyPayment - interest).toFixed(2)
-            );
-
-            // Final month adjustment
             if (i === term || principalPayment >= secondaryBalance) {
                 principalPayment = secondaryBalance;
                 interest = Number((secondaryMonthlyPayment - principalPayment).toFixed(2));
                 if (interest < 0) interest = 0;
             }
 
-            let endingBalance = Number(
-                (secondaryBalance - principalPayment).toFixed(2)
-            );
-
+            let endingBalance = Number((secondaryBalance - principalPayment).toFixed(2));
             if (endingBalance < 0) endingBalance = 0;
 
             secondarySchedule.push({
@@ -444,20 +407,20 @@ function calculateLoan() {
         if (hiddenIncentive) hiddenIncentive.value = incentive.toFixed(2);
         if (hiddenNetProceeds) hiddenNetProceeds.value = netLoan.toFixed(2);
         if (hiddenSecondaryMonthly) hiddenSecondaryMonthly.value = secondaryMonthlyPayment.toFixed(2);
+        if (resEIR) resEIR.value = (annualEIR * 100).toFixed(6) + "%";
+        if (hiddenEIR) hiddenEIR.value = (annualEIR * 100).toFixed(6);
 
-        // 🔹 Store secondarySchedule when saving record
         window.secondaryLedger = secondarySchedule;
-
     } else {
-
         if (hiddenIncentive) hiddenIncentive.value = "0.00";
         if (hiddenNetProceeds) hiddenNetProceeds.value = principal.toFixed(2);
         if (hiddenSecondaryMonthly) hiddenSecondaryMonthly.value = "";
-    
+        if (resEIR) resEIR.value = "";
+        if (hiddenEIR) hiddenEIR.value = "";
+
         window.secondaryLedger = [];
     }
 
-    // 🔹 Store primary ledger globally for save function
     window.primaryLedger = primarySchedule;
 }
 
