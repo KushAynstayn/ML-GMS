@@ -56,6 +56,7 @@ class LoanService {
             $netProceeds = $isGMS 
                 ? round($principal - $dealerIncentive, 2) 
                 : 0.00;
+            $ey = isset($data['ey']) ? (float)$data['ey'] : 0.00;
             $eir = $isGMS ? (float)$data['eir'] : 0.00;
 
 
@@ -83,6 +84,7 @@ class LoanService {
             dealer_incentive,
             net_proceeds,
             interest_rate,
+            ey,
             eir,
             monthly_amortization,
             secondary_monthly,
@@ -91,7 +93,7 @@ class LoanService {
             status,
             date_created,
             created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'active', NOW(), ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'manual', 'active', NOW(), ?)";
 
             $stmt = $this->db->prepare($sqlLoan);
             $stmt->execute([
@@ -109,6 +111,7 @@ class LoanService {
             $dealerIncentive,
             $netProceeds,
             $data['aor'],
+            $ey,
             $eir,
             $data['monthly_amortization'],
             $secondaryMonthly,
@@ -182,40 +185,47 @@ class LoanService {
     private function generatePrimaryLedger($loanId, $data) {
         $balance = round((float)$data['principal'], 2);
         $monthly = round((float)$data['monthly_amortization'], 2);
-        $term = (int)$data['term']; // e.g., 48, 36, 24
+        $term = (int)$data['term'];
         $startDate = new DateTime($data['date_granted']);
-        
-        // To match your Excel, the rate must be applied to the REMAINING balance
-        $monthlyRate = ((float)$data['monthly_factor']) / 100;
+
+        // EY is stored as annual percentage (example: 18.123456)
+        // convert to decimal annual, then to monthly
+        $annualEYDecimal = ((float)($data['ey'] ?? 0)) / 100;
+        $monthlyRate = $annualEYDecimal / 12;
 
         for ($i = 1; $i <= $term; $i++) {
             $startDate->modify('+1 month');
 
-            // If balance is already 0 from previous overpayment, everything else is 0
             if ($balance <= 0) {
                 $interest = 0.00;
                 $principal = 0.00;
                 $ending_balance = 0.00;
             } else {
-                // 1. Interest is calculated on current balance (decreases over time)
                 $interest = round($balance * $monthlyRate, 2);
-                
-                // 2. Principal is the rest of the fixed monthly payment (increases over time)
                 $principal = round($monthly - $interest, 2);
 
-                // 3. Final Month or Early Payoff Check
                 if ($i === $term || $principal >= $balance) {
-                    $principal = $balance; 
+                    $principal = $balance;
                     $ending_balance = 0.00;
-                    // Re-calculate interest to keep the 'Total Amount' consistent in the final row
                     $interest = round($monthly - $principal, 2);
-                    if ($interest < 0) $interest = 0.00;
+                    if ($interest < 0) {
+                        $interest = 0.00;
+                    }
                 } else {
                     $ending_balance = round($balance - $principal, 2);
                 }
             }
 
-            $this->saveToLedger('primary_ledger', $loanId, $i, $startDate->format('Y-m-d'), $balance, $principal, $interest, $ending_balance);
+            $this->saveToLedger(
+                'primary_ledger',
+                $loanId,
+                $i,
+                $startDate->format('Y-m-d'),
+                $balance,
+                $principal,
+                $interest,
+                $ending_balance
+            );
 
             $balance = $ending_balance;
         }
@@ -375,6 +385,10 @@ class LoanService {
                 ? round((float)$data['interest_rate'], 6)
                 : 0.00;
 
+            $ey = isset($data['ey'])
+                ? round((float)$data['ey'], 6)
+                : 0.00;
+
             /* ============================================================
             EIR CALCULATION (using Newton-Raphson solver)
             ============================================================ */
@@ -427,6 +441,7 @@ class LoanService {
                 dealer_incentive,
                 net_proceeds,
                 interest_rate,
+                ey,
                 eir,
                 monthly_amortization,
                 secondary_monthly,
@@ -435,29 +450,30 @@ class LoanService {
                 status,
                 date_created,
                 created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'import', 'active', NOW(), ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'import', 'active', NOW(), ?)";
 
             $stmt = $this->db->prepare($sqlLoan);
             $stmt->execute([
-                $data['reference_number'],
-                $data['loan_type_id'],
-                strtoupper($data['first_name']),
-                strtoupper($data['middle_name'] ?? ''),
-                strtoupper($data['last_name']),
-                $data['contact_number'],
-                $data['pn_date'],
-                $data['pn_maturity_date'],
-                $principal,
-                $term,
-                $dealerIncentive,
-                $netProceeds,
-                $interestRate,
-                $eir,
-                $monthly,
-                $secondaryMonthly,
-                $data['region_name'] ?? '',
-                $currentUserName
-            ]);
+            $data['reference_number'],
+            $data['loan_type_id'],
+            strtoupper($data['first_name']),
+            strtoupper($data['middle_name'] ?? ''),
+            strtoupper($data['last_name']),
+            $data['contact_number'],
+            $data['pn_date'],
+            $data['pn_maturity_date'],
+            $principal,
+            $term,
+            $dealerIncentive,
+            $netProceeds,
+            $interestRate,
+            $ey,
+            $eir,
+            $monthly,
+            $secondaryMonthly,
+            $data['region_name'] ?? '',
+            $currentUserName
+        ]);
 
             $loanId = $this->db->lastInsertId();
 

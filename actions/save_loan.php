@@ -9,23 +9,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $service = new LoanService();
 
-    // Helper to strip formatting (commas, percentages)
     function clean($val) {
         return str_replace([',', '%'], '', $val ?? '');
     }
 
     $cleanAOR = clean($_POST['aor'] ?? '0');
 
-    // 2. Map it to 'interest_rate' (This is the crucial step!)
-    $_POST['interest_rate'] = $cleanAOR; 
-    $_POST['aor']           = $cleanAOR;
+    $_POST['interest_rate'] = $cleanAOR;
+    $_POST['aor'] = $cleanAOR;
 
-    // Clean numeric fields safely
-    $_POST['principal']     = clean($_POST['principal'] ?? '');
+    $_POST['principal'] = clean($_POST['principal'] ?? '');
     $_POST['monthly_amortization'] = clean($_POST['monthly_amortization'] ?? '');
-    $_POST['net_proceeds']  = clean($_POST['net_proceeds'] ?? '');
-    $_POST['incentive']     = clean($_POST['incentive'] ?? '');
-    $_POST['eir']           = clean($_POST['eir'] ?? '');
+    $_POST['net_proceeds'] = clean($_POST['net_proceeds'] ?? '');
+    $_POST['incentive'] = clean($_POST['incentive'] ?? '');
+    $_POST['eir'] = clean($_POST['eir'] ?? '');
+    $_POST['ey'] = clean($_POST['ey'] ?? '');
+    $_POST['monthly_factor'] = clean($_POST['monthly_factor'] ?? '');
 
     try {
         $response = $service->saveManualRecord($_POST);
