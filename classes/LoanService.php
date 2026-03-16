@@ -48,6 +48,12 @@ class LoanService {
             $isGMS = !empty($data['date_installed']);
 
             $principal = round((float)$data['principal'], 2);
+            $term = (int)$data['term'];
+            $aor = (float)$data['aor'];
+
+            $monthlyAmortization = ($principal > 0 && $term > 0 && $aor > 0)
+                ? (float) ceil(($principal * (($aor * 0.01) + 1)) / $term)
+                : 0.00;
 
             $dealerIncentive = $isGMS 
                 ? round($principal * 0.05, 2) 
@@ -113,7 +119,7 @@ class LoanService {
             $data['aor'],
             $ey,
             $eir,
-            $data['monthly_amortization'],
+            $monthlyAmortization,
             $secondaryMonthly,
             $regionName,
             $currentUserName
@@ -184,8 +190,12 @@ class LoanService {
     ============================================================ */
     private function generatePrimaryLedger($loanId, $data) {
         $balance = round((float)$data['principal'], 2);
-        $monthly = round((float)$data['monthly_amortization'], 2);
         $term = (int)$data['term'];
+        $aor = (float)$data['aor'];
+
+        $monthly = ($balance > 0 && $term > 0 && $aor > 0)
+            ? (float) ceil(($balance * (($aor * 0.01) + 1)) / $term)
+            : 0.00;
         $startDate = new DateTime($data['date_granted']);
 
         // EY is stored as annual percentage (example: 18.123456)
