@@ -93,13 +93,18 @@ $branches = $masterData->getBranches();
                 <input type="text" name="principal" id="calcLoanAmount" placeholder="0.00" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
             </div>
             <div>
+                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Term (Months)</label>
+                <input type="text" name="term" id="calcTerm" placeholder="e.g. 36" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+            </div>
+            <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Interest Rate (AOR)</label>
                 <input type="text" name="aor_display" id="resAOR" placeholder="e.g. 54" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
                 <input type="hidden" name="aor" id="hiddenAOR">
             </div>
             <div>
-                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Term (Months)</label>
-                <input type="text" name="term" id="calcTerm" placeholder="e.g. 36" required class="w-full border border-gray-200 rounded-lg p-1.5 bg-white focus:outline-none text-sm">
+                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Monthly Amortization</label>
+                <input type="text" id="resMonthly" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-red-600 font-bold text-sm font-mono">
+                <input type="hidden" name="monthly_amortization" id="hiddenMonthly">
             </div>
             <div>
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Date Granted</label>
@@ -120,11 +125,6 @@ $branches = $masterData->getBranches();
                 <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Loan Amount with 5% off</label>
                 <input type="text" id="resNetLoan" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-sm font-mono">
                 <input type="hidden" name="net_proceeds" id="hiddenNetProceeds">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wider">Monthly Amortization</label>
-                <input type="text" id="resMonthly" readonly class="w-full border border-gray-200 rounded-lg p-2 bg-gray-100 text-red-600 font-bold text-sm font-mono">
-                <input type="hidden" name="monthly_amortization" id="hiddenMonthly">
             </div>
 
             <input type="hidden" name="monthly_factor" id="hiddenMonthlyFactor">
