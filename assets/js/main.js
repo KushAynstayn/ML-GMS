@@ -278,6 +278,7 @@ function calculateLoan() {
     // decimal equivalent = (AOR / term) / 100
     const monthlyFactorPercent = aor / term;
     const monthlyRate = monthlyFactorPercent / 100;
+    
 
     if (hiddenMonthlyFactor) {
         hiddenMonthlyFactor.value = monthlyFactorPercent.toFixed(6);
@@ -308,10 +309,8 @@ function calculateLoan() {
     // ===============================
     // 2️⃣ PRIMARY LEDGER
     // ===============================
-    const primaryMonthlyPayment = Number(
-        (
-            (((principal * monthlyRate) * term) + principal) / term
-        ).toFixed(2)
+    const primaryMonthlyPayment = Math.ceil(
+        (principal * ((aor * 0.01) + 1)) / term
     );
 
     // EY = RATE(term, -monthly amortization, principal) * 12
