@@ -244,7 +244,7 @@ class LoanService {
     /* ============================================================
     SECONDARY LEDGER (AMORTIZATION MATCHING EXCEL)
     ============================================================ */
-    private function generateSecondaryLedger($loanId, $data) {
+    private function generateSecondaryLedger($loanId, $data, $amortizationRows = []) {
 
         $balance = round((float)$data['net_proceeds'], 2);
         $monthly = round((float)$data['secondary_monthly'], 2);
@@ -256,6 +256,12 @@ class LoanService {
             -$monthly,
             $balance
         );
+
+        // ✅ Create a map of status from $amortizationRows for quick lookup
+        $statusMap = [];
+        foreach ($amortizationRows as $row) {
+            $statusMap[(int)$row['payment_number']] = strtolower($row['status'] ?? 'unpaid');
+        }
 
         for ($i = 1; $i <= $term; $i++) {
 
@@ -291,6 +297,9 @@ class LoanService {
                 }
             }
 
+            // ✅ Use the status from the map if it exists, otherwise default to 'unpaid'
+            $status = $statusMap[$i] ?? 'unpaid';
+
             $this->saveToLedger(
                 'secondary_ledger',
                 $loanId,
@@ -299,19 +308,20 @@ class LoanService {
                 $balance,
                 $principal,
                 $interest,
-                $ending_balance
+                $ending_balance,
+                $status
             );
 
             $balance = $ending_balance;
         }
     }
 
-    private function saveToLedger($table, $loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal) {
+    private function saveToLedger($table, $loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal, $status = 'unpaid') {
         $sql = "INSERT INTO $table 
                 (loan_id, installment_no, due_date, beginning_balance, principal, interest, ending_balance, status, date_created) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'unpaid', NOW())";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal]);
+        $stmt->execute([$loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal, $status]);
     }
 
 
@@ -373,7 +383,7 @@ class LoanService {
 
                 } else {
 
-                    $monthlyFactor = (float)$data['monthly_factor'] / 100;
+                    $monthlyFactor = (float)($data['monthly_factor'] ?? 2) / 100;
 
                     $secondaryMonthly = round(
                         ((($netProceeds * $monthlyFactor) * $term) + $netProceeds) / $term,
@@ -558,17 +568,17 @@ class LoanService {
 
             /* ============================================================
             GENERATE SECONDARY LEDGER (ONLY IF GMS)
-            THIS IS CALCULATED SERVER-SIDE
             ============================================================ */
 
             if ($isGMS) {
 
+                // ✅ Pass $amortizationRows to synchronize the status
                 $this->generateSecondaryLedger($loanId, [
-                    'net_proceeds'        => $netProceeds,
+                    'net_proceeds'         => $netProceeds,
                     'secondary_monthly'=> $data['secondary_monthly'] ?? $monthly,
-                    'term'                => $term,
-                    'date_granted'        => $data['pn_date']
-                ]);
+                    'term'                 => $term,
+                    'date_granted'         => $data['pn_date']
+                ], $amortizationRows);
             }
 
             $this->db->commit();
@@ -621,5 +631,3 @@ class LoanService {
         return $rate;
     }
 }
-
-

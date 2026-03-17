@@ -26,47 +26,54 @@ class ImportService
 
         foreach ($sheetNames as $sheetName) {
             $reader->setLoadSheetsOnly([$sheetName]);
-            $sheet = $reader->load($filePath)->getActiveSheet();
+            $sheet = $spreadsheet->getSheetByName($sheetName);
 
-            // 🔹 UPDATED HEADER DATA MAPPING
-            $firstName    = strtoupper(trim($sheet->getCell('B5')->getValue()));
-            $middleName   = strtoupper(trim($sheet->getCell('D5')->getValue()));
-            $lastName     = strtoupper(trim($sheet->getCell('F5')->getValue()));
-            $fullName     = trim("$firstName $middleName $lastName"); // Combined for your DB if needed
+            // 🔹 HEADER DATA MAPPING BASED ON EXCEL IMAGE
+            $loanTypeRaw = strtoupper(trim($sheet->getCell('A1')->getValue())); 
             
-            $contactNumber   = $sheet->getCell('B6')->getValue();
-            $referenceNumber = $sheet->getCell('B7')->getValue();
+            // ✅ CRITICAL FIX: Explicitly check for GMS to determine ledger routing
+            $isGMS = strtoupper(trim($sheet->getCell('A2')->getValue())) === 'GMS';
             
-            // Principal, Term, Interest, Monthly Amortization
-            $principal    = (float)$sheet->getCell('D6')->getCalculatedValue();
-            $term         = (int)$sheet->getCell('D7')->getValue();
-            $interestRate = (float)$sheet->getCell('D8')->getCalculatedValue();
-            $monthly      = (float)$sheet->getCell('D9')->getCalculatedValue();
-
-            // PN Date (B8)
-            $rawPnDate = $sheet->getCell('B8')->getValue();
-            $pnDate = is_numeric($rawPnDate) 
-                ? ExcelDate::excelToDateTimeObject($rawPnDate)->format('Y-m-d') 
-                : ($rawPnDate ? date('Y-m-d', strtotime($rawPnDate)) : null);
-
-            // PN Maturity (B9)
-            $rawPnMaturity = $sheet->getCell('B9')->getValue();
-            $maturityDate = is_numeric($rawPnMaturity) 
-                ? ExcelDate::excelToDateTimeObject($rawPnMaturity)->format('Y-m-d') 
-                : ($rawPnMaturity ? date('Y-m-d', strtotime($rawPnMaturity)) : null);
-
-            // Date Installed (B4 - based on typical layout, though not explicitly in your list)
-            $rawDateInstalled = $sheet->getCell('B4')->getValue();
+            $regionName = trim($sheet->getCell('B3')->getValue()); 
+            
+            $rawDateInstalled = $sheet->getCell('B4')->getValue(); 
             $dateInstalled = is_numeric($rawDateInstalled) 
                 ? ExcelDate::excelToDateTimeObject($rawDateInstalled)->format('Y-m-d') 
                 : ($rawDateInstalled ? date('Y-m-d', strtotime($rawDateInstalled)) : null);
+
+            $classification = strtoupper(trim($sheet->getCell('B5')->getValue())); 
+
+            // Row 6: Names
+            $firstName  = strtoupper(trim($sheet->getCell('B6')->getValue()));
+            $middleName = strtoupper(trim($sheet->getCell('D6')->getValue()));
+            $lastName   = strtoupper(trim($sheet->getCell('F6')->getValue()));
+            
+            // Row 7: Contact & Loan Amount
+            $contactNumber = $sheet->getCell('B7')->getValue();
+            $principal     = (float)$sheet->getCell('D7')->getCalculatedValue();
+            
+            // Row 8: Ref No & Term
+            $referenceNumber = $sheet->getCell('B8')->getValue();
+            $term            = (int)$sheet->getCell('D8')->getValue();
+
+            // Row 9: PN Date & Interest Rate
+            $rawPnDate = $sheet->getCell('B9')->getValue();
+            $pnDate = is_numeric($rawPnDate) 
+                ? ExcelDate::excelToDateTimeObject($rawPnDate)->format('Y-m-d') 
+                : ($rawPnDate ? date('Y-m-d', strtotime($rawPnDate)) : null);
+            $interestRate = (float)$sheet->getCell('D9')->getCalculatedValue();
+
+            // Row 10: PN Maturity & Monthly Amortization
+            $rawPnMaturity = $sheet->getCell('B10')->getValue();
+            $maturityDate = is_numeric($rawPnMaturity) 
+                ? ExcelDate::excelToDateTimeObject($rawPnMaturity)->format('Y-m-d') 
+                : ($rawPnMaturity ? date('Y-m-d', strtotime($rawPnMaturity)) : null);
+            $monthly = (float)$sheet->getCell('D10')->getCalculatedValue();
 
             if (!$lastName || !$principal) {
                 continue;
             }
 
-            // 🔹 Determine loan type from A1 or A2
-            $loanTypeRaw = strtoupper(trim($sheet->getCell('A1')->getValue()));
             $loanTypeId = (strpos($loanTypeRaw, 'CAR') !== false) ? 1 : 2;
             $loanTypeText = ($loanTypeId === 1) ? 'CAR LOAN' : 'MOTOR LOAN';
 
@@ -76,7 +83,6 @@ class ImportService
                 'first_name'           => $firstName,
                 'middle_name'          => $middleName,
                 'last_name'            => $lastName,
-                'account_name'         => $fullName, // Kept for backward compatibility
                 'contact_number'       => $contactNumber,
                 'pn_date'              => $pnDate,
                 'pn_maturity_date'     => $maturityDate,
@@ -84,15 +90,19 @@ class ImportService
                 'term_months'          => $term,
                 'interest_rate'        => $interestRate,
                 'monthly_amortization' => $monthly,
-                'region_id'            => 1,
-                'branch_id'            => 1,
+                'region_name'          => $regionName,
                 'loan_type_text'       => $loanTypeText,
                 'date_installed'       => $dateInstalled,
+                'gms'                  => $isGMS, // Passed to Service to control ledger display
+                'classification'       => $classification,
+                'vehicle_type'         => ($loanTypeId === 2) ? $classification : null,
             ];
 
-            // 🔹 START OF MONTHLY SCHEDULE CHANGED TO ROW 14
+            // 🔹 AMORTIZATION SCHEDULE STARTS AT ROW 15
             $amortizationRows = $this->extractAmortization($sheet);
 
+            // Pass the data to the service. The $isGMS flag inside $loanData 
+            // should be used by your LoanService to skip secondary ledger creation.
             $result = $this->loanService->saveImportedRecord($loanData, $amortizationRows);
 
             if ($result['status'] !== 'success') {
@@ -103,7 +113,7 @@ class ImportService
 
     private function extractAmortization($sheet) {
         $rows = [];
-        $row = 14; // ✅ Start of monthly schedule
+        $row = 15; 
 
         while ($sheet->getCell("A$row")->getValue() != "") {
             $rawDueDate = $sheet->getCell("B$row")->getValue();
@@ -111,25 +121,24 @@ class ImportService
                 ? ExcelDate::excelToDateTimeObject($rawDueDate)->format('Y-m-d') 
                 : ($rawDueDate ? date('Y-m-d', strtotime($rawDueDate)) : null);
 
-            $principal    = (float)$sheet->getCell("C$row")->getCalculatedValue();
-            $interest     = (float)$sheet->getCell("D$row")->getCalculatedValue();
-            $monthlyAmort = (float)$sheet->getCell("E$row")->getCalculatedValue();
-            $endingBalance = (float)$sheet->getCell("F$row")->getCalculatedValue();
+            $principal     = (float)$sheet->getCell("C$row")->getCalculatedValue();
+            $interest      = (float)$sheet->getCell("D$row")->getCalculatedValue();
+            $totalAmount   = (float)$sheet->getCell("E$row")->getCalculatedValue(); 
+            $endingBalance = (float)$sheet->getCell("F$row")->getCalculatedValue(); 
 
-            // Beginning Balance logic
-            $beginningBalance = ($row == 14)
-                ? $endingBalance + $principal
+            $beginningBalance = ($row == 15)
+                ? (float)$sheet->getCell("F14")->getValue()
                 : $rows[count($rows) - 1]['ending_balance'];
 
             $rows[] = [
-                'payment_number'       => (int)$sheet->getCell("A$row")->getValue(),
-                'due_date'             => $dueDate,
-                'principal'            => $principal,
-                'interest'             => $interest,
-                'monthly_amortization' => $monthlyAmort,
-                'beginning_balance'    => $beginningBalance,
-                'ending_balance'       => $endingBalance,
-                'status'               => strtoupper(trim($sheet->getCell("G$row")->getValue())) === 'PAID' ? 'PAID' : 'UNPAID'
+                'payment_number'    => (int)$sheet->getCell("A$row")->getValue(),
+                'due_date'          => $dueDate,
+                'principal'         => $principal,
+                'interest'          => $interest,
+                'monthly_amortization' => $totalAmount,
+                'beginning_balance' => $beginningBalance,
+                'ending_balance'    => $endingBalance,
+                'status'            => strtoupper(trim($sheet->getCell("G$row")->getValue())) === 'PAID' ? 'PAID' : 'UNPAID'
             ];
 
             $row++;
