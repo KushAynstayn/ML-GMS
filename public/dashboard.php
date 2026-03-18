@@ -126,6 +126,19 @@ include('../includes/header.php');
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+
+    /* Mockup Container Styles */
+    .mockup-container {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 2rem;
+        padding: 1.5rem;
+    }
+    .mockup-item {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 0.75rem 0;
+    }
+    .mockup-item:last-child { border-bottom: none; }
 </style>
 
 <canvas id="waveCanvas"></canvas>
@@ -206,6 +219,50 @@ include('../includes/header.php');
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="mockup-container glass-panel relative">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="stat-label text-red-500" style="font-size: 0.9rem;">New Loans</h3>
+                    <div class="text-right">
+                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Y'); ?></p>
+                        <div class="flex items-center justify-end gap-2">
+                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-black text-red-500 tracking-widest">LIVE RECORD</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <div class="mockup-item flex justify-between text-sm"><span>Juan Dela Cruz</span><span class="font-bold">₱50,000</span></div>
+                    <div class="mockup-item flex justify-between text-sm"><span>Maria Santos</span><span class="font-bold">₱12,000</span></div>
+                    <div class="mockup-item flex justify-between text-sm"><span>Ricardo Lim</span><span class="font-bold">₱25,500</span></div>
+                </div>
+                <div class="text-right mt-4">
+                    <a href="all_loans.php?type=car" class="text-[10px] font-black text-red-400 hover:text-white transition-colors tracking-widest">SHOW MORE →</a>
+                </div>
+            </div>
+
+            <div class="mockup-container glass-panel relative">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="stat-label text-amber-500" style="font-size: 0.9rem;">New Payments</h3>
+                    <div class="text-right">
+                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Y'); ?></p>
+                        <div class="flex items-center justify-end gap-2">
+                            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-black text-amber-500 tracking-widest">LIVE RECORD</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <div class="mockup-item flex justify-between text-sm"><span>Ana Batungbakal</span><span class="font-bold">₱2,400</span></div>
+                    <div class="mockup-item flex justify-between text-sm"><span>Pedro Penduko</span><span class="font-bold">₱1,500</span></div>
+                    <div class="mockup-item flex justify-between text-sm"><span>Liza Soberano</span><span class="font-bold">₱5,200</span></div>
+                </div>
+                <div class="text-right mt-4">
+                    <a href="all_payments.php?type=car" class="text-[10px] font-black text-amber-400 hover:text-white transition-colors tracking-widest">SHOW MORE →</a>
+                </div>
+            </div>
         </div>
 
         <div class="glass-panel p-8 lg:p-12 rounded-[3rem] border-none relative mb-12 overflow-hidden">
@@ -506,5 +563,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-
 </script>

@@ -16,7 +16,6 @@ $menu_items = [
         'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 
         'admin_only' => false,
         'sub_menu' => [
-            // All point to all_loans.php but with different TYPE parameters
             ['label' => 'Car Loan', 'type' => 'car'],
             ['label' => 'Motor Loan', 'type' => 'motor'],
             ['label' => 'Home Loan', 'type' => 'home'],
@@ -25,15 +24,29 @@ $menu_items = [
             ['label' => 'Real Estate Loan', 'type' => 'realestate'],
         ]
     ],
-    // --- REPORTS DROPDOWN (Rearranged) ---
+
+    [
+        'file' => 'all_payments.php', 
+        'label' => 'All Payments', 
+        'icon' => 'M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+        'admin_only' => false,
+        'sub_menu' => [
+            ['label' => 'Car Payments', 'type' => 'car', 'file' => 'all_payments.php'],
+            ['label' => 'Motor Payments', 'type' => 'motor', 'file' => 'all_payments.php'],
+            ['label' => 'Home Payments', 'type' => 'home', 'file' => 'all_payments.php'],
+            ['label' => 'Salary Payments', 'type' => 'salary', 'file' => 'all_payments.php'],
+            ['label' => 'Personal Property Payments', 'type' => 'personal', 'file' => 'all_payments.php'],
+            ['label' => 'Real Estate Payments', 'type' => 'realestate', 'file' => 'all_payments.php'],
+        ]
+    ],
     [
         'file' => '#', 
         'label' => 'Reports', 
         'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 
         'admin_only' => false,
         'sub_menu' => [
-            ['label' => 'GMS Commissions', 'file' => 'gms_commission.php'],
-            ['label' => 'Running Receivables', 'file' => 'running_receivable_report.php'],
+            ['label' => 'GMS Commissions Report', 'file' => 'gms_commission.php'],
+            ['label' => 'Running Receivables Report', 'file' => 'running_receivable_report.php'],
             ['label' => 'Collection Report', 'file' => 'collection_report.php'],
         ]
     ],
@@ -64,11 +77,10 @@ $menu_items = [
                 $hasSubmenu = isset($item['sub_menu']);
                 $isActive = ($current_page === $item['file']);
                 
-                // Keep "Reports" active if child is active
                 if ($hasSubmenu) {
                     foreach($item['sub_menu'] as $sub) {
-                        $subFile = $sub['file'] ?? 'all_loans.php';
-                        if ($current_page === $subFile) {
+                        $subTarget = $sub['file'] ?? $item['file'];
+                        if ($current_page === $subTarget) {
                             if (isset($sub['type'])) {
                                 if ($current_type === $sub['type']) $isActive = true;
                             } else {
@@ -104,9 +116,12 @@ $menu_items = [
                         <div class="submenu overflow-hidden transition-all duration-300 bg-black/10 rounded-b-lg mx-1" 
                             style="max-height: <?php echo $isActive ? '500px' : '0px'; ?>;">
                             <?php foreach($item['sub_menu'] as $sub): 
+                                // FIX: Use sub-item file if it exists, otherwise use parent file
+                                $targetFile = $sub['file'] ?? $item['file'];
+                                
                                 if (isset($sub['type'])) {
-                                    $subActive = ($current_type === $sub['type']);
-                                    $link = "all_loans.php?type=" . $sub['type'];
+                                    $subActive = ($current_type === $sub['type'] && $current_page === $targetFile);
+                                    $link = $targetFile . "?type=" . $sub['type'];
                                 } else {
                                     $subActive = ($current_page === $sub['file']);
                                     $link = $sub['file'];
@@ -199,7 +214,6 @@ $menu_items = [
 
     function toggleSubmenu(e, el) {
         e.preventDefault();
-        // Only allow toggling if sidebar is expanded
         if (!sidebar.classList.contains('sidebar-locked') && !sidebar.matches(':hover')) return;
 
         const submenu = el.nextElementSibling;
