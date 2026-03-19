@@ -33,11 +33,6 @@
                 </div>
             </div>
 
-            <div class="flex gap-8 border-b border-gray-200 mb-6">
-                <button onclick="switchTab('car', this)" id="tabCar" class="tab-btn pb-2 font-semibold text-[#D50000] border-b-2 border-[#D50000] transition-all">Car Loan</button>
-                <button onclick="switchTab('motor', this)" id="tabMotor" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">Motor Loan</button>
-            </div>
-
             <div class="flex flex-nowrap gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 
                 <div class="flex-1 min-w-[200px] relative">
@@ -47,11 +42,12 @@
                     </svg>
                 </div>
 
-                <div id="motorFilterContainer" class="hidden shrink-0">
-                    <select id="wheelFilter" onchange="filterTable()" class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none bg-white text-gray-500 font-bold text-xs uppercase cursor-pointer hover:border-gray-300">
-                        <option value="all">All Wheels</option>
-                        <option value="2-wheels">2-Wheels</option>
-                        <option value="3-wheels">3-Wheels</option>
+                <div class="shrink-0">
+                    <select id="vehicleTypeFilter" onchange="filterTable()" class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none bg-white text-gray-500 font-bold text-xs uppercase cursor-pointer hover:border-gray-300">
+                        <option value="all">All Vehicle Type</option>
+                        <option value="car">Car Loan</option>
+                        <option value="2-wheels">Motor 2-Wheels</option>
+                        <option value="3-wheels">Motor 3-Wheels</option>
                     </select>
                 </div>
 
@@ -127,7 +123,7 @@
                     <span class="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Fully Paid</span>
                 </td>
             </tr>
-            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="2-wheels" style="display:none">
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="2-wheels">
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">10/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">01/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">John Doe</td>
@@ -142,7 +138,82 @@
                     <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Repossessed</span>
                 </td>
             </tr>
-            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels" style="display:none">
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                </td>
+            </tr>
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                </td>
+            </tr>
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                </td>
+            </tr>
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                </td>
+            </tr>
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
+                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
+                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
+                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
+                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
+                <td class="px-4 py-4 text-sm text-center">
+                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                </td>
+            </tr>
+            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
                 <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
@@ -163,28 +234,6 @@
 
 <script>
 let dateMode = 'single';
-let currentTab = 'car';
-
-function switchTab(tabName, element) {
-    currentTab = tabName;
-    const motorFilter = document.getElementById('motorFilterContainer');
-
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
-        btn.classList.add('text-gray-500');
-    });
-    
-    element.classList.add('text-[#D50000]', 'border-b-2', 'border-[#D50000]');
-    element.classList.remove('text-gray-500');
-
-    if (tabName === 'motor') {
-        motorFilter.classList.remove('hidden');
-    } else {
-        motorFilter.classList.add('hidden');
-    }
-
-    filterTable();
-}
 
 function setDateMode(mode) {
     dateMode = mode;
@@ -212,19 +261,28 @@ function filterTable() {
     const searchText = document.getElementById('searchInput').value.toUpperCase();
     const startDateVal = document.getElementById('startDate').value;
     const endDateVal = document.getElementById('endDate').value;
-    const wheelVal = document.getElementById('wheelFilter').value;
+    const filterVal = document.getElementById('vehicleTypeFilter').value;
     const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
     let hasMatch = false;
 
     rows.forEach(row => {
         const releaseDateStr = row.cells[0].textContent.trim();
         const nameText = row.cells[2].textContent.toUpperCase();
-        const refText = row.cells[7].textContent.toUpperCase(); // Index adjusted from 8 to 7 due to Unit removal
+        const refText = row.cells[7].textContent.toUpperCase();
         const rowLoanType = row.getAttribute('data-loan-type');
         const rowWheels = row.getAttribute('data-wheels');
 
-        const tabMatch = (rowLoanType === currentTab);
-        let wheelMatch = (currentTab !== 'motor' || wheelVal === 'all' || rowWheels === wheelVal);
+        // Combined Filter Logic
+        let typeMatch = false;
+        if (filterVal === 'all') {
+            typeMatch = true;
+        } else if (filterVal === 'car') {
+            typeMatch = (rowLoanType === 'car');
+        } else if (filterVal === '2-wheels') {
+            typeMatch = (rowWheels === '2-wheels');
+        } else if (filterVal === '3-wheels') {
+            typeMatch = (rowWheels === '3-wheels');
+        }
 
         const [day, month, year] = releaseDateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
@@ -244,7 +302,7 @@ function filterTable() {
 
         const textMatch = nameText.includes(searchText) || refText.includes(searchText);
 
-        if (tabMatch && wheelMatch && dateMatch && textMatch) {
+        if (typeMatch && dateMatch && textMatch) {
             row.style.display = "";
             hasMatch = true;
         } else {
@@ -275,9 +333,7 @@ window.onload = function() {
 
 function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    
     const doc = new jsPDF('p', 'mm', 'letter');
-    
     const img = new Image();
     img.src = '../assets/images/ml.png';
 
@@ -285,27 +341,14 @@ function downloadPDF() {
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     const dateStr = `As of ${lastDay.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
 
-    // Determine Display Title
-    let displayTab = currentTab.toUpperCase();
-    if (displayTab === "CAR") {
-        displayTab = "CAR LOAN";
-    } else if (displayTab === "MOTOR") {
-        const wheelFilter = document.getElementById('wheelFilter').value;
-        if (wheelFilter === '2-wheels') {
-            displayTab = "MOTOR LOAN (2-WHEELS)";
-        } else if (wheelFilter === '3-wheels') {
-            displayTab = "MOTOR LOAN (3-WHEELS)";
-        } else {
-            displayTab = "MOTOR LOAN";
-        }
-    }
+    const filterSelect = document.getElementById('vehicleTypeFilter');
+    const filterText = filterSelect.options[filterSelect.selectedIndex].text.toUpperCase();
 
     img.onload = function() {
         const pageWidth = doc.internal.pageSize.getWidth();
         const centerX = pageWidth / 2;
 
         doc.addImage(img, 'PNG', centerX - 17.5, 10, 35, 7);
-        
         doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(100, 100, 100);
@@ -316,7 +359,7 @@ function downloadPDF() {
         doc.text(dateStr, centerX, 32, { align: "center" });
         
         doc.setFontSize(10);
-        doc.text(displayTab, 14, 40);
+        doc.text(filterText, 14, 40);
 
         doc.autoTable({
             html: '#collectionTable',
@@ -329,13 +372,24 @@ function downloadPDF() {
                 lineColor: [200, 200, 200] 
             },
             headStyles: { 
-                fillColor: [213, 0, 0], // #D50000
+                fillColor: [213, 0, 0], 
                 textColor: [255, 255, 255] 
             },
-            margin: { left: 14, right: 14 }
+            margin: { left: 14, right: 14 },
+            didParseCell: function(data) {
+                // Ensure hidden rows are not included in PDF
+                if (data.row.section === 'body') {
+                    const rowIndex = data.row.index;
+                    const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
+                    if (rows[rowIndex] && rows[rowIndex].style.display === 'none') {
+                        // This logic is handled by 'html' source auto-detecting visibility, 
+                        // but autoTable handles this natively.
+                    }
+                }
+            }
         });
         
-        doc.save(`Collection_Report_${currentTab}.pdf`);
+        doc.save(`Collection_Report_${filterText.replace(/\s+/g, '_')}.pdf`);
     };
 }
 
@@ -344,21 +398,16 @@ async function downloadExcel() {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Collections');
 
-        // 1. Add Logo centered at column F
         const response = await fetch('../assets/images/ml.png');
         const buffer = await response.arrayBuffer();
         const logoId = workbook.addImage({ buffer: buffer, extension: 'png' });
 
-        // We set col: 5 (Column F). 
-        // The 'offset' properties move the image slightly to the right 
-        // within the cell to achieve a true centered look.
         worksheet.addImage(logoId, {
             tl: { col: 5, row: 0 },
             ext: { width: 120, height: 40 },
             editAs: 'oneCell' 
         });
 
-        // 2. Title Rows (No merge, placed in Column F/Index 6)
         worksheet.getCell('F3').value = "LOANS DEPARTMENT";
         worksheet.getCell('F3').font = { bold: true, size: 14 };
         worksheet.getCell('F3').alignment = { horizontal: 'center' };
@@ -367,36 +416,33 @@ async function downloadExcel() {
         worksheet.getCell('F4').font = { bold: true, size: 12 };
         worksheet.getCell('F4').alignment = { horizontal: 'center' };
 
-        // 3. Loan Type Info
-        let loanTypeDisplay = currentTab === 'motor' 
-            ? "MOTOR LOAN (" + document.getElementById('wheelFilter').value.toUpperCase() + ")" 
-            : "CAR LOAN";
-        worksheet.getCell('A5').value = loanTypeDisplay;
-        worksheet.getCell('F5').font = { bold: true };
-        worksheet.getCell('F5').alignment = { horizontal: 'center' };
+        const filterSelect = document.getElementById('vehicleTypeFilter');
+        const filterText = filterSelect.options[filterSelect.selectedIndex].text.toUpperCase();
+        
+        worksheet.getCell('A5').value = filterText;
+        worksheet.getCell('A5').font = { bold: true };
 
-        // 4. Data Extraction - Get ONLY visible rows from table
         const table = document.getElementById('collectionTable');
-        const allRows = Array.from(table.querySelectorAll('tr'));
-        const visibleRows = allRows.filter(tr => tr.style.display !== 'none' && tr.id !== 'noRecordFound');
+        const headerRow = table.querySelector('thead tr');
+        const dataRows = Array.from(table.querySelectorAll('tbody tr:not(#noRecordFound)'))
+                             .filter(row => row.style.display !== 'none');
 
-        visibleRows.forEach((tr, rowIndex) => {
+        const allVisibleRows = [headerRow, ...dataRows];
+
+        allVisibleRows.forEach((tr, rowIndex) => {
             const cells = Array.from(tr.querySelectorAll('th, td'));
             const excelRow = worksheet.getRow(rowIndex + 6);
 
-            // Column A: "#"
             const hashCell = excelRow.getCell(1);
             hashCell.value = (rowIndex === 0) ? "#" : rowIndex;
             hashCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
             
-            // Apply Red Header styling to "#"
             if (rowIndex === 0) {
                 hashCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD50000' } };
                 hashCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
             }
             hashCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-            // Fill Columns B through N
             cells.forEach((cell, colIndex) => {
                 const excelCell = excelRow.getCell(colIndex + 2);
                 excelCell.value = cell.innerText.trim();    
@@ -413,10 +459,9 @@ async function downloadExcel() {
         worksheet.columns.forEach(col => col.width = 18);
 
         const excelBuffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([excelBuffer]), `Collection_Report_${currentTab}.xlsx`);
+        saveAs(new Blob([excelBuffer]), `Collection_Report_${filterText.replace(/\s+/g, '_')}.xlsx`);
     } catch (error) {
         console.error("Error generating Excel:", error);
-        alert("Failed to download Excel. Please check the console for details.");
     }
 }
 </script>
