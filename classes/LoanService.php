@@ -339,24 +339,32 @@ class LoanService {
             /* ============================================================
             SANITIZE NUMERIC VALUES
             ============================================================ */
-
             $principal = round((float)$data['principal_amount'], 2);
             $term      = (int)$data['term_months'];
             $monthly   = round((float)$data['monthly_amortization'], 2);
 
+            $interestRate = isset($data['interest_rate'])
+                ? round((float)$data['interest_rate'], 6)
+                : 0.00;
+
+            // ✅ COMPUTE / NORMALIZE MONTHLY FACTOR
+            // Stored format example: 1.50
+            $monthlyFactor = isset($data['monthly_factor']) && $data['monthly_factor'] !== null
+                ? round((float)$data['monthly_factor'], 6)
+                : (($term > 0 && $interestRate > 0) ? round($interestRate / $term, 6) : 0.00);
+
+            // Decimal form for computation example: 0.015
+            $monthlyFactorDecimal = $monthlyFactor / 100;
+
             /* ============================================================
             DEALER INCENTIVE
-            If not provided in Excel, compute 5%
             ============================================================ */
-
             if ($isGMS) {
-
                 if (!empty($data['dealer_incentive'])) {
                     $dealerIncentive = round((float)$data['dealer_incentive'], 2);
                 } else {
                     $dealerIncentive = round($principal * 0.05, 2);
                 }
-
             } else {
                 $dealerIncentive = 0.00;
             }
@@ -364,63 +372,43 @@ class LoanService {
             /* ============================================================
             NET PROCEEDS
             ============================================================ */
-
             $netProceeds = $isGMS
                 ? round($principal - $dealerIncentive, 2)
-                : null;
+                : 0.00;
 
             /* ============================================================
             SECONDARY MONTHLY (IF GMS)
-            Formula used in ML computation:
-            (((net proceeds * 2%) * term) + net proceeds) / term
+            Formula:
+            (((net proceeds * monthly factor) * term) + net proceeds) / term
+            monthly factor used here must be decimal, ex. 1.50 -> 0.015
             ============================================================ */
-
             if ($isGMS) {
-
                 if (!empty($data['secondary_monthly'])) {
-
                     $secondaryMonthly = round((float)$data['secondary_monthly'], 2);
-
                 } else {
-
-                    $monthlyFactor = (float)($data['monthly_factor'] ?? 2) / 100;
-
                     $secondaryMonthly = round(
-                        ((($netProceeds * $monthlyFactor) * $term) + $netProceeds) / $term,
+                        ((($netProceeds * $monthlyFactorDecimal) * $term) + $netProceeds) / $term,
                         2
                     );
                 }
-
             } else {
-
-                $secondaryMonthly = null;
-
+                $secondaryMonthly = 0.00;
             }
 
             /* ============================================================
-            INTEREST RATE
+            EY
             ============================================================ */
-
-            $interestRate = isset($data['interest_rate'])
-                ? round((float)$data['interest_rate'], 6)
-                : 0.00;
-
             $ey = isset($data['ey'])
                 ? round((float)$data['ey'], 6)
                 : 0.00;
 
             /* ============================================================
-            EIR CALCULATION (using Newton-Raphson solver)
+            EIR CALCULATION
             ============================================================ */
-
             if ($isGMS) {
-
                 if (!empty($data['eir'])) {
-
                     $eir = round((float)$data['eir'], 6);
-
                 } else {
-
                     $monthlyRate = $this->getEIRRate(
                         $term,
                         -$secondaryMonthly,
@@ -428,28 +416,21 @@ class LoanService {
                     );
 
                     $eir = round($monthlyRate, 10);
-
                 }
-
             } else {
-
-                $eir = null;
-
+                $eir = 0.00;
             }
 
-            /* ============================================================
-            SAVE SECONDARY MONTHLY BACK TO DATA
-            ============================================================ */
-
             $data['secondary_monthly'] = $secondaryMonthly;
+            $data['monthly_factor'] = $monthlyFactor;
 
             /* ============================================================
             INSERT INTO LOANS
             ============================================================ */
-
             $sqlLoan = "INSERT INTO loans (
                 reference_number,
                 loan_type_id,
+                monthly_factor,
                 first_name,
                 middle_name,
                 last_name,
@@ -470,39 +451,38 @@ class LoanService {
                 status,
                 date_created,
                 created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'import', 'active', NOW(), ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'import', 'active', NOW(), ?)";
 
             $stmt = $this->db->prepare($sqlLoan);
             $stmt->execute([
-            $data['reference_number'],
-            $data['loan_type_id'],
-            strtoupper($data['first_name']),
-            strtoupper($data['middle_name'] ?? ''),
-            strtoupper($data['last_name']),
-            $data['contact_number'],
-            $data['pn_date'],
-            $data['pn_maturity_date'],
-            $principal,
-            $term,
-            $dealerIncentive,
-            $netProceeds,
-            $interestRate,
-            $ey,
-            $eir,
-            $monthly,
-            $secondaryMonthly,
-            $data['region_name'] ?? '',
-            $currentUserName
-        ]);
+                $data['reference_number'],
+                $data['loan_type_id'],
+                $monthlyFactor, // ✅ ADDED
+                strtoupper($data['first_name']),
+                strtoupper($data['middle_name'] ?? ''),
+                strtoupper($data['last_name']),
+                $data['contact_number'],
+                $data['pn_date'],
+                $data['pn_maturity_date'],
+                $principal,
+                $term,
+                $dealerIncentive,
+                $netProceeds,
+                $interestRate,
+                $ey,
+                $eir,
+                $monthly,
+                $secondaryMonthly,
+                $data['region_name'] ?? '',
+                $currentUserName
+            ]);
 
             $loanId = $this->db->lastInsertId();
 
             /* ============================================================
             INSERT VEHICLE TABLES
             ============================================================ */
-
             if ($data['loan_type_text'] === 'MOTOR LOAN') {
-
                 $stmtMotor = $this->db->prepare("
                     INSERT INTO motor_loans
                     (loan_id, type, date_installed, gps_provider, date_created)
@@ -518,7 +498,6 @@ class LoanService {
             }
 
             if ($data['loan_type_text'] === 'CAR LOAN') {
-
                 $stmtCar = $this->db->prepare("
                     INSERT INTO car_loans
                     (loan_id, classification, date_installed, gps_provider, date_created)
@@ -534,11 +513,9 @@ class LoanService {
             }
 
             /* ============================================================
-            INSERT PRIMARY LEDGER (FROM EXCEL — NO RECOMPUTE)
+            INSERT PRIMARY LEDGER FROM EXCEL
             ============================================================ */
-
             foreach ($amortizationRows as $row) {
-
                 $installmentNo     = (int)$row['payment_number'];
                 $dueDate           = $row['due_date'];
                 $beginningBalance  = round((float)$row['beginning_balance'], 2);
@@ -567,17 +544,14 @@ class LoanService {
             }
 
             /* ============================================================
-            GENERATE SECONDARY LEDGER (ONLY IF GMS)
+            GENERATE SECONDARY LEDGER ONLY IF GMS
             ============================================================ */
-
             if ($isGMS) {
-
-                // ✅ Pass $amortizationRows to synchronize the status
                 $this->generateSecondaryLedger($loanId, [
-                    'net_proceeds'         => $netProceeds,
-                    'secondary_monthly'=> $data['secondary_monthly'] ?? $monthly,
-                    'term'                 => $term,
-                    'date_granted'         => $data['pn_date']
+                    'net_proceeds'      => $netProceeds,
+                    'secondary_monthly' => $secondaryMonthly,
+                    'term'              => $term,
+                    'date_granted'      => $data['pn_date']
                 ], $amortizationRows);
             }
 
@@ -589,7 +563,6 @@ class LoanService {
             ];
 
         } catch (Exception $e) {
-
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }
