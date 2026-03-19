@@ -26,6 +26,7 @@ $type_id = $current_config['id'];
     /* Consistent styling for focus states */
     .tab-btn:focus, .tab-btn:active { outline: none !important; box-shadow: none !important; }
     button:focus { outline: none !important; }
+    .cursor-pointer-row { cursor: pointer; transition: background-color 0.2s; }
 </style>
 
 <body class="h-screen overflow-hidden flex flex-col bg-gray-50">
@@ -103,7 +104,9 @@ $type_id = $current_config['id'];
                                 <td colspan="8" class="px-4 py-12 text-center text-gray-400 text-xs italic">No records found.</td>
                             </tr>
                             
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row" 
+                                onclick="showBreakdown(this)"
+                                data-amort="64147.00" data-prev-paid="64147.00" data-prev-unpaid="0" data-partial="0" data-vat="0" data-penalty="0" data-interest-diff="0" data-advance="0">
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">2026-01-02</td>
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Juan Dela Cruz</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-001</td>
@@ -116,7 +119,9 @@ $type_id = $current_config['id'];
                                 <td class="px-4 py-3 text-[12px] text-gray-600 font-medium whitespace-nowrap">64,147.00 (Feb)</td>
                             </tr>
 
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row"
+                                onclick="showBreakdown(this)"
+                                data-amort="25000.00" data-prev-paid="20000.00" data-prev-unpaid="5000.00" data-partial="5000.00" data-vat="600.00" data-penalty="500.00" data-interest-diff="0" data-advance="0">
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">2026-01-02</td>
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Maria Clara</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-002</td>
@@ -126,14 +131,16 @@ $type_id = $current_config['id'];
                                 <td class="px-4 py-3">
                                     <span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap">Partial</span>
                                 </td>
-                                <td class="px-4 py-3 text-[12px] text-gray-600 font-medium whitespace-nowrap">30,000.00 (Feb)</td>
+                                <td class="px-4 py-3 text-[12px] text-red-600 font-bold whitespace-nowrap">31,100.00 (Feb)</td>
                             </tr>
 
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row"
+                                onclick="showBreakdown(this)"
+                                data-amort="65000.00" data-prev-paid="130000.00" data-prev-unpaid="0" data-partial="0" data-vat="0" data-penalty="0" data-interest-diff="0" data-advance="65000.00">
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">2026-01-02</td>
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Santiago Enrile</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-003</td>
-                                <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">5,000.00</td>
+                                <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">65,000.00</td>
                                 <td class="px-4 py-3 text-[12px] font-bold text-green-600 whitespace-nowrap">130,000.00</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">Jan-Feb</td>
                                 <td class="px-4 py-3">
@@ -142,7 +149,9 @@ $type_id = $current_config['id'];
                                 <td class="px-4 py-3 text-[12px] text-gray-600 font-medium whitespace-nowrap">0.00 (Feb)</td>
                             </tr>
 
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row"
+                                onclick="showBreakdown(this)"
+                                data-amort="10000.00" data-prev-paid="0" data-prev-unpaid="10000.00" data-partial="0" data-vat="1200.00" data-penalty="1000.00" data-interest-diff="0" data-advance="0">
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">2026-01-02</td>
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Mockup Borrower 4</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-004</td>
@@ -152,13 +161,71 @@ $type_id = $current_config['id'];
                                 <td class="px-4 py-3">
                                     <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap">Unpaid</span>
                                 </td>
-                                <td class="px-4 py-3 text-[12px] text-gray-600 font-medium whitespace-nowrap">20,000.00 (Feb)</td>
+                                <td class="px-4 py-3 text-[12px] text-red-600 font-bold whitespace-nowrap">22,200.00 (Feb)</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="breakdownModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[150] p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-pop">
+            <div class="p-5 border-b flex justify-between items-center bg-gray-50">
+                <h3 class="text-lg font-bold text-gray-800">Payment <span class="text-[#D50000]">Breakdown</span></h3>
+            </div>
+            <div class="p-6 space-y-3">
+                <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                    <span class="text-gray-500 font-medium">Monthly Amortization</span>
+                    <span class="font-bold text-gray-900" id="bdAmort">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                    <span class="text-gray-500 font-medium">Amount Paid</span>
+                    <span class="font-bold text-green-600" id="bdPaid">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                    <span class="text-gray-500 font-medium">Unpaid/Balance</span>
+                    <span class="font-bold text-red-500" id="bdUnpaid">₱0.00</span>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-xl space-y-2">
+                    <div class="flex justify-between text-[11px] uppercase tracking-wider font-bold text-gray-400">
+                        <span>Additional Charges</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">VAT</span>
+                        <span class="font-medium text-gray-800" id="bdVat">₱0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Penalty</span>
+                        <span class="font-medium text-gray-800" id="bdPenalty">₱0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Interest Difference</span>
+                        <span class="font-medium text-gray-800" id="bdInterest">₱0.00</span>
+                    </div>
+                </div>
+                <div class="flex justify-between text-sm py-2 text-blue-600 font-bold">
+                    <span>Advance Payment</span>
+                    <span id="bdAdvance">₱0.00</span>
+                </div>
+                <div class="pt-4 border-t-2 border-dashed border-gray-100 mt-4">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <span class="text-xs font-bold text-gray-400 uppercase">Total Due Next Month</span>
+                            <p id="nextMonthLabel" class="text-[10px] font-bold text-[#D50000] uppercase tracking-wider">For February</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xl font-black text-[#D50000]" id="bdTotalDue">₱0.00</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-2 italic">*Includes next month's amort + unpaid balance + penalties.</p>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 text-center">
+                <button onclick="closeBreakdownModal()" class="w-full bg-gray-800 text-white py-2 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-gray-900 transition-all">Close Details</button>
+            </div>
+        </div>
     </div>
 
     <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[110] p-4">
@@ -216,6 +283,33 @@ $type_id = $current_config['id'];
     let dateMode = 'single';
 
     window.onload = filterTable;
+
+    // Breakdown Modal Functions
+    function showBreakdown(row) {
+        const data = row.dataset;
+        const format = (val) => "₱" + parseFloat(val).toLocaleString('en-US', {minimumFractionDigits: 2});
+        
+        // Populate Modal Fields
+        document.getElementById('bdAmort').innerText = format(data.amort);
+        document.getElementById('bdPaid').innerText = format(data.prevPaid);
+        document.getElementById('bdUnpaid').innerText = format(data.prevUnpaid);
+        document.getElementById('bdVat').innerText = format(data.vat);
+        document.getElementById('bdPenalty').innerText = format(data.penalty);
+        document.getElementById('bdInterest').innerText = format(data.interestDiff);
+        document.getElementById('bdAdvance').innerText = format(data.advance);
+
+        // Logic for Total Due Next Month: (Remaining Unpaid) + (Next Month Amort) + (VAT) + (Penalty) - (Advance)
+        let totalDue = (parseFloat(data.prevUnpaid) + parseFloat(data.amort) + parseFloat(data.vat) + parseFloat(data.penalty) + parseFloat(data.interestDiff)) - parseFloat(data.advance);
+        if(totalDue < 0) totalDue = 0;
+
+        document.getElementById('bdTotalDue').innerText = format(totalDue);
+        
+        document.getElementById('breakdownModal').classList.replace('hidden', 'flex');
+    }
+
+    function closeBreakdownModal() {
+        document.getElementById('breakdownModal').classList.replace('flex', 'hidden');
+    }
 
     function setDateMode(mode) {
         dateMode = mode;
