@@ -63,6 +63,10 @@ class ImportService
                 : ($rawPnDate ? date('Y-m-d', strtotime($rawPnDate)) : null);
             $interestRate = (float)$sheet->getCell('D9')->getCalculatedValue();
 
+            $monthlyFactor = ($term > 0 && $interestRate > 0)
+            ? round($interestRate / $term, 6)
+            : 0.00;
+
             // Row 10: PN Maturity & Monthly Amortization
             $rawPnMaturity = $sheet->getCell('B10')->getValue();
             $maturityDate = is_numeric($rawPnMaturity) 
@@ -87,6 +91,7 @@ class ImportService
                 'pn_date'              => $pnDate,
                 'pn_maturity_date'     => $maturityDate,
                 'principal_amount'     => $principal,
+                'monthly_factor'       => $monthlyFactor,
                 'term_months'          => $term,
                 'interest_rate'        => $interestRate,
                 'monthly_amortization' => $monthly,
