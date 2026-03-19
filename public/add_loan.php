@@ -25,9 +25,8 @@ include_once '../includes/modals/status_modal.php';
                 
                 <p class="text-gray-500 font-medium mt-2 mb-8">Fill out the details below to register a new loan application.</p>
                 <div class="flex gap-8 border-b border-gray-200">
-                    <button onclick="switchTab('add_record', this)" class="tab-btn pb-2 font-semibold text-[#D50000] border-b-2 border-[#D50000] transition-all">Add new record</button>
-                    <button onclick="switchTab('import_file', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">Import file</button>
-                    <button onclick="switchTab('import_payment', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">Import payment</button>
+                    <button onclick="switchTab('add_record', this)" class="tab-btn pb-2 font-semibold text-[#D50000] border-b-2 border-[#D50000] transition-all">Add New Record</button>
+                    <button onclick="switchTab('import_file', this)" class="tab-btn pb-2 font-semibold text-gray-500 hover:text-[#D50000] transition-all">Import Ledger</button>
                 </div>
             </header>
 
@@ -51,8 +50,8 @@ include_once '../includes/modals/status_modal.php';
     </div>
 
     <div id="importModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[999]">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-            <h2 id="modalTitle" class="text-xl font-bold mb-4"></h2>
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 text-center">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4 text-center"></h2>
             <p id="modalMessage" class="mb-6 text-gray-700"></p>
             <div class="text-right">
                 <button onclick="closeImportModal()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">OK</button>
@@ -148,13 +147,13 @@ include_once '../includes/modals/status_modal.php';
             if (!fileInput) return;
             const file = fileInput.files[0];
             if (!file) {
-                alert("Please select a file first.");
+                showStatusModal('error', 'Selection Required', 'Please select a file first.', false);
                 return;
             }
             const allowedExtensions = ['xls', 'xlsx'];
             const extension = file.name.split('.').pop().toLowerCase();
             if (!allowedExtensions.includes(extension)) {
-                alert("Only Excel files (.xls, .xlsx) are allowed.");
+                showStatusModal('error', 'Invalid File Type', 'Only Excel files (.xls, .xlsx) are allowed.', false);
                 return;
             }
             const formData = new FormData();
@@ -175,18 +174,16 @@ include_once '../includes/modals/status_modal.php';
                     showStatusModal('success', 'Success!', 'Records imported successfully.', true);
                     resetFileInput();
                 } else {
-                // Enhanced Error Logic
-                let displayError = result;
-                if (result.includes("Duplicate entry")) {
-                    // Extract the reference number using regex
-                    const match = result.match(/'([^']+)'/);
-                    const refNo = match ? match[1] : "Unknown";
-                    
-                    // Wrapped refNo in <strong> tags to make it bold
-                    displayError = `Duplicate reference number: <strong>${refNo}</strong>. Please check your file and try again.`;
+                    let displayError = result;
+                    if (result.includes("Duplicate entry")) {
+                        const match = result.match(/'([^']+)'/);
+                        const refNo = match ? match[1] : "Unknown";
+                        
+                        // Added 'whitespace-nowrap' to force the ID to stay on the same line as the text
+                        displayError = `<div class="whitespace-nowrap">Duplicate reference number: <strong>${refNo}</strong>.</div><div class="mt-2 text-sm text-gray-500">Please check your file and try again.</div>`;
+                    }
+                    showStatusModal('error', 'Import Failed', displayError, false);
                 }
-                showStatusModal('error', 'Import Failed', displayError, false);
-            }
             })
             .catch(error => {
                 e.target.disabled = false;
@@ -326,8 +323,11 @@ include_once '../includes/modals/status_modal.php';
     </script>
 
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 10px; height: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; border: 2px solid #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
         .pop-icon { animation: icon-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
         @keyframes icon-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .excel-preview-wrapper table { width: 100%; border-collapse: collapse; background: white; font-size: 0.875rem; color: #374151; }
