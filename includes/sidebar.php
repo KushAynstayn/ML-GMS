@@ -20,24 +20,16 @@ $menu_items = [
             ['label' => 'Motor Loan', 'type' => 'motor'],
             ['label' => 'Home Loan', 'type' => 'home'],
             ['label' => 'Salary Loan', 'type' => 'salary'],
-            ['label' => 'Personal Property', 'type' => 'personal'],
+            ['label' => 'Personal Property Loan', 'type' => 'personal'],
             ['label' => 'Real Estate Loan', 'type' => 'realestate'],
         ]
     ],
 
     [
         'file' => 'all_payments.php', 
-        'label' => 'All Payments', 
+        'label' => 'Payments', 
         'icon' => 'M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
-        'admin_only' => false,
-        'sub_menu' => [
-            ['label' => 'Car Payments', 'type' => 'car', 'file' => 'all_payments.php'],
-            ['label' => 'Motor Payments', 'type' => 'motor', 'file' => 'all_payments.php'],
-            ['label' => 'Home Payments', 'type' => 'home', 'file' => 'all_payments.php'],
-            ['label' => 'Salary Payments', 'type' => 'salary', 'file' => 'all_payments.php'],
-            ['label' => 'Personal Property Payments', 'type' => 'personal', 'file' => 'all_payments.php'],
-            ['label' => 'Real Estate Payments', 'type' => 'realestate', 'file' => 'all_payments.php'],
-        ]
+        'admin_only' => false
     ],
     [
         'file' => '#', 

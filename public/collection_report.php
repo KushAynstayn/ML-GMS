@@ -51,21 +51,8 @@
                     </select>
                 </div>
 
-                <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
-                    <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
-                </div>
-
-                <div class="flex shrink-0 items-center gap-2">
-                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                        <span id="dateLabel" class="text-[10px] font-bold uppercase">Date</span>
-                        <input type="date" id="startDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                    </div>
-                    
-                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                        <span class="text-[10px] font-bold uppercase">To</span>
-                        <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                    </div>
+                <div class="flex shrink-0 items-center gap-3">
+                    <?php include '../includes/date_picker.php'; ?>
                 </div>
 
                 <div class="relative inline-block text-left shrink-0" id="downloadDropdown">
@@ -88,20 +75,20 @@
         </header>
 
 <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
-    <table id="collectionTable" class="w-full text-left border-collapse min-w-[2100px]">
+    <table id="collectionTable" class="w-full text-left border-collapse min-w-[1400px]">
         <thead class="bg-[#D50000]">
             <tr>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Released Date</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Installation Date</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white">Account Name</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Monthly Amortization</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Principal</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Interest</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Loan Term</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Loan Reference Number</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Paid Amortization</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Date Paid</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Status</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Released</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Installed</th>
+                <th class="px-3 py-4 text-[10px] font-bold uppercase tracking-wider text-white">Account Name</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Monthly Amort</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Principal</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Interest</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Term</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Ref Number</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Applied</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Paid</th>
+                <th class="px-2 py-4 text-[10px] font-bold uppercase tracking-wider text-white text-center">Status</th>
             </tr>
         </thead>
         <tbody id="tableBody" class="divide-y divide-gray-100">
@@ -109,123 +96,48 @@
                 <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">No records found.</td>
             </tr>
             <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="car">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">08/08/2025</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">31/07/2025</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Leah Faye Genson</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">24,940.67</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12,551.77</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12,388.89</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">48 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MCRVMWQTW</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Dec 2025</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">09/01/2026</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-green-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Fully Paid</span>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">08/08/2025</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">07/31/2025</td>
+                <td class="px-3 py-4 text-xs text-gray-800 font-medium">Leah Faye Genson</td>
+                <td class="px-2 py-4 text-xs text-gray-700 text-center">24,940.67</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">12,551.77</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">12,388.89</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">48 mos</td>
+                <td class="px-2 py-4 text-xs font-mono text-gray-500 uppercase text-center">MCRVMWQTW</td>
+                <td class="px-2 py-4 text-[11px] text-gray-500 leading-tight text-center">Dec 2025</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">01/09/2026</td>
+                <td class="px-2 py-4 text-xs text-center">
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase">Fully Paid</span>
                 </td>
             </tr>
             <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="2-wheels">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">10/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">01/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">John Doe</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">3,200.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">2,000.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,200.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR2W001</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">---</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-[10px] font-bold uppercase shadow-sm">Repossessed</span>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">01/10/2026</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">01/01/2026</td>
+                <td class="px-3 py-4 text-xs text-gray-800 font-medium">John Doe</td>
+                <td class="px-2 py-4 text-xs text-gray-700 text-center">3,200.00</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">2,000.00</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">1,200.00</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">12 mos</td>
+                <td class="px-2 py-4 text-xs font-mono text-gray-500 uppercase text-center">MTR2W001</td>
+                <td class="px-2 py-4 text-[11px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">---</td>
+                <td class="px-2 py-4 text-xs text-center">
+                    <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] font-bold uppercase">Repossessed</span>
                 </td>
             </tr>
             <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
-                </td>
-            </tr>
-            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
-                </td>
-            </tr>
-            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
-                </td>
-            </tr>
-            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
-                </td>
-            </tr>
-            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
-                </td>
-            </tr>
-            <tr class="hover:bg-red-50/50 transition-colors" data-loan-type="motor" data-wheels="3-wheels">
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">12/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">05/01/2026</td>
-                <td class="px-4 py-4 text-sm text-gray-800 font-medium">Jane Smith</td>
-                <td class="px-4 py-4 text-sm text-gray-700 text-center">4,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">3,000.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">1,500.00</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">24 months</td>
-                <td class="px-4 py-4 text-sm font-mono text-gray-500 uppercase text-center">MTR3W001</td>
-                <td class="px-4 py-4 text-[12px] text-gray-500 leading-tight text-center">Jan 2026</td>
-                <td class="px-4 py-4 text-sm text-gray-600 text-center">06/01/2026</td>
-                <td class="px-4 py-4 text-sm text-center">
-                    <span class="px-3 py-1 bg-[#D50000] text-white rounded-full text-[10px] font-bold uppercase shadow-sm">No Payment</span>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">01/12/2026</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">01/05/2026</td>
+                <td class="px-3 py-4 text-xs text-gray-800 font-medium">Jane Smith</td>
+                <td class="px-2 py-4 text-xs text-gray-700 text-center">4,500.00</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">3,000.00</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">1,500.00</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">24 mos</td>
+                <td class="px-2 py-4 text-xs font-mono text-gray-500 uppercase text-center">MTR3W001</td>
+                <td class="px-2 py-4 text-[11px] text-gray-500 leading-tight text-center">Jan 2026</td>
+                <td class="px-2 py-4 text-xs text-gray-600 text-center">01/06/2026</td>
+                <td class="px-2 py-4 text-xs text-center">
+                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-bold uppercase">No Payment</span>
                 </td>
             </tr>
         </tbody>
@@ -233,34 +145,13 @@
 </div>
 
 <script>
-let dateMode = 'single';
-
-function setDateMode(mode) {
-    dateMode = mode;
-    const toContainer = document.getElementById('toDateContainer');
-    const dateLabel = document.getElementById('dateLabel');
-    const btnSingle = document.getElementById('btnSingle');
-    const btnRange = document.getElementById('btnRange');
-
-    if (mode === 'single') {
-        toContainer.classList.add('hidden');
-        dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-        document.getElementById('endDate').value = ""; 
-    } else {
-        toContainer.classList.remove('hidden');
-        dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-    }
-    filterTable(); 
-}
-
 function filterTable() {
     const searchText = document.getElementById('searchInput').value.toUpperCase();
+    
+    // Using IDs from the date_picker.php include
     const startDateVal = document.getElementById('startDate').value;
     const endDateVal = document.getElementById('endDate').value;
+    
     const filterVal = document.getElementById('vehicleTypeFilter').value;
     const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
     let hasMatch = false;
@@ -284,7 +175,8 @@ function filterTable() {
             typeMatch = (rowWheels === '3-wheels');
         }
 
-        const [day, month, year] = releaseDateStr.split('/');
+        // Updated for mm/dd/yyyy format
+        const [month, day, year] = releaseDateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);
 
@@ -294,10 +186,11 @@ function filterTable() {
         if(filterEnd) filterEnd.setHours(0,0,0,0);
 
         let dateMatch = true;
-        if (dateMode === 'single' && filterStart) {
-            dateMatch = rowDate.getTime() === filterStart.getTime();
-        } else if (dateMode === 'range' && filterStart && filterEnd) {
+        // Logic handles both single date or range via the shared component
+        if (filterStart && filterEnd) {
             dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
+        } else if (filterStart) {
+            dateMatch = rowDate.getTime() === filterStart.getTime();
         }
 
         const textMatch = nameText.includes(searchText) || refText.includes(searchText);
@@ -329,7 +222,7 @@ window.onload = function() {
     filterTable();
 };
 
-// --- Updated Download Functions ---
+// --- Download Functions ---
 
 function downloadPDF() {
     const { jsPDF } = window.jspdf;
@@ -375,18 +268,7 @@ function downloadPDF() {
                 fillColor: [213, 0, 0], 
                 textColor: [255, 255, 255] 
             },
-            margin: { left: 14, right: 14 },
-            didParseCell: function(data) {
-                // Ensure hidden rows are not included in PDF
-                if (data.row.section === 'body') {
-                    const rowIndex = data.row.index;
-                    const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
-                    if (rows[rowIndex] && rows[rowIndex].style.display === 'none') {
-                        // This logic is handled by 'html' source auto-detecting visibility, 
-                        // but autoTable handles this natively.
-                    }
-                }
-            }
+            margin: { left: 14, right: 14 }
         });
         
         doc.save(`Collection_Report_${filterText.replace(/\s+/g, '_')}.pdf`);

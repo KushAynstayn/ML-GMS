@@ -83,7 +83,6 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                 </div>
 
                 <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 bg-white">
-                    <span class="text-xs font-bold uppercase whitespace-nowrap">Filter:</span>
                     <select id="vehicleFilter" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer text-sm font-semibold text-gray-700">
                         <option value="ALL">All Vehicles</option>
                         <option value="CAR">Car</option>
@@ -92,20 +91,8 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                     </select>
                 </div>
 
-                <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
-                    <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all text-gray-500">Select Range</button>
-                </div>
-
                 <div class="flex shrink-0 items-center gap-3">
-                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500">
-                        <span id="dateLabel" class="text-xs font-bold uppercase">Date</span>
-                        <input type="date" id="startDate" onchange="filterTable()" class="focus:outline-none bg-transparent text-sm">
-                    </div>
-                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500">
-                        <span class="text-xs font-bold uppercase">To</span>
-                        <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent text-sm">
-                    </div>
+                    <?php include '../includes/date_picker.php'; ?>
                 </div>
             </div>
         </header>
@@ -113,8 +100,8 @@ $countMotor3 = count(array_unique($motor3Borrowers));
             <table class="w-full text-left border-collapse" id="commissionsTable">
                 <thead class="bg-[#D50000] text-white">
                     <tr class="whitespace-nowrap">
-                        <th class="px-4 py-4 text-[10px] font-bold uppercase">Installment Date</th>
-                        <th class="px-4 py-4 text-[10px] font-bold uppercase">Ref #</th>
+                        <th class="px-4 py-4 text-[10px] font-bold uppercase">Date Installed</th>
+                        <th class="px-4 py-4 text-[10px] font-bold uppercase">Reference Number</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Account Name</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Vehicle</th>
                         <th class="px-4 py-4 text-[10px] font-bold uppercase">Rate</th>
@@ -138,7 +125,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                         };
                     ?>
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-4 text-xs"><?php echo date("d/m/Y", strtotime($row['date'])); ?></td>
+                            <td class="px-4 py-4 text-xs"><?php echo date("m/d/Y", strtotime($row['date'])); ?></td>
                             <td class="px-4 py-4 text-xs font-mono font-bold"><?php echo $row['ref']; ?></td>
                             <td class="px-4 py-4 text-xs font-semibold uppercase"><?php echo $row['name']; ?></td>
                             <td class="px-4 py-4 text-xs text-gray-600"><?php echo $row['vehicle']; ?></td>
@@ -150,7 +137,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                                 </span>
                             </td>
                             <td class="px-4 py-4 text-xs font-semibold text-blue-600">₱<?php echo number_format($row['paid'], 2); ?></td>
-                            <td class="px-4 py-4 text-xs text-gray-500"><?php echo $row['p_date'] ? date("d/m/Y", strtotime($row['p_date'])) : '-'; ?></td>
+                            <td class="px-4 py-4 text-xs text-gray-500"><?php echo $row['p_date'] ? date("m/d/Y", strtotime($row['p_date'])) : '-'; ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -161,43 +148,24 @@ $countMotor3 = count(array_unique($motor3Borrowers));
 </body>
 
 <script>
-let dateMode = 'single';
-
-function setDateMode(mode) {
-    dateMode = mode;
-    const toContainer = document.getElementById('toDateContainer');
-    const dateLabel = document.getElementById('dateLabel');
-    const btnSingle = document.getElementById('btnSingle');
-    const btnRange = document.getElementById('btnRange');
-    
-    if (mode === 'single') {
-        toContainer.classList.add('hidden');
-        dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-    } else {
-        toContainer.classList.remove('hidden');
-        dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-    }
-    filterTable(); 
-}
-
 function filterTable() {
     const searchText = document.getElementById('searchInput').value.toUpperCase();
     const vehicleType = document.getElementById('vehicleFilter').value.toUpperCase();
+    
+    // Using IDs from the date_picker.php include
     const startDateValue = document.getElementById('startDate').value;
     const endDateValue = document.getElementById('endDate').value;
+    
     const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
     let hasMatch = false;
 
     rows.forEach(row => {
         const dateStr = row.cells[0].textContent.trim();
         const accountText = row.cells[2].textContent.toUpperCase();
-        const vehicleText = row.cells[3].textContent.toUpperCase().trim(); // Still at index 3
+        const vehicleText = row.cells[3].textContent.toUpperCase().trim();
         
-        const [day, month, year] = dateStr.split('/');
+        // Updated to handle mm/dd/yyyy format
+        const [month, day, year] = dateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);
 
@@ -207,10 +175,11 @@ function filterTable() {
         if(filterEnd) filterEnd.setHours(0,0,0,0);
 
         let dateMatch = true;
-        if (dateMode === 'single' && filterStart) {
-            dateMatch = rowDate.getTime() === filterStart.getTime();
-        } else if (dateMode === 'range' && filterStart && filterEnd) {
+        // Logic handles both single date (start equals row) or range (row between start and end)
+        if (filterStart && filterEnd) {
             dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
+        } else if (filterStart) {
+            dateMatch = rowDate.getTime() === filterStart.getTime();
         }
 
         const textMatch = accountText.includes(searchText);

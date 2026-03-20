@@ -425,8 +425,8 @@ function exportData(format) {
             worksheet.getCell(`A${sigRow}`).value = "Conforme:";
             
             sigRow++;
-            worksheet.getCell(`A${sigRow}`).value = signatures.conforme1 || "____________________";
-            worksheet.getCell(`F${sigRow}`).value = signatures.conforme2 || "____________________";
+            worksheet.getCell(`A${sigRow}`).value = signatures.conforme1 || "";
+            worksheet.getCell(`F${sigRow}`).value = signatures.conforme2 || "";
             worksheet.getCell(`A${sigRow}`).font = { bold: true };
             worksheet.getCell(`F${sigRow}`).font = { bold: true };
             worksheet.getCell(`A${sigRow}`).border = { bottom: { style: 'thin' } };

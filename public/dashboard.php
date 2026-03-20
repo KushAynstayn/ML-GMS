@@ -166,18 +166,13 @@ include('../includes/header.php');
                     </div>
 
                     <div class="flex flex-wrap items-center gap-6">
-                        <div class="flex p-1.5 bg-black/30 rounded-full border border-white/5">
-                            <button onclick="setDateMode('single')" id="btnSingle" class="px-8 py-3 text-xs font-black rounded-full transition-all btn-active-red">SINGLE</button>
-                            <button onclick="setDateMode('range')" id="btnRange" class="px-8 py-3 text-xs font-black rounded-full text-gray-400 hover:text-white transition-all">RANGE</button>
-                        </div>
-                        
                         <div class="flex items-center gap-4">
                             <div class="flex items-center px-6 py-3 dark-input rounded-2xl">
-                                <span id="dateLabel" class="text-[10px] font-black text-red-500 uppercase mr-4 tracking-tighter">Start</span>
+                                <span class="text-[10px] font-black text-red-500 uppercase mr-4 tracking-tighter">From</span>
                                 <input type="date" id="startDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-white focus:outline-none [color-scheme:dark]">
                             </div>
-                            <div id="toDateContainer" class="hidden flex items-center px-6 py-3 dark-input rounded-2xl">
-                                <span class="text-[10px] font-black text-red-500 uppercase mr-4 tracking-tighter">End</span>
+                            <div id="toDateContainer" class="flex items-center px-6 py-3 dark-input rounded-2xl">
+                                <span class="text-[10px] font-black text-red-500 uppercase mr-4 tracking-tighter">To</span>
                                 <input type="date" id="endDate" onchange="filterDashboard()" class="bg-transparent text-sm font-bold text-white focus:outline-none [color-scheme:dark]">
                             </div>
                         </div>
@@ -226,7 +221,7 @@ include('../includes/header.php');
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="stat-label text-red-500" style="font-size: 0.9rem;">New Loans</h3>
                     <div class="text-right">
-                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Y'); ?></p>
+                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Year'); ?></p>
                         <div class="flex items-center justify-end gap-2">
                             <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
                             <span class="text-[10px] font-black text-red-500 tracking-widest">LIVE RECORD</span>
@@ -247,7 +242,7 @@ include('../includes/header.php');
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="stat-label text-amber-500" style="font-size: 0.9rem;">New Payments</h3>
                     <div class="text-right">
-                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Y'); ?></p>
+                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Year'); ?></p>
                         <div class="flex items-center justify-end gap-2">
                             <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
                             <span class="text-[10px] font-black text-amber-500 tracking-widest">LIVE RECORD</span>
@@ -480,54 +475,38 @@ new Chart(ctx, {
     }
 });
 
-let currentMode = 'single';
-function setDateMode(mode) {
-    currentMode = mode;
-    const btnSingle = document.getElementById('btnSingle');
-    const btnRange = document.getElementById('btnRange');
-    const toDateContainer = document.getElementById('toDateContainer');
-
-    if (mode === 'single') {
-        btnSingle.className = "px-8 py-3 text-xs font-black rounded-full transition-all btn-active-red";
-        btnRange.className = "px-8 py-3 text-xs font-black rounded-full text-gray-400 hover:text-white transition-all";
-        toDateContainer.classList.add('hidden');
-        document.getElementById('dateLabel').innerText = 'Start';
-    } else {
-        btnRange.className = "px-8 py-3 text-xs font-black rounded-full transition-all btn-active-red";
-        btnSingle.className = "px-8 py-3 text-xs font-black rounded-full text-gray-400 hover:text-white transition-all";
-        toDateContainer.classList.remove('hidden');
-        document.getElementById('dateLabel').innerText = 'From';
-    }
-    filterDashboard();
-}
-
 function filterDashboard() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+    const startDateVal = document.getElementById('startDate').value;
+    const endDateVal = document.getElementById('endDate').value;
     const tableContainer = document.getElementById('searchTableContainer');
     const noRecordFound = document.getElementById('noRecordFound');
     const tableRows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
 
     let visibleCount = 0;
-    const isSearching = searchInput.length > 0 || startDate !== '';
+    const isSearching = searchInput.length > 0 || startDateVal !== '' || endDateVal !== '';
 
     tableRows.forEach(row => {
         const dateCell = row.cells[0].innerText;
         const nameCell = row.cells[1].innerText.toLowerCase();
         const refCell = row.cells[2].innerText.toLowerCase();
+        
+        // Handle Date Comparison
         const rowDate = new Date(dateCell);
-        const start = startDate ? new Date(startDate) : null;
-        const end = endDate ? new Date(endDate) : null;
+        const start = startDateVal ? new Date(startDateVal) : null;
+        const end = endDateVal ? new Date(endDateVal) : null;
 
         let dateMatch = true;
-        if (currentMode === 'single' && start) {
-            dateMatch = rowDate.toDateString() === start.toDateString();
-        } else if (currentMode === 'range' && start && end) {
+        if (start && end) {
             dateMatch = rowDate >= start && rowDate <= end;
+        } else if (start) {
+            dateMatch = rowDate >= start;
+        } else if (end) {
+            dateMatch = rowDate <= end;
         }
 
         const textMatch = nameCell.includes(searchInput) || refCell.includes(searchInput);
+        
         if (dateMatch && textMatch) {
             row.style.display = "";
             visibleCount++;
