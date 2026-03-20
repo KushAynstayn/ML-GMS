@@ -61,7 +61,19 @@
                 <tbody class="divide-y divide-gray-100 text-gray-700">
                     <tr class="category-header"><td colspan="5" class="px-6 py-3 text-sm">ML LOANS</td></tr>
                     <?php 
-                    $ml_loans = ['Auto Loan', 'Motorcycle Loan', '2-Wheels', '3-Wheels', 'Real-Estate Loan', 'Commercial Loan', 'Salary Loan', 'Truck Loan'];
+                    $ml_loans = [
+                        'Auto/Car Loan', 
+                        ' - Prenda', 
+                        ' - Pre-owned', 
+                        ' - Surplus', 
+                        'Motorcycle Loan', 
+                        ' - 2-Wheels', 
+                        ' - 3-Wheels', 
+                        'Real-Estate Loan', 
+                        'Commercial Loan', 
+                        'Salary Loan', 
+                        'Truck Loan'
+                    ];
                     foreach($ml_loans as $loan): ?>
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 text-sm font-medium"><?php echo $loan; ?></td>
@@ -111,6 +123,15 @@
 </div>
 
 <script>
+// Wait for DOM to load, then add event listeners to the date inputs
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    if(startDateInput) startDateInput.addEventListener('change', updateDateDisplay);
+    if(endDateInput) endDateInput.addEventListener('change', updateDateDisplay);
+});
+
 function updateDateDisplay() {
     const startVal = document.getElementById('startDate').value;
     const endVal = document.getElementById('endDate').value;
@@ -122,17 +143,23 @@ function updateDateDisplay() {
     }
 
     const start = new Date(startVal);
-    const monthName = start.toLocaleDateString('en-US', { month: 'long' });
-    const year = start.getFullYear();
+    const startMonth = start.toLocaleDateString('en-US', { month: 'long' });
+    const startYear = start.getFullYear();
+    const startDay = start.getDate();
 
     if (endVal) {
         const end = new Date(endVal);
-        const startDay = start.getDate();
+        const endMonth = end.toLocaleDateString('en-US', { month: 'long' });
+        const endYear = end.getFullYear();
         const endDay = end.getDate();
-        display.innerText = `AS OF ${monthName.toUpperCase()} ${startDay}-${endDay}, ${year}`;
+
+        if (startMonth === endMonth && startYear === endYear) {
+            display.innerText = `AS OF ${startMonth.toUpperCase()} ${startDay}-${endDay}, ${startYear}`;
+        } else {
+            display.innerText = `AS OF ${startMonth.toUpperCase()} ${startDay}, ${startYear} - ${endMonth.toUpperCase()} ${endDay}, ${endYear}`;
+        }
     } else {
-        const day = start.getDate();
-        display.innerText = `AS OF ${monthName.toUpperCase()} ${day}, ${year}`;
+        display.innerText = `AS OF ${startMonth.toUpperCase()} ${startDay}, ${startYear}`;
     }
 }
 
