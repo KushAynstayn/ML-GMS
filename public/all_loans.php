@@ -90,13 +90,19 @@ $hasTabs = $current_config['has_tabs'];
                         </td>
                     </tr>
                     <?php 
-                        // Define the type for the included file
                         $type = $_GET['type'] ?? 'car';
-
-                        // Default to Primary Ledger for all pages
                         $primaryFile = dirname(__DIR__) . '/includes/tabs/primary_ledger.php';
                         if (file_exists($primaryFile)) {
+                            // Capture the output of the ledger file
+                            ob_start();
                             include($primaryFile);
+                            $output = ob_get_clean();
+
+                            // Use Regex to find DD/MM/YYYY and flip to MM/DD/YYYY before displaying
+                            echo preg_replace_callback('/(\d{2})\/(\d{2})\/(\d{4})/', function($matches) {
+                                return $matches[2] . '/' . $matches[1] . '/' . $matches[3];
+                            }, $output);
+
                         } else {
                             echo "<tr><td colspan='5' class='p-10 text-center text-gray-400 italic'>No records found.</td></tr>";
                         }
@@ -111,7 +117,6 @@ $hasTabs = $current_config['has_tabs'];
 <script src="../assets/js/amortization.js"></script>
 
 <script>
-// dateMode is now permanently set to range
 const dateMode = 'range';
 
 function switchLedger(tabName, element) {
@@ -137,7 +142,10 @@ function switchLedger(tabName, element) {
             return response.text();
         })
         .then(html => {
-            tableBody.innerHTML = html;
+            // Apply the same date flip to the AJAX response
+            const flippedHtml = html.replace(/(\d{2})\/(\d{2})\/(\d{4})/g, '$2/$1/$3');
+            tableBody.innerHTML = flippedHtml;
+            
             const isMotor = "<?php echo $isMotor; ?>";
             const colspan = isMotor ? '4' : '3';
             const noResultsHTML = `<tr id="noResultsRow" class="hidden"><td colspan="${colspan}" class="px-6 py-12 text-center text-gray-400 text-sm italic">No records found.</td></tr>`;
@@ -145,9 +153,7 @@ function switchLedger(tabName, element) {
             filterTable();
         })
         .catch(error => {
-            tableBody.innerHTML =
-                '<tr><td colspan="5" class="p-10 text-center text-red-500 italic">Ledger file not found.</td></tr>';
-            console.error(error);
+            tableBody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-red-500 italic">Ledger file not found.</td></tr>';
         });
 }
 
@@ -168,7 +174,6 @@ function filterTable() {
         const nameText = row.cells[1].textContent.toUpperCase();
         const refText = row.cells[2].textContent.toUpperCase();
         
-        // Use the function from our included date_picker.php
         let dateMatch = checkDateMatch(dateText, startDateValue, endDateValue);
 
         let wheelMatch = true;

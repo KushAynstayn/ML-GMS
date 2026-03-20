@@ -125,7 +125,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                         };
                     ?>
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-4 text-xs"><?php echo date("d/m/Y", strtotime($row['date'])); ?></td>
+                            <td class="px-4 py-4 text-xs"><?php echo date("m/d/Y", strtotime($row['date'])); ?></td>
                             <td class="px-4 py-4 text-xs font-mono font-bold"><?php echo $row['ref']; ?></td>
                             <td class="px-4 py-4 text-xs font-semibold uppercase"><?php echo $row['name']; ?></td>
                             <td class="px-4 py-4 text-xs text-gray-600"><?php echo $row['vehicle']; ?></td>
@@ -137,7 +137,7 @@ $countMotor3 = count(array_unique($motor3Borrowers));
                                 </span>
                             </td>
                             <td class="px-4 py-4 text-xs font-semibold text-blue-600">₱<?php echo number_format($row['paid'], 2); ?></td>
-                            <td class="px-4 py-4 text-xs text-gray-500"><?php echo $row['p_date'] ? date("d/m/Y", strtotime($row['p_date'])) : '-'; ?></td>
+                            <td class="px-4 py-4 text-xs text-gray-500"><?php echo $row['p_date'] ? date("m/d/Y", strtotime($row['p_date'])) : '-'; ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -164,7 +164,8 @@ function filterTable() {
         const accountText = row.cells[2].textContent.toUpperCase();
         const vehicleText = row.cells[3].textContent.toUpperCase().trim();
         
-        const [day, month, year] = dateStr.split('/');
+        // Updated to handle mm/dd/yyyy format
+        const [month, day, year] = dateStr.split('/');
         const rowDate = new Date(year, month - 1, day);
         rowDate.setHours(0, 0, 0, 0);
 

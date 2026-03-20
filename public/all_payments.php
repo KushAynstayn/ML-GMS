@@ -106,6 +106,10 @@ $processImportUrl = '../actions/process_import.php';
                                 <td colspan="8" class="px-4 py-12 text-center text-gray-400 text-xs italic">No records found.</td>
                             </tr>
                             
+                            <?php 
+                            // Using Output Buffering to rearrange dates before rendering
+                            ob_start(); 
+                            ?>
                             <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row" 
                                 onclick="showBreakdown(this)"
                                 data-amort="64147.00" data-prev-paid="64147.00" data-prev-unpaid="0" data-partial="0" data-vat="0" data-penalty="0" data-interest-diff="0" data-advance="0">
@@ -165,6 +169,13 @@ $processImportUrl = '../actions/process_import.php';
                                 </td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">22,200.00 (Feb)</td>
                             </tr>
+                            <?php 
+                            $output = ob_get_clean();
+                            // Logic: Convert YYYY-MM-DD to MM/DD/YYYY via Regex
+                            echo preg_replace_callback('/(\d{4})-(\d{2})-(\d{2})/', function($matches) {
+                                return $matches[2] . '/' . $matches[3] . '/' . $matches[1];
+                            }, $output);
+                            ?>
                         </tbody>
                     </table>
                 </div>
@@ -335,12 +346,15 @@ $processImportUrl = '../actions/process_import.php';
             
             let matchesDate = true;
             if (startVal && endVal) {
-                const rowDate = new Date(rowDateStr).setHours(0,0,0,0);
+                // Since row date is now mm/dd/yyyy, we must parse it correctly for comparison
+                const [m, d, y] = rowDateStr.split('/');
+                const rowDate = new Date(`${y}-${m}-${d}`).setHours(0,0,0,0);
                 const start = new Date(startVal).setHours(0,0,0,0);
                 const end = new Date(endVal).setHours(0,0,0,0);
                 matchesDate = rowDate >= start && rowDate <= end;
             } else if (startVal) {
-                const rowDate = new Date(rowDateStr).setHours(0,0,0,0);
+                const [m, d, y] = rowDateStr.split('/');
+                const rowDate = new Date(`${y}-${m}-${d}`).setHours(0,0,0,0);
                 const start = new Date(startVal).setHours(0,0,0,0);
                 matchesDate = rowDate === start;
             }
@@ -462,9 +476,6 @@ $processImportUrl = '../actions/process_import.php';
         };
         reader.readAsArrayBuffer(file);
     }
-
-    function openPaymentModal() { document.getElementById('paymentModal').classList.replace('hidden','flex'); }
-    function closePaymentModal() { document.getElementById('paymentModal').classList.replace('flex','hidden'); }
     </script>
 
     <style>

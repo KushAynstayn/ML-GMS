@@ -238,4 +238,88 @@ function updateAmortizationHeader(isSecondary) {
         if(nWrap) nWrap.classList.add('hidden');
     }
 }
+
+/**
+ * REVISED DATE FORMATTER
+ * This logic captures both tab switches and initial data load.
+ */
+function forceDateFormat() {
+    // 1. Fix Summary Headers (Date Granted / Maturity)
+    ['modalDispDate', 'modalDispMaturity'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.innerText.includes('/')) {
+            const currentText = el.innerText.trim();
+            const formatted = reformatDateString(currentText);
+            // Only update if it's actually different to prevent flickering
+            if (currentText !== formatted) {
+                el.innerText = formatted;
+            }
+        }
+    });
+
+    // 2. Fix Table Body Rows
+    ['primaryLedgerBody', 'secondaryLedgerBody'].forEach(bodyId => {
+        const body = document.getElementById(bodyId);
+        if (body) {
+            Array.from(body.rows).forEach(row => {
+                const dateCell = row.cells[1];
+                if (dateCell && dateCell.innerText.includes('/')) {
+                    const currentVal = dateCell.innerText.trim();
+                    const newVal = reformatDateString(currentVal);
+                    if (currentVal !== newVal) {
+                        dateCell.innerText = newVal;
+                    }
+                }
+            });
+        }
+    });
+}
+
+function reformatDateString(str) {
+    // Expected format: DD/MM/YYYY
+    const parts = str.trim().split('/');
+    if (parts.length === 3) {
+        const d = parts[0];
+        const m = parts[1];
+        const y = parts[2];
+        
+        // Logical check: if first part > 12, it is definitely a Day.
+        // We swap them to MM/DD/YYYY
+        if (parseInt(d) > 12) {
+            return `${m}/${d}/${y}`;
+        }
+        
+        // If your system always outputs DD/MM/YYYY even for early days (e.g., 01/05), 
+        // we assume the first is always Day.
+        return `${m}/${d}/${y}`;
+    }
+    return str;
+}
+
+// Global Observer to handle tab switching and data injections
+const globalObserver = new MutationObserver(() => {
+    globalObserver.disconnect();
+    forceDateFormat();
+    startObserving();
+});
+
+function startObserving() {
+    const config = { childList: true, subtree: true, characterData: true };
+    
+    // Watch the containers that get updated during tab switches
+    const watchList = [
+        'primaryLedgerBody', 
+        'secondaryLedgerBody', 
+        'modalDispDate', 
+        'modalDispMaturity'
+    ];
+
+    watchList.forEach(id => {
+        const target = document.getElementById(id);
+        if (target) globalObserver.observe(target, config);
+    });
+}
+
+// Initial Run
+startObserving();
 </script>
