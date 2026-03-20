@@ -18,7 +18,11 @@ $payment_configs = [
 
 $current_config = $payment_configs[$type] ?? $payment_configs['car'];
 $type_id = $current_config['id']; 
+
+$processImportUrl = '../actions/process_import.php';
+
 ?>
+
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -244,6 +248,10 @@ $type_id = $current_config['id'];
                     <p id="uploadTitle" class="font-bold text-gray-700">Upload Payment File</p>
                     <p id="fileNameDisplay" class="text-sm text-gray-400 mb-6">Click to browse your computer</p>
                     <input type="file" id="fileInput" name="payment_file" accept=".xls,.xlsx" class="hidden">
+
+                    <input type="hidden" id="importType" value="payment">
+                    <input type="hidden" id="loanTypeId" value="<?php echo (int)$type_id; ?>">
+
                     <div class="flex gap-2">
                         <button id="cancelBtn" onclick="resetFileInput()" class="hidden bg-red-100 text-red-600 px-6 py-2 rounded-lg font-bold hover:bg-red-200 transition-colors">Cancel</button>
                         <button id="selectBtn" onclick="document.getElementById('fileInput').click()" class="bg-gray-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-700 transition-colors">Select File</button>
@@ -414,11 +422,60 @@ $type_id = $current_config['id'];
 
     function handleUpload() {
         const fileInput = document.getElementById('fileInput');
+
         if (!fileInput.files.length) {
-            alert('Please select a file first.');
+            showStatusAlert('error', 'No File', 'Please select a file first.');
             return;
         }
-        document.getElementById('paymentModal').classList.replace('flex', 'hidden');
+
+        const formData = new FormData();
+        formData.append('import_type', 'payment');
+        formData.append('loan_type_id', document.getElementById('loanTypeId').value);
+        formData.append('payment_file', fileInput.files[0]);
+
+        const uploadBtn = document.getElementById('uploadBtn');
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Uploading...';
+
+        fetch('<?php echo $processImportUrl; ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())
+        .then(text => {
+            let data;
+            try { data = JSON.parse(text); }
+            catch { data = {status:'error', message:text}; }
+
+            if (data.status === 'success') {
+                showStatusAlert('success', 'Success', 'Payment import completed.');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showStatusAlert('error', 'Error', data.message);
+            }
+        })
+        .catch(() => {
+            showStatusAlert('error', 'Error', 'Upload failed.');
+        })
+        .finally(() => {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'UPLOAD';
+        });
+    }
+
+    // ✅ ADDED: status alert
+    function showStatusAlert(type, title, message) {
+        const modal = document.getElementById('statusAlert');
+        document.getElementById('alertTitle').innerText = title;
+        document.getElementById('alertMessage').innerText = message;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 2000);
     }
 
     function openFilePreview(file) {
@@ -435,6 +492,9 @@ $type_id = $current_config['id'];
         };
         reader.readAsArrayBuffer(file);
     }
+
+    function openPaymentModal() { document.getElementById('paymentModal').classList.replace('hidden','flex'); }
+    function closePaymentModal() { document.getElementById('paymentModal').classList.replace('flex','hidden'); }
     </script>
 
     <style>

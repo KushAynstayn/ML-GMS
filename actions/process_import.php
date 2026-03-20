@@ -3,35 +3,34 @@ session_start();
 
 require_once '../vendor/autoload.php';
 require_once '../classes/ImportService.php';
+require_once '../classes/PaymentImportService.php';
 require_once '../classes/Database.php';
 
 use Cadc20239999\MlGms\Database;
+use Cadc20239999\MlGms\ImportService;
+use Cadc20239999\MlGms\PaymentImportService;
 
-// Define directories at the top level to prevent "Undefined variable" errors
 $importsDir   = '../storage/imports/';
 $processedDir = '../storage/processed/';
 $failedDir    = '../storage/failed/';
 
-// 2. AUTO-CLEANUP FUNCTION: Wipe old files to keep storage "clean free"
 foreach ([$importsDir, $processedDir, $failedDir] as $dir) {
-    if (is_dir($dir)) {
-        $files = glob($dir . '*'); // Get all files in the directory
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file); // Delete it
-            }
-        }
-    } else {
+    if (!is_dir($dir)) {
         mkdir($dir, 0777, true);
     }
 }
 
-if (!isset($_FILES['loan_file'])) {
+$importType = $_POST['import_type'] ?? 'ledger';
+$isPaymentImport = ($importType === 'payment');
+
+$fileField = $isPaymentImport ? 'payment_file' : 'loan_file';
+
+if (!isset($_FILES[$fileField])) {
     echo "No file received.";
     exit;
 }
 
-$file = $_FILES['loan_file'];
+$file = $_FILES[$fileField];
 $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
 if (!in_array($extension, ['xlsx', 'xls'])) {
@@ -44,38 +43,81 @@ if ($file['size'] > 20 * 1024 * 1024) {
     exit;
 }
 
-foreach ([$importsDir, $processedDir, $failedDir] as $dir) {
-    if (!is_dir($dir)) {
-        mkdir($dir, 0777, true);
-    }
+$db = new Database();
+$conn = $db->connect('LOAN');
+
+if (!$conn) {
+    echo "Database connection failed.";
+    exit;
 }
 
-$db = new Database();
-$conn = $db->connect('LOAN'); // Using the correct connect method
-
-$storedName = uniqid('import_', true) . '.' . $extension;
-
-// ✅ Insert record into imports table (processing)
-$stmt = $conn->prepare("
-    INSERT INTO imports (original_name, stored_name, status, created_at)
-    VALUES (:original_name, :stored_name, 'processing', NOW())
-");
-
-$stmt->execute([
-    ':original_name' => $file['name'],
-    ':stored_name'   => $storedName
-]);
-
-$importId = $conn->lastInsertId();
-
+$storedName = uniqid($isPaymentImport ? 'payment_import_' : 'import_', true) . '.' . $extension;
 $filePath = $importsDir . $storedName;
 
-if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+if ($isPaymentImport) {
     $stmt = $conn->prepare("
-        UPDATE imports 
-        SET status = 'failed', message = 'Upload failed.'
-        WHERE id = :id
+        INSERT INTO payment_imports (
+            original_name,
+            stored_name,
+            status,
+            imported_by,
+            started_at,
+            created_at
+        ) VALUES (
+            :original_name,
+            :stored_name,
+            'processing',
+            :imported_by,
+            NOW(),
+            NOW()
+        )
     ");
+
+    $importedBy = trim(
+        strtoupper(
+            ($_SESSION['last_name'] ?? 'SYSTEM') . ', ' . ($_SESSION['first_name'] ?? 'USER')
+        )
+    );
+
+    $stmt->execute([
+        ':original_name' => $file['name'],
+        ':stored_name'   => $storedName,
+        ':imported_by'   => $importedBy
+    ]);
+
+    $importId = (int)$conn->lastInsertId();
+} else {
+    $stmt = $conn->prepare("
+        INSERT INTO imports (original_name, stored_name, status, created_at)
+        VALUES (:original_name, :stored_name, 'processing', NOW())
+    ");
+
+    $stmt->execute([
+        ':original_name' => $file['name'],
+        ':stored_name'   => $storedName
+    ]);
+
+    $importId = (int)$conn->lastInsertId();
+}
+
+if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+    if ($isPaymentImport) {
+        $stmt = $conn->prepare("
+            UPDATE payment_imports
+            SET status = 'failed',
+                message = 'Upload failed.',
+                completed_at = NOW()
+            WHERE import_id = :id
+        ");
+    } else {
+        $stmt = $conn->prepare("
+            UPDATE imports
+            SET status = 'failed',
+                message = 'Upload failed.'
+            WHERE id = :id
+        ");
+    }
+
     $stmt->execute([':id' => $importId]);
 
     echo "Upload failed.";
@@ -83,50 +125,79 @@ if (!move_uploaded_file($file['tmp_name'], $filePath)) {
 }
 
 try {
-    // 1. Process the Excel file
-    $importService = new \Cadc20239999\MlGms\ImportService();
+    if ($isPaymentImport) {
+        $paymentImportService = new PaymentImportService();
+        $stats = $paymentImportService->importFile($filePath, $importId);
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Payment import completed successfully.',
+            'stats' => $stats
+        ]);
+        exit;
+    }
+
+    $importService = new ImportService();
     $importService->importFile($filePath);
 
-    // 2. Update the Database record to 'completed'
     $stmt = $conn->prepare("
-        UPDATE imports 
-        SET status = 'completed', 
-            message = 'Import completed successfully.' 
+        UPDATE imports
+        SET status = 'completed',
+            message = 'Import completed successfully.'
         WHERE id = :id
     ");
     $stmt->execute([':id' => $importId]);
 
-    // 3. SUCCESS CLEANUP: Delete the file from /storage/imports/ immediately
-    // This keeps your processed folder "clean free" as requested.
     if (file_exists($filePath)) {
-        unlink($filePath); 
+        unlink($filePath);
     }
 
-    // 4. Signal success to the JavaScript fetch
-    if (ob_get_length()) ob_clean(); // Clear warnings to prevent "HTML in popup" errors
-    echo "success"; 
+    if (ob_get_length()) {
+        ob_clean();
+    }
+
+    echo "success";
     exit;
 
 } catch (Exception $e) {
-    // 5. FAILURE HANDLING: Move to failed folder for temporary debugging
     if (file_exists($filePath)) {
-        rename($filePath, $failedDir . $storedName);
+        @rename($filePath, $failedDir . $storedName);
     }
 
-    // 6. Update the Database record with the error message
-    $stmt = $conn->prepare("
-        UPDATE imports 
-        SET status = 'failed', 
-            message = :message 
-        WHERE id = :id
-    ");
+    if ($isPaymentImport) {
+        $stmt = $conn->prepare("
+            UPDATE payment_imports
+            SET status = 'failed',
+                message = :message,
+                completed_at = NOW()
+            WHERE import_id = :id
+        ");
+    } else {
+        $stmt = $conn->prepare("
+            UPDATE imports
+            SET status = 'failed',
+                message = :message
+            WHERE id = :id
+        ");
+    }
+
     $stmt->execute([
         ':message' => $e->getMessage(),
-        ':id' => $importId
+        ':id'      => $importId
     ]);
 
-    // 7. Signal the error message to the Modal
-    if (ob_get_length()) ob_clean();
+    if (ob_get_length()) {
+        ob_clean();
+    }
+
     echo "Import failed: " . $e->getMessage();
     exit;
 }

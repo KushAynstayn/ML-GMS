@@ -317,11 +317,33 @@ class LoanService {
     }
 
     private function saveToLedger($table, $loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal, $status = 'unpaid') {
-        $sql = "INSERT INTO $table 
-                (loan_id, installment_no, due_date, beginning_balance, principal, interest, ending_balance, status, date_created) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        $status = strtolower($status ?: 'unpaid');
+
+        $amountDue = round((float)$principal + (float)$interest, 2);
+        $amountPaid = $status === 'paid' ? $amountDue : 0.00;
+        $remainingDue = $status === 'paid' ? 0.00 : $amountDue;
+        $paidDate = $status === 'paid' ? $dueDate : null;
+
+        $sql = "INSERT INTO $table
+                (loan_id, installment_no, due_date, beginning_balance, principal, interest, ending_balance,
+                status, amount_due, amount_paid, remaining_due, paid_date, last_payment_id, date_created)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NOW())";
+
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$loanId, $instNo, $dueDate, $begBal, $principal, $interest, $endBal, $status]);
+        $stmt->execute([
+            $loanId,
+            $instNo,
+            $dueDate,
+            $begBal,
+            $principal,
+            $interest,
+            $endBal,
+            $status,
+            $amountDue,
+            $amountPaid,
+            $remainingDue,
+            $paidDate
+        ]);
     }
 
 
@@ -516,32 +538,55 @@ class LoanService {
             INSERT PRIMARY LEDGER FROM EXCEL
             ============================================================ */
             foreach ($amortizationRows as $row) {
-                $installmentNo     = (int)$row['payment_number'];
-                $dueDate           = $row['due_date'];
-                $beginningBalance  = round((float)$row['beginning_balance'], 2);
-                $principalPayment  = round((float)$row['principal'], 2);
-                $interestPayment   = round((float)$row['interest'], 2);
-                $endingBalance     = round((float)$row['ending_balance'], 2);
-                $status            = strtolower($row['status'] ?? 'unpaid');
+            $installmentNo     = (int)$row['payment_number'];
+            $dueDate           = $row['due_date'];
+            $beginningBalance  = round((float)$row['beginning_balance'], 2);
+            $principalPayment  = round((float)$row['principal'], 2);
+            $interestPayment   = round((float)$row['interest'], 2);
+            $endingBalance     = round((float)$row['ending_balance'], 2);
+            $status            = strtolower($row['status'] ?? 'unpaid');
 
-                $stmtPrimary = $this->db->prepare("
-                    INSERT INTO primary_ledger
-                    (loan_id, installment_no, due_date, beginning_balance,
-                    principal, interest, ending_balance, status, date_created)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-                ");
+            $amountDue = round($principalPayment + $interestPayment, 2);
+            $amountPaid = $status === 'paid' ? $amountDue : 0.00;
+            $remainingDue = $status === 'paid' ? 0.00 : $amountDue;
+            $paidDate = $status === 'paid' ? $dueDate : null;
 
-                $stmtPrimary->execute([
-                    $loanId,
-                    $installmentNo,
-                    $dueDate,
-                    $beginningBalance,
-                    $principalPayment,
-                    $interestPayment,
-                    $endingBalance,
-                    $status
-                ]);
-            }
+            $stmtPrimary = $this->db->prepare("
+                INSERT INTO primary_ledger
+                (
+                    loan_id,
+                    installment_no,
+                    due_date,
+                    beginning_balance,
+                    principal,
+                    interest,
+                    ending_balance,
+                    status,
+                    amount_due,
+                    amount_paid,
+                    remaining_due,
+                    paid_date,
+                    last_payment_id,
+                    date_created
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NOW())
+            ");
+
+            $stmtPrimary->execute([
+                $loanId,
+                $installmentNo,
+                $dueDate,
+                $beginningBalance,
+                $principalPayment,
+                $interestPayment,
+                $endingBalance,
+                $status,
+                $amountDue,
+                $amountPaid,
+                $remainingDue,
+                $paidDate
+            ]);
+        }
 
             /* ============================================================
             GENERATE SECONDARY LEDGER ONLY IF GMS
