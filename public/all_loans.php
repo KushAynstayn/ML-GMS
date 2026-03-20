@@ -25,7 +25,7 @@ $hasTabs = $current_config['has_tabs'];
     <div class="flex flex-1 overflow-hidden">
         <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
+    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
         <header class="mb-6">
             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
                 <?php echo $current_config['title']; ?> <span class="text-[#D50000]">Loans</span>
@@ -63,26 +63,11 @@ $hasTabs = $current_config['has_tabs'];
                 </div>
                 <?php endif; ?>
 
-                <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
-                    <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-xs font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
-                </div>
+                <?php include('../includes/date_picker.php'); ?>
 
-                <div class="flex shrink-0 items-center gap-3">
-                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500">
-                        <span id="dateLabel" class="text-xs font-bold uppercase">Date</span>
-                        <input type="date" id="startDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer text-sm">
-                    </div>
-                    
-                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500">
-                        <span class="text-xs font-bold uppercase">To</span>
-                        <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer text-sm">
-                    </div>
-
-                    <a href="add_loan.php" class="bg-[#D50000] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-[#b00000] transition-all shadow-sm">
-                        Add Loan
-                    </a>
-                </div>
+                <a href="add_loan.php" class="bg-[#D50000] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-[#b00000] transition-all shadow-sm">
+                    Add Loan
+                </a>
             </div>
         </header>
 
@@ -126,28 +111,8 @@ $hasTabs = $current_config['has_tabs'];
 <script src="../assets/js/amortization.js"></script>
 
 <script>
-let dateMode = 'single';
-
-function setDateMode(mode) {
-    dateMode = mode;
-    const toContainer = document.getElementById('toDateContainer');
-    const dateLabel = document.getElementById('dateLabel');
-    const btnSingle = document.getElementById('btnSingle');
-    const btnRange = document.getElementById('btnRange');
-
-    if (mode === 'single') {
-        toContainer.classList.add('hidden');
-        dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-    } else {
-        toContainer.classList.remove('hidden');
-        dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-    }
-    filterTable(); 
-}
+// dateMode is now permanently set to range
+const dateMode = 'range';
 
 function switchLedger(tabName, element) {
     const tableBody = document.getElementById('tableBody');
@@ -173,8 +138,9 @@ function switchLedger(tabName, element) {
         })
         .then(html => {
             tableBody.innerHTML = html;
-            // Reinject the noResultsRow after fetching new tab data
-            const noResultsHTML = `<tr id="noResultsRow" class="hidden"><td colspan="<?php echo $isMotor ? '4' : '3'; ?>" class="px-6 py-12 text-center text-gray-400 text-sm italic">No records found.</td></tr>`;
+            const isMotor = "<?php echo $isMotor; ?>";
+            const colspan = isMotor ? '4' : '3';
+            const noResultsHTML = `<tr id="noResultsRow" class="hidden"><td colspan="${colspan}" class="px-6 py-12 text-center text-gray-400 text-sm italic">No records found.</td></tr>`;
             tableBody.insertAdjacentHTML('afterbegin', noResultsHTML);
             filterTable();
         })
@@ -196,26 +162,14 @@ function filterTable() {
     let visibleRows = 0;
 
     rows.forEach(row => {
-        // Skip the message row itself
         if(row.id === 'noResultsRow' || row.cells.length < 3) return; 
 
         const dateText = row.cells[0].textContent.trim();
         const nameText = row.cells[1].textContent.toUpperCase();
         const refText = row.cells[2].textContent.toUpperCase();
         
-        let dateMatch = true;
-        if (startDateValue) {
-            const [d, m, y] = dateText.split('/');
-            const rowDate = new Date(y, m - 1, d).setHours(0,0,0,0);
-            const start = new Date(startDateValue).setHours(0,0,0,0);
-            
-            if (dateMode === 'single') {
-                dateMatch = rowDate === start;
-            } else if (endDateValue) {
-                const end = new Date(endDateValue).setHours(0,0,0,0);
-                dateMatch = rowDate >= start && rowDate <= end;
-            }
-        }
+        // Use the function from our included date_picker.php
+        let dateMatch = checkDateMatch(dateText, startDateValue, endDateValue);
 
         let wheelMatch = true;
         if (wheelValue !== "" && row.cells[3]) {
@@ -232,7 +186,6 @@ function filterTable() {
         }
     });
 
-    // Handle the "No Record Found" display
     if (noResultsRow) {
         if (visibleRows === 0) {
             noResultsRow.classList.remove('hidden');

@@ -51,21 +51,8 @@
                     </select>
                 </div>
 
-                <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
-                    <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
-                </div>
-
-                <div class="flex shrink-0 items-center gap-2">
-                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                        <span id="dateLabel" class="text-[10px] font-bold uppercase">Date</span>
-                        <input type="date" id="startDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                    </div>
-                    
-                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                        <span class="text-[10px] font-bold uppercase">To</span>
-                        <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                    </div>
+                <div class="flex shrink-0 items-center gap-3">
+                    <?php include '../includes/date_picker.php'; ?>
                 </div>
 
                 <div class="relative inline-block text-left shrink-0" id="downloadDropdown">
@@ -91,15 +78,15 @@
     <table id="collectionTable" class="w-full text-left border-collapse min-w-[2100px]">
         <thead class="bg-[#D50000]">
             <tr>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Released Date</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Installation Date</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Date Released</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Date Installed</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white">Account Name</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Monthly Amortization</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Principal</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Interest</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Loan Term</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Loan Reference Number</th>
-                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Paid Amortization</th>
+                <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Date Applied</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Date Paid</th>
                 <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white text-center">Status</th>
             </tr>
@@ -233,34 +220,13 @@
 </div>
 
 <script>
-let dateMode = 'single';
-
-function setDateMode(mode) {
-    dateMode = mode;
-    const toContainer = document.getElementById('toDateContainer');
-    const dateLabel = document.getElementById('dateLabel');
-    const btnSingle = document.getElementById('btnSingle');
-    const btnRange = document.getElementById('btnRange');
-
-    if (mode === 'single') {
-        toContainer.classList.add('hidden');
-        dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-        document.getElementById('endDate').value = ""; 
-    } else {
-        toContainer.classList.remove('hidden');
-        dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-    }
-    filterTable(); 
-}
-
 function filterTable() {
     const searchText = document.getElementById('searchInput').value.toUpperCase();
+    
+    // Using IDs from the date_picker.php include
     const startDateVal = document.getElementById('startDate').value;
     const endDateVal = document.getElementById('endDate').value;
+    
     const filterVal = document.getElementById('vehicleTypeFilter').value;
     const rows = document.querySelectorAll('#tableBody tr:not(#noRecordFound)');
     let hasMatch = false;
@@ -294,10 +260,11 @@ function filterTable() {
         if(filterEnd) filterEnd.setHours(0,0,0,0);
 
         let dateMatch = true;
-        if (dateMode === 'single' && filterStart) {
-            dateMatch = rowDate.getTime() === filterStart.getTime();
-        } else if (dateMode === 'range' && filterStart && filterEnd) {
+        // Logic handles both single date or range via the shared component
+        if (filterStart && filterEnd) {
             dateMatch = rowDate >= filterStart && rowDate <= filterEnd;
+        } else if (filterStart) {
+            dateMatch = rowDate.getTime() === filterStart.getTime();
         }
 
         const textMatch = nameText.includes(searchText) || refText.includes(searchText);
@@ -329,7 +296,7 @@ window.onload = function() {
     filterTable();
 };
 
-// --- Updated Download Functions ---
+// --- Download Functions ---
 
 function downloadPDF() {
     const { jsPDF } = window.jspdf;

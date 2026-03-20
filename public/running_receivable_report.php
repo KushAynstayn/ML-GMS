@@ -28,22 +28,7 @@
                 </div>
 
                 <div class="flex gap-4 items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                    <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                        <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
-                        <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
-                    </div>
-
-                    <div class="flex shrink-0 items-center gap-2">
-                        <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                            <span id="dateLabel" class="text-[10px] font-bold uppercase">Date</span>
-                            <input type="date" id="startDate" onchange="updateDateDisplay()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                        </div>
-                        
-                        <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                            <span class="text-[10px] font-bold uppercase">To</span>
-                            <input type="date" id="endDate" onchange="updateDateDisplay()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                        </div>
-                    </div>
+                    <?php include('../includes/date_picker.php'); ?>
 
                     <div class="relative inline-block text-left shrink-0" id="downloadDropdown">
                         <button onclick="toggleDropdown()" class="flex items-center gap-2 bg-[#D50000] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#B70000] transition-all shadow-sm text-sm">
@@ -60,7 +45,7 @@
         </header>
 
         <hr class="border-gray-300 mb-4">
-        <p id="asOfDateText" class="text-center text-lg font-extrabold text-gray-800 uppercase mb-6 tracking-wide">Select a date to view report</p>
+        <p id="asOfDateText" class="text-center text-lg font-extrabold text-gray-800 uppercase mb-6 tracking-wide">Select date range to view report</p>
 
         <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
             <table id="receivableTable" class="w-full text-left border-collapse">
@@ -126,15 +111,13 @@
 </div>
 
 <script>
-let dateMode = 'single';
-
 function updateDateDisplay() {
     const startVal = document.getElementById('startDate').value;
     const endVal = document.getElementById('endDate').value;
     const display = document.getElementById('asOfDateText');
 
     if (!startVal) {
-        display.innerText = "Select a date to view report";
+        display.innerText = "Select date range to view report";
         return;
     }
 
@@ -142,37 +125,15 @@ function updateDateDisplay() {
     const monthName = start.toLocaleDateString('en-US', { month: 'long' });
     const year = start.getFullYear();
 
-    if (dateMode === 'single') {
-        const day = start.getDate();
-        display.innerText = `AS OF ${monthName.toUpperCase()} ${day}, ${year}`;
-    } else if (endVal) {
+    if (endVal) {
         const end = new Date(endVal);
         const startDay = start.getDate();
         const endDay = end.getDate();
         display.innerText = `AS OF ${monthName.toUpperCase()} ${startDay}-${endDay}, ${year}`;
-    }
-}
-
-function setDateMode(mode) {
-    dateMode = mode;
-    const toContainer = document.getElementById('toDateContainer');
-    const dateLabel = document.getElementById('dateLabel');
-    const btnSingle = document.getElementById('btnSingle');
-    const btnRange = document.getElementById('btnRange');
-
-    if (mode === 'single') {
-        toContainer.classList.add('hidden');
-        dateLabel.innerText = 'Date';
-        btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-        document.getElementById('endDate').value = "";
     } else {
-        toContainer.classList.remove('hidden');
-        dateLabel.innerText = 'From';
-        btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-        btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
+        const day = start.getDate();
+        display.innerText = `AS OF ${monthName.toUpperCase()} ${day}, ${year}`;
     }
-    updateDateDisplay();
 }
 
 function toggleDropdown() {

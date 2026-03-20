@@ -12,7 +12,7 @@ include_once '../includes/modals/status_modal.php';
     <div class="flex flex-1 overflow-hidden">
         <?php include('../includes/sidebar.php'); ?>
 
-        <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
+        <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
             <header class="mb-6">
                 <div class="flex items-center gap-4 mb-2">
                     <button onclick="history.back()" class="group flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-500 hover:text-[#D50000] hover:border-[#D50000] transition-all shadow-sm -ml-2">

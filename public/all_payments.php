@@ -37,7 +37,7 @@ $processImportUrl = '../actions/process_import.php';
     <div class="flex flex-1 overflow-hidden">
         <?php include('../includes/sidebar.php'); ?>
 
-        <main class="flex-1 p-8 lg:p-10 overflow-y-auto animate-content">
+        <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
             <header class="mb-6 flex flex-col md:flex-row justify-between items-start">
                 <div>
                     <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
@@ -66,22 +66,20 @@ $processImportUrl = '../actions/process_import.php';
                     </svg>
                 </div>
 
-                <div class="flex shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                    <button onclick="setDateMode('single')" id="btnSingle" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all bg-white text-[#D50000] shadow-sm">Single Date</button>
-                    <button onclick="setDateMode('range')" id="btnRange" class="px-3 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all text-gray-500 hover:text-gray-700">Select Range</button>
+                <div class="relative">
+                    <select onchange="window.location.replace('?type=' + this.value)" class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 px-4 pr-8 rounded-lg text-sm focus:outline-none cursor-pointer font-medium">
+                        <?php foreach ($payment_configs as $key => $config): ?>
+                            <option value="<?php echo $key; ?>" <?php echo ($type === $key) ? 'selected' : ''; ?>>
+                                <?php echo $config['title']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
                 </div>
 
-                <div class="flex shrink-0 items-center gap-2">
-                    <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                        <span id="dateLabel" class="text-[10px] font-bold uppercase">Date</span>
-                        <input type="date" id="startDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                    </div>
-                    
-                    <div id="toDateContainer" class="hidden flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 text-gray-500 hover:border-gray-300 transition-colors bg-white">
-                        <span class="text-[10px] font-bold uppercase">To</span>
-                        <input type="date" id="endDate" onchange="filterTable()" class="focus:outline-none bg-transparent cursor-pointer uppercase text-xs">
-                    </div>
-                </div>
+                <?php include('../includes/date_picker.php'); ?>
                 
                 <button onclick="openPaymentModal()" class="bg-[#D50000] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-[#b00000] transition-all shadow-sm">
                     Add Payment
@@ -98,7 +96,7 @@ $processImportUrl = '../actions/process_import.php';
                                 <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Payment Reference Number</th>
                                 <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Monthly Amortization</th>
                                 <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Paid Amount</th>
-                                <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Paid Amortization</th>
+                                <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Date Applied</th>
                                 <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Status</th>
                                 <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Due Next Month</th>
                             </tr>
@@ -115,12 +113,12 @@ $processImportUrl = '../actions/process_import.php';
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Juan Dela Cruz</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-001</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">64,147.00</td>
-                                <td class="px-4 py-3 text-[12px] font-bold text-green-600 whitespace-nowrap">64,147.00</td>
+                                <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">64,147.00</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">January</td>
                                 <td class="px-4 py-3">
                                     <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap">Paid</span>
                                 </td>
-                                <td class="px-4 py-3 text-[12px] text-gray-600 font-medium whitespace-nowrap">64,147.00 (Feb)</td>
+                                <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">64,147.00 (Feb)</td>
                             </tr>
 
                             <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row"
@@ -130,12 +128,12 @@ $processImportUrl = '../actions/process_import.php';
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Maria Clara</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-002</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">25,000.00</td>
-                                <td class="px-4 py-3 text-[12px] font-bold text-orange-600 whitespace-nowrap">20,000.00</td>
+                                <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">20,000.00</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">January</td>
                                 <td class="px-4 py-3">
                                     <span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap">Partial</span>
                                 </td>
-                                <td class="px-4 py-3 text-[12px] text-red-600 font-bold whitespace-nowrap">31,100.00 (Feb)</td>
+                                <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">31,100.00 (Feb)</td>
                             </tr>
 
                             <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row"
@@ -145,12 +143,12 @@ $processImportUrl = '../actions/process_import.php';
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Santiago Enrile</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-003</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">65,000.00</td>
-                                <td class="px-4 py-3 text-[12px] font-bold text-green-600 whitespace-nowrap">130,000.00</td>
+                                <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">130,000.00</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">Jan-Feb</td>
                                 <td class="px-4 py-3">
                                     <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap">Paid</span>
                                 </td>
-                                <td class="px-4 py-3 text-[12px] text-gray-600 font-medium whitespace-nowrap">0.00 (Feb)</td>
+                                <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">0.00 (Feb)</td>
                             </tr>
 
                             <tr class="hover:bg-gray-50 transition-colors cursor-pointer-row"
@@ -160,12 +158,12 @@ $processImportUrl = '../actions/process_import.php';
                                 <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">Mockup Borrower 4</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">REF-JAN-004</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">10,000.00</td>
-                                <td class="px-4 py-3 text-[12px] font-bold text-red-600 whitespace-nowrap">0.00</td>
+                                <td class="px-4 py-3 text-[12px] font-bold text-gray-900 whitespace-nowrap">0.00</td>
                                 <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">--</td>
                                 <td class="px-4 py-3">
                                     <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap">Unpaid</span>
                                 </td>
-                                <td class="px-4 py-3 text-[12px] text-red-600 font-bold whitespace-nowrap">22,200.00 (Feb)</td>
+                                <td class="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">22,200.00 (Feb)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -186,11 +184,15 @@ $processImportUrl = '../actions/process_import.php';
                 </div>
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
                     <span class="text-gray-500 font-medium">Amount Paid</span>
-                    <span class="font-bold text-green-600" id="bdPaid">₱0.00</span>
+                    <span class="font-bold text-gray-900" id="bdPaid">₱0.00</span>
                 </div>
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
                     <span class="text-gray-500 font-medium">Unpaid/Balance</span>
-                    <span class="font-bold text-red-500" id="bdUnpaid">₱0.00</span>
+                    <span class="font-bold text-gray-900" id="bdUnpaid">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm py-2 border-b border-gray-50">                 
+                    <span class="text-gray-500 font-medium">Advance Payment</span>
+                    <span class="font-bold text-gray-900" id="bdAdvance">₱0.00</span>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between text-[11px] uppercase tracking-wider font-bold text-gray-400">
@@ -208,10 +210,6 @@ $processImportUrl = '../actions/process_import.php';
                         <span class="text-gray-600">Interest Difference</span>
                         <span class="font-medium text-gray-800" id="bdInterest">₱0.00</span>
                     </div>
-                </div>
-                <div class="flex justify-between text-sm py-2 text-blue-600 font-bold">
-                    <span>Advance Payment</span>
-                    <span id="bdAdvance">₱0.00</span>
                 </div>
                 <div class="pt-4 border-t-2 border-dashed border-gray-100 mt-4">
                     <div class="flex justify-between items-end">
@@ -288,9 +286,8 @@ $processImportUrl = '../actions/process_import.php';
     </div>
 
     <script>
-    let dateMode = 'single';
-
-    window.onload = filterTable;
+    // Execute filter immediately to calculate totals and hide rows correctly
+    document.addEventListener("DOMContentLoaded", filterTable);
 
     // Breakdown Modal Functions
     function showBreakdown(row) {
@@ -306,7 +303,7 @@ $processImportUrl = '../actions/process_import.php';
         document.getElementById('bdInterest').innerText = format(data.interestDiff);
         document.getElementById('bdAdvance').innerText = format(data.advance);
 
-        // Logic for Total Due Next Month: (Remaining Unpaid) + (Next Month Amort) + (VAT) + (Penalty) - (Advance)
+        // Logic for Total Due Next Month
         let totalDue = (parseFloat(data.prevUnpaid) + parseFloat(data.amort) + parseFloat(data.vat) + parseFloat(data.penalty) + parseFloat(data.interestDiff)) - parseFloat(data.advance);
         if(totalDue < 0) totalDue = 0;
 
@@ -317,28 +314,6 @@ $processImportUrl = '../actions/process_import.php';
 
     function closeBreakdownModal() {
         document.getElementById('breakdownModal').classList.replace('flex', 'hidden');
-    }
-
-    function setDateMode(mode) {
-        dateMode = mode;
-        const toContainer = document.getElementById('toDateContainer');
-        const dateLabel = document.getElementById('dateLabel');
-        const btnSingle = document.getElementById('btnSingle');
-        const btnRange = document.getElementById('btnRange');
-
-        if (mode === 'single') {
-            toContainer.classList.add('hidden');
-            dateLabel.innerText = 'Date';
-            btnSingle.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-            btnRange.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-            document.getElementById('endDate').value = "";
-        } else {
-            toContainer.classList.remove('hidden');
-            dateLabel.innerText = 'From';
-            btnRange.classList.add('bg-white', 'text-[#D50000]', 'shadow-sm');
-            btnSingle.classList.remove('bg-white', 'text-[#D50000]', 'shadow-sm');
-        }
-        filterTable(); 
     }
 
     function filterTable() {
@@ -356,22 +331,18 @@ $processImportUrl = '../actions/process_import.php';
             const refText = row.cells[2].textContent.toUpperCase();
             const matchesSearch = nameText.includes(searchText) || refText.includes(searchText);
 
-            const rowDate = row.cells[0].textContent.trim(); 
+            const rowDateStr = row.cells[0].textContent.trim(); 
+            
             let matchesDate = true;
-
-            if (startVal) {
-                if (dateMode === 'single') {
-                    matchesDate = rowDate === startVal;
-                } else if (endVal) {
-                    const dRow = new Date(rowDate);
-                    const dStart = new Date(startVal);
-                    const dEnd = new Date(endVal);
-                    matchesDate = dRow >= dStart && dRow <= dEnd;
-                } else {
-                    const dRow = new Date(rowDate);
-                    const dStart = new Date(startVal);
-                    matchesDate = dRow >= dStart;
-                }
+            if (startVal && endVal) {
+                const rowDate = new Date(rowDateStr).setHours(0,0,0,0);
+                const start = new Date(startVal).setHours(0,0,0,0);
+                const end = new Date(endVal).setHours(0,0,0,0);
+                matchesDate = rowDate >= start && rowDate <= end;
+            } else if (startVal) {
+                const rowDate = new Date(rowDateStr).setHours(0,0,0,0);
+                const start = new Date(startVal).setHours(0,0,0,0);
+                matchesDate = rowDate === start;
             }
 
             if (matchesSearch && matchesDate) {
@@ -463,7 +434,6 @@ $processImportUrl = '../actions/process_import.php';
         });
     }
 
-    // ✅ ADDED: status alert
     function showStatusAlert(type, title, message) {
         const modal = document.getElementById('statusAlert');
         document.getElementById('alertTitle').innerText = title;
