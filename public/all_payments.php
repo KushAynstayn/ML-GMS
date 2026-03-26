@@ -25,6 +25,15 @@ $processImportUrl = '../actions/process_import.php';
 
 $paymentService = new PaymentService();
 $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
+
+// --- NEW SORTING LOGIC: Newest to Oldest ---
+if (!empty($paymentRows)) {
+    usort($paymentRows, function($a, $b) {
+        $dateA = !empty($a['date_paid']) ? strtotime($a['date_paid']) : 0;
+        $dateB = !empty($b['date_paid']) ? strtotime($b['date_paid']) : 0;
+        return $dateB <=> $dateA; // Descending order
+    });
+}
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -43,6 +52,67 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
     .cursor-pointer-row {
         cursor: pointer;
         transition: background-color 0.2s;
+    }
+
+    /* Modern Spring-loaded Modal Entrance */
+    @keyframes modalPop {
+        0% { transform: scale(0.9); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Playful Icon Bounce */
+    @keyframes iconBounce {
+        0% { transform: scale(0); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .animate-modal-pop {
+        animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .animate-icon-bounce {
+        animation: iconBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both;
+    }
+
+    .visible-scrollbar::-webkit-scrollbar {
+        width: 14px;
+        height: 14px;
+    }
+
+    .visible-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .visible-scrollbar::-webkit-scrollbar-thumb {
+        background: #a3a3a3;
+        border-radius: 4px;
+        border: 2px solid #f1f1f1;
+    }
+
+    #excelTablePreview {
+        width: max-content;
+        min-width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        background: white;
+    }
+
+    #excelTablePreview th,
+    #excelTablePreview td {
+        border-bottom: 1px solid #f3f4f6;
+        padding: 0.75rem 1.5rem;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    #excelTablePreview th {
+        font-weight: 700;
+        background: white;
+        color: #1f2937;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
     }
 </style>
 
@@ -217,30 +287,25 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
     </div>
 
     <div id="breakdownModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[150] p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-pop">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-modal-pop">
             <div class="p-5 border-b flex justify-between items-center bg-gray-50">
                 <h3 class="text-lg font-bold text-gray-800">Payment <span class="text-[#D50000]">Breakdown</span></h3>
             </div>
 
             <div class="p-6 space-y-3">
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                    <span class="text-gray-500 font-medium">Monthly Amortization</span>
-                    <span class="font-bold text-gray-900" id="bdAmort">₱0.00</span>
-                </div>
-
-                <div class="flex justify-between text-sm py-2 border-b border-gray-50">
                     <span class="text-gray-500 font-medium">Amount Paid</span>
                     <span class="font-bold text-gray-900" id="bdPaid">₱0.00</span>
                 </div>
 
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                    <span class="text-gray-500 font-medium">Unpaid/Balance</span>
-                    <span class="font-bold text-gray-900" id="bdUnpaid">₱0.00</span>
+                    <span class="text-gray-500 font-medium">Monthly Amortization</span>
+                    <span class="font-bold text-gray-900" id="bdAmort">₱0.00</span>
                 </div>
 
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                    <span class="text-gray-500 font-medium">Advance Payment</span>
-                    <span class="font-bold text-gray-900" id="bdAdvance">₱0.00</span>
+                    <span class="text-gray-500 font-medium">Unpaid/Balance</span>
+                    <span class="font-bold text-gray-900" id="bdUnpaid">₱0.00</span>
                 </div>
 
                 <div class="bg-gray-50 p-4 rounded-xl space-y-2">
@@ -259,6 +324,13 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
                         <span class="text-gray-600">Interest Difference</span>
                         <span class="font-medium text-gray-800" id="bdInterest">₱0.00</span>
                     </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                    <span class="text-gray-500 font-medium">Advance Payment</span>
+                    <span class="font-bold text-gray-900" id="bdAdvance">₱0.00</span>
                 </div>
 
                 <div class="pt-4 border-t-2 border-dashed border-gray-100 mt-4">
@@ -289,7 +361,7 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
     </div>
 
     <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[110] p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-pop">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-modal-pop">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
                 <h3 class="text-xl font-bold text-gray-800">Import <span class="text-[#D50000]">Payments</span></h3>
                 <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light focus:outline-none">&times;</button>
@@ -325,15 +397,18 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
         </div>
     </div>
 
-    <div id="statusAlert" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-[200] p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-pop">
+    <div id="statusAlert" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[200] p-6">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-[320px] w-full overflow-hidden animate-modal-pop border border-gray-100">
             <div id="alertContent" class="p-8 text-center">
-                <div id="alertIconContainer" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"></div>
-                <h3 id="alertTitle" class="text-xl font-bold mb-2"></h3>
-                <p id="alertMessage" class="text-gray-500 text-sm mb-6"></p>
-                <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                    <div id="alertTimerBar" class="h-full transition-all duration-100 ease-linear"></div>
+                <div id="alertIconContainer" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 animate-icon-bounce">
                 </div>
+                <h3 id="alertTitle" class="text-xl font-bold text-gray-800 mb-1"></h3>
+                <p id="alertMessage" class="text-sm text-gray-500 font-normal mb-6 leading-relaxed"></p>
+                
+                <button id="alertOkBtn" onclick="document.getElementById('statusAlert').classList.replace('flex', 'hidden')" 
+                    class="w-full bg-[#1e293b] text-white py-3 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-900 transition-all shadow-sm">
+                    OK
+                </button>
             </div>
         </div>
     </div>
@@ -491,7 +566,7 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
             const fileInput = document.getElementById('fileInput');
 
             if (!fileInput.files.length) {
-                showStatusAlert('error', 'No File', 'Please select a file first.');
+                showStatusAlert('error', 'Selection Required', 'Please select a file first.');
                 return;
             }
 
@@ -518,10 +593,10 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
                 }
 
                 if (data.status === 'success') {
-                    showStatusAlert('success', 'Success', 'Payment import completed.');
-                    setTimeout(() => location.reload(), 1500);
+                    showStatusAlert('success', 'Success!', 'Records imported successfully.');
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    showStatusAlert('error', 'Error', data.message || 'Upload failed.');
+                    showStatusAlert('error', 'Upload Failed', data.message || 'There was an error processing your file.');
                 }
             })
             .catch(() => {
@@ -535,16 +610,32 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
 
         function showStatusAlert(type, title, message) {
             const modal = document.getElementById('statusAlert');
+            const iconContainer = document.getElementById('alertIconContainer');
+            const okBtn = document.getElementById('alertOkBtn');
+            
+            // Remove animation classes to re-trigger them
+            modal.querySelector('.bg-white').classList.remove('animate-modal-pop');
+            iconContainer.classList.remove('animate-icon-bounce');
+
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = message;
 
+            if (type === 'success') {
+                iconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-green-50 animate-icon-bounce";
+                iconContainer.innerHTML = `<svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                okBtn.style.display = "none";
+            } else {
+                iconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-red-50 animate-icon-bounce";
+                iconContainer.innerHTML = `<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                okBtn.style.display = "block";
+            }
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-
-            setTimeout(() => {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }, 2000);
+            
+            // Void offset to force reflow and restart animation
+            void modal.offsetWidth; 
+            modal.querySelector('.bg-white').classList.add('animate-modal-pop');
         }
 
         function openFilePreview(file) {
@@ -566,13 +657,25 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
     </script>
 
     <style>
-        @keyframes pop {
-            0% { transform: scale(0.95); opacity: 0; }
+        /* Modern Spring-loaded Modal Entrance */
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .animate-pop {
-            animation: pop 0.2s ease-out forwards;
+        /* Playful Icon Bounce */
+        @keyframes iconBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-modal-pop {
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .animate-icon-bounce {
+            animation: iconBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both;
         }
 
         .visible-scrollbar::-webkit-scrollbar {
@@ -616,4 +719,3 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
         }
     </style>
 </body>
-</html>
