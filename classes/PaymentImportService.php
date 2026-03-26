@@ -5,6 +5,7 @@ namespace Cadc20239999\MlGms;
 use PDO;
 use Exception;
 use PDOException;
+use DateTime;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
@@ -27,12 +28,6 @@ class PaymentImportService
         $this->paymentService = new PaymentService();
     }
 
-    /**
-     * Import payment Excel file into:
-     * - payments (raw rows)
-     * - payment_allocations (via PaymentService)
-     * - payment_imports summary counts
-     */
     public function importFile(string $filePath, int $importId): array
     {
         if (!file_exists($filePath)) {
@@ -96,6 +91,8 @@ class PaymentImportService
                 } elseif (($result['status'] ?? '') === 'fully_applied') {
                     $stats['matched_rows']++;
                     $stats['applied_rows']++;
+                } elseif (($result['status'] ?? '') === 'unapplied') {
+                    $stats['matched_rows']++;
                 } else {
                     $stats['matched_rows']++;
                 }
@@ -116,13 +113,9 @@ class PaymentImportService
     private function createReader(string $filePath)
     {
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-
         return $extension === 'xls' ? new Xls() : new Xlsx();
     }
 
-    /**
-     * Search first 20 rows for the actual header row.
-     */
     private function findHeaderRowIndex(array $rows): ?int
     {
         $requiredHeaderHits = [
@@ -190,10 +183,8 @@ class PaymentImportService
     {
         $borrowerName = $this->getCellByHeader($row, $headerMap, "borrower's name");
         $referenceNumber = $this->getCellByHeader($row, $headerMap, 'reference no.');
-        $dateOfTransaction = $this->parseExcelDate(
-            $this->getCellByHeader($row, $headerMap, 'date')
-        );
-
+        $rawDate = $this->getCellByHeader($row, $headerMap, 'date');
+        $dateOfTransaction = $this->parseExcelDate($rawDate);    
         $settlement = $this->getCellByHeader($row, $headerMap, 'settlement');
         $partial = $this->getCellByHeader($row, $headerMap, 'partial');
         $origin = $this->getCellByHeader($row, $headerMap, 'origin');
@@ -211,6 +202,12 @@ class PaymentImportService
             (string)$referenceNumber,
             (string)$dateOfTransaction,
             (string)$paymentReferenceNo,
+            (float)$principal,
+            (float)$interest,
+            (float)$vat,
+            (float)$penalty,
+            (float)$interestDiff,
+            (float)$partialPaymentBalance,
             (float)$total,
             (string)$borrowerName
         );
@@ -218,7 +215,7 @@ class PaymentImportService
         return [
             'borrower_name' => $this->cleanString($borrowerName),
             'reference_number' => $this->cleanString($referenceNumber),
-            'payment_date' => $dateOfTransaction ?: date('Y-m-d'),
+            'payment_date' => $dateOfTransaction,
             'date_of_transaction' => $dateOfTransaction,
             'settlement' => $this->cleanString($settlement),
             'partial' => $this->cleanString($partial),
@@ -236,89 +233,89 @@ class PaymentImportService
     }
 
     private function insertRawPayment(array $row, int $importId): int
-        {
-            $stmt = $this->db->prepare("
-                INSERT INTO payments (
-                    import_id,
-                    reference_number,
-                    loan_id,
-                    borrower_name,
-                    payment_reference_no,
-                    payment_date,
-                    date_of_transaction,
-                    amount,
-                    settlement,
-                    partial,
-                    origin,
-                    principal,
-                    interest,
-                    vat,
-                    penalty,
-                    interest_diff,
-                    partial_payment_balance,
-                    total,
-                    unmatched_reference,
-                    match_status,
-                    application_status,
-                    excess_amount,
-                    source,
-                    date_imported,
-                    import_hash,
-                    remarks
-                ) VALUES (
-                    :import_id,
-                    :reference_number,
-                    NULL,
-                    :borrower_name,
-                    :payment_reference_no,
-                    :payment_date,
-                    :date_of_transaction,
-                    :amount,
-                    :settlement,
-                    :partial,
-                    :origin,
-                    :principal,
-                    :interest,
-                    :vat,
-                    :penalty,
-                    :interest_diff,
-                    :partial_payment_balance,
-                    :total,
-                    :unmatched_reference,
-                    'unmatched',
-                    'pending',
-                    0.00,
-                    'PAYMENT_IMPORT',
-                    NOW(),
-                    :import_hash,
-                    NULL
-                )
-            ");
+    {
+        $stmt = $this->db->prepare("
+            INSERT INTO payments (
+                import_id,
+                reference_number,
+                loan_id,
+                borrower_name,
+                payment_reference_no,
+                payment_date,
+                date_of_transaction,
+                amount,
+                settlement,
+                partial,
+                origin,
+                principal,
+                interest,
+                vat,
+                penalty,
+                interest_diff,
+                partial_payment_balance,
+                total,
+                unmatched_reference,
+                match_status,
+                application_status,
+                excess_amount,
+                source,
+                date_imported,
+                import_hash,
+                remarks
+            ) VALUES (
+                :import_id,
+                :reference_number,
+                NULL,
+                :borrower_name,
+                :payment_reference_no,
+                :payment_date,
+                :date_of_transaction,
+                :amount,
+                :settlement,
+                :partial,
+                :origin,
+                :principal,
+                :interest,
+                :vat,
+                :penalty,
+                :interest_diff,
+                :partial_payment_balance,
+                :total,
+                :unmatched_reference,
+                'unmatched',
+                'pending',
+                0.00,
+                'PAYMENT_IMPORT',
+                NOW(),
+                :import_hash,
+                NULL
+            )
+        ");
 
-            $stmt->execute([
-                ':import_id' => $importId,
-                ':reference_number' => $row['reference_number'],
-                ':borrower_name' => $row['borrower_name'],
-                ':payment_reference_no' => $row['payment_reference_no'],
-                ':payment_date' => $row['payment_date'],
-                ':date_of_transaction' => $row['date_of_transaction'],
-                ':amount' => $row['total'],
-                ':settlement' => $row['settlement'],
-                ':partial' => $row['partial'],
-                ':origin' => $row['origin'],
-                ':principal' => $row['principal'],
-                ':interest' => $row['interest'],
-                ':vat' => $row['vat'],
-                ':penalty' => $row['penalty'],
-                ':interest_diff' => $row['interest_diff'],
-                ':partial_payment_balance' => $row['partial_payment_balance'],
-                ':total' => $row['total'],
-                ':unmatched_reference' => $row['reference_number'],
-                ':import_hash' => $row['import_hash'],
-            ]);
+        $stmt->execute([
+            ':import_id' => $importId,
+            ':reference_number' => $row['reference_number'],
+            ':borrower_name' => $row['borrower_name'],
+            ':payment_reference_no' => $row['payment_reference_no'],
+            ':payment_date' => $row['payment_date'],
+            ':date_of_transaction' => $row['date_of_transaction'],
+            ':amount' => $row['total'],
+            ':settlement' => $row['settlement'],
+            ':partial' => $row['partial'],
+            ':origin' => $row['origin'],
+            ':principal' => $row['principal'],
+            ':interest' => $row['interest'],
+            ':vat' => $row['vat'],
+            ':penalty' => $row['penalty'],
+            ':interest_diff' => $row['interest_diff'],
+            ':partial_payment_balance' => $row['partial_payment_balance'],
+            ':total' => $row['total'],
+            ':unmatched_reference' => $row['reference_number'],
+            ':import_hash' => $row['import_hash'],
+        ]);
 
-            return (int)$this->db->lastInsertId();
-        }
+        return (int)$this->db->lastInsertId();
+    }
 
     private function updateImportBatchSummary(int $importId, array $stats): void
     {
@@ -384,6 +381,7 @@ class PaymentImportService
             return null;
         }
 
+        // Excel numeric serial date
         if (is_numeric($value)) {
             try {
                 return ExcelDate::excelToDateTimeObject($value)->format('Y-m-d');
@@ -393,25 +391,35 @@ class PaymentImportService
         }
 
         $value = trim((string)$value);
+        if ($value === '') {
+            return null;
+        }
 
+        // Remove excess spaces
+        $value = preg_replace('/\s+/', ' ', $value);
+
+        // STRICTLY prioritize MM/DD/YYYY because this is the required file format
         $formats = [
-            'd/m/Y',
             'm/d/Y',
-            'Y-m-d',
-            'd-m-Y',
+            'n/j/Y',
             'm-d-Y',
+            'n-j-Y',
+            'Y-m-d',
+            'Y/m/d',
         ];
 
         foreach ($formats as $format) {
-            $dt = \DateTime::createFromFormat($format, $value);
-            if ($dt instanceof \DateTime) {
-                return $dt->format('Y-m-d');
-            }
-        }
+            $dt = DateTime::createFromFormat($format, $value);
+            if ($dt instanceof DateTime) {
+                $errors = DateTime::getLastErrors();
 
-        $timestamp = strtotime($value);
-        if ($timestamp !== false) {
-            return date('Y-m-d', $timestamp);
+                if (
+                    $errors['warning_count'] === 0 &&
+                    $errors['error_count'] === 0
+                ) {
+                    return $dt->format('Y-m-d');
+                }
+            }
         }
 
         return null;
@@ -458,11 +466,28 @@ class PaymentImportService
 
     private function isValidDataRow(array $row): bool
     {
+        $borrowerName = strtoupper(trim((string)($row['borrower_name'] ?? '')));
+        $referenceNumber = trim((string)($row['reference_number'] ?? ''));
+        $paymentReferenceNo = trim((string)($row['payment_reference_no'] ?? ''));
+        $total = (float)($row['total'] ?? 0);
+
+        if (in_array($borrowerName, ['TOTAL', 'GRAND TOTAL', 'TOTALS'], true)) {
+            return false;
+        }
+
         if (
-            $row['borrower_name'] === '' &&
-            $row['reference_number'] === '' &&
-            $row['payment_reference_no'] === '' &&
-            $row['total'] <= 0
+            str_contains($borrowerName, 'TOTAL') &&
+            $referenceNumber === '' &&
+            $paymentReferenceNo === ''
+        ) {
+            return false;
+        }
+
+        if (
+            $borrowerName === '' &&
+            $referenceNumber === '' &&
+            $paymentReferenceNo === '' &&
+            $total <= 0
         ) {
             return false;
         }
@@ -474,14 +499,26 @@ class PaymentImportService
         string $referenceNumber,
         string $dateOfTransaction,
         string $paymentReferenceNo,
+        float $principal,
+        float $interest,
+        float $vat,
+        float $penalty,
+        float $interestDiff,
+        float $partialPaymentBalance,
         float $total,
         string $borrowerName = ''
     ): string {
         $raw = strtoupper(trim($referenceNumber)) . '|' .
-               trim($dateOfTransaction) . '|' .
-               strtoupper(trim($paymentReferenceNo)) . '|' .
-               number_format($total, 2, '.', '') . '|' .
-               strtoupper(trim($borrowerName));
+            trim($dateOfTransaction) . '|' .
+            strtoupper(trim($paymentReferenceNo)) . '|' .
+            number_format($principal, 2, '.', '') . '|' .
+            number_format($interest, 2, '.', '') . '|' .
+            number_format($vat, 2, '.', '') . '|' .
+            number_format($penalty, 2, '.', '') . '|' .
+            number_format($interestDiff, 2, '.', '') . '|' .
+            number_format($partialPaymentBalance, 2, '.', '') . '|' .
+            number_format($total, 2, '.', '') . '|' .
+            strtoupper(trim($borrowerName));
 
         return hash('sha256', $raw);
     }
@@ -490,4 +527,5 @@ class PaymentImportService
     {
         return isset($e->errorInfo[1]) && (int)$e->errorInfo[1] === 1062;
     }
+    
 }
