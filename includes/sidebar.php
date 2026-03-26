@@ -16,12 +16,12 @@ $menu_items = [
         'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 
         'admin_only' => false,
         'sub_menu' => [
-            ['label' => 'Car Loan', 'type' => 'car'],
-            ['label' => 'Motor Loan', 'type' => 'motor'],
-            ['label' => 'Home Loan', 'type' => 'home'],
-            ['label' => 'Salary Loan', 'type' => 'salary'],
-            ['label' => 'Personal Property Loan', 'type' => 'personal'],
-            ['label' => 'Real Estate Loan', 'type' => 'realestate'],
+            ['label' => 'Car Loan', 'type' => 'car', 'icon' => 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1.'],
+            ['label' => 'Motor Loan', 'type' => 'motor', 'icon' => 'M5 16l-1 1h2m-4 0h11m-11 0c0-1.657 1.343-3 3-3m-3 3h3m10-3c1.657 0 3 1.343 3 3m-3-3V7m0 6h3m-3 0h-3m3 0l-4-4-3 1'],
+            ['label' => 'Home Loan', 'type' => 'home', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+            ['label' => 'Salary Loan', 'type' => 'salary', 'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+            ['label' => 'Personal Property Loan', 'type' => 'personal', 'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'],
+            ['label' => 'Real Estate Loan', 'type' => 'realestate', 'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'],
         ]
     ],
 
@@ -37,9 +37,9 @@ $menu_items = [
         'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 
         'admin_only' => false,
         'sub_menu' => [
-            ['label' => 'GMS Commissions Report', 'file' => 'gms_commission.php'],
-            ['label' => 'Running Receivables Report', 'file' => 'running_receivable_report.php'],
-            ['label' => 'Collection Report', 'file' => 'collection_report.php'],
+            ['label' => 'GMS Commissions Report', 'file' => 'gms_commission.php', 'icon' => 'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z'],
+            ['label' => 'Running Receivables Report', 'file' => 'running_receivable_report.php', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'],
+            ['label' => 'Collection Report', 'file' => 'collection_report.php', 'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
         ]
     ],
     ['file' => 'user_management.php', 'label' => 'User Management', 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', 'admin_only' => true]
@@ -120,7 +120,12 @@ $menu_items = [
                                 }
                             ?>
                                 <a href="<?php echo $link; ?>" 
-                                class="flex items-center gap-4 pl-12 pr-3 py-2 text-xs transition-colors rounded-md <?php echo $subActive ? 'text-white font-bold bg-red-800' : 'text-red-100 hover:text-white hover:bg-red-600/50'; ?>">
+                                class="flex items-center gap-3 pl-10 pr-3 py-2 text-[11px] transition-colors rounded-md <?php echo $subActive ? 'text-white font-bold bg-red-800' : 'text-red-100 hover:text-white hover:bg-red-600/50'; ?>">
+                                    <div class="flex items-center justify-center min-w-[16px]">
+                                        <svg class="w-4 h-4 <?php echo $subActive ? 'text-white' : 'text-red-300'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="<?php echo $sub['icon']; ?>"></path>
+                                        </svg>
+                                    </div>
                                     <span class="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity sidebar-text">
                                         <?php echo $sub['label']; ?>
                                     </span>

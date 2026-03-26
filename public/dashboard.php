@@ -221,7 +221,6 @@ include('../includes/header.php');
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="stat-label text-red-500" style="font-size: 0.9rem;">New Loans</h3>
                     <div class="text-right">
-                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Year'); ?></p>
                         <div class="flex items-center justify-end gap-2">
                             <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
                             <span class="text-[10px] font-black text-red-500 tracking-widest">LIVE RECORD</span>
@@ -242,7 +241,6 @@ include('../includes/header.php');
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="stat-label text-amber-500" style="font-size: 0.9rem;">New Payments</h3>
                     <div class="text-right">
-                        <p class="text-[10px] font-black text-white/40 tracking-widest mb-1 uppercase"><?php echo date('F d, Year'); ?></p>
                         <div class="flex items-center justify-end gap-2">
                             <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
                             <span class="text-[10px] font-black text-amber-500 tracking-widest">LIVE RECORD</span>
