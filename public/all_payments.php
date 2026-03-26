@@ -224,23 +224,18 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
 
             <div class="p-6 space-y-3">
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                    <span class="text-gray-500 font-medium">Monthly Amortization</span>
-                    <span class="font-bold text-gray-900" id="bdAmort">₱0.00</span>
-                </div>
-
-                <div class="flex justify-between text-sm py-2 border-b border-gray-50">
                     <span class="text-gray-500 font-medium">Amount Paid</span>
                     <span class="font-bold text-gray-900" id="bdPaid">₱0.00</span>
                 </div>
 
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                    <span class="text-gray-500 font-medium">Unpaid/Balance</span>
-                    <span class="font-bold text-gray-900" id="bdUnpaid">₱0.00</span>
+                    <span class="text-gray-500 font-medium">Monthly Amortization</span>
+                    <span class="font-bold text-gray-900" id="bdAmort">₱0.00</span>
                 </div>
 
                 <div class="flex justify-between text-sm py-2 border-b border-gray-50">
-                    <span class="text-gray-500 font-medium">Advance Payment</span>
-                    <span class="font-bold text-gray-900" id="bdAdvance">₱0.00</span>
+                    <span class="text-gray-500 font-medium">Unpaid/Balance</span>
+                    <span class="font-bold text-gray-900" id="bdUnpaid">₱0.00</span>
                 </div>
 
                 <div class="bg-gray-50 p-4 rounded-xl space-y-2">
@@ -259,6 +254,13 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
                         <span class="text-gray-600">Interest Difference</span>
                         <span class="font-medium text-gray-800" id="bdInterest">₱0.00</span>
                     </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                <div class="flex justify-between text-sm py-2 border-b border-gray-50">
+                    <span class="text-gray-500 font-medium">Advance Payment</span>
+                    <span class="font-bold text-gray-900" id="bdAdvance">₱0.00</span>
                 </div>
 
                 <div class="pt-4 border-t-2 border-dashed border-gray-100 mt-4">
