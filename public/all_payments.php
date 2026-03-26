@@ -327,15 +327,18 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
         </div>
     </div>
 
-    <div id="statusAlert" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-[200] p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-pop">
+<div id="statusAlert" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[200] p-6">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-[320px] w-full overflow-hidden animate-modal-pop border border-gray-100">
             <div id="alertContent" class="p-8 text-center">
-                <div id="alertIconContainer" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"></div>
-                <h3 id="alertTitle" class="text-xl font-bold mb-2"></h3>
-                <p id="alertMessage" class="text-gray-500 text-sm mb-6"></p>
-                <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                    <div id="alertTimerBar" class="h-full transition-all duration-100 ease-linear"></div>
+                <div id="alertIconContainer" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 animate-icon-bounce">
                 </div>
+                <h3 id="alertTitle" class="text-xl font-bold text-gray-800 mb-1"></h3>
+                <p id="alertMessage" class="text-sm text-gray-500 font-normal mb-6 leading-relaxed"></p>
+                
+                <button id="alertOkBtn" onclick="document.getElementById('statusAlert').classList.replace('flex', 'hidden')" 
+                    class="w-full bg-[#1e293b] text-white py-3 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-900 transition-all shadow-sm">
+                    OK
+                </button>
             </div>
         </div>
     </div>
@@ -493,7 +496,7 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
             const fileInput = document.getElementById('fileInput');
 
             if (!fileInput.files.length) {
-                showStatusAlert('error', 'No File', 'Please select a file first.');
+                showStatusAlert('error', 'Selection Required', 'Please select a file first.');
                 return;
             }
 
@@ -520,10 +523,10 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
                 }
 
                 if (data.status === 'success') {
-                    showStatusAlert('success', 'Success', 'Payment import completed.');
-                    setTimeout(() => location.reload(), 1500);
+                    showStatusAlert('success', 'Success!', 'Records imported successfully.');
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    showStatusAlert('error', 'Error', data.message || 'Upload failed.');
+                    showStatusAlert('error', 'Upload Failed', data.message || 'There was an error processing your file.');
                 }
             })
             .catch(() => {
@@ -537,16 +540,32 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
 
         function showStatusAlert(type, title, message) {
             const modal = document.getElementById('statusAlert');
+            const iconContainer = document.getElementById('alertIconContainer');
+            const okBtn = document.getElementById('alertOkBtn');
+            
+            // Remove animation classes to re-trigger them
+            modal.querySelector('.bg-white').classList.remove('animate-modal-pop');
+            iconContainer.classList.remove('animate-icon-bounce');
+
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = message;
 
+            if (type === 'success') {
+                iconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-green-50 animate-icon-bounce";
+                iconContainer.innerHTML = `<svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                okBtn.style.display = "none";
+            } else {
+                iconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-red-50 animate-icon-bounce";
+                iconContainer.innerHTML = `<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                okBtn.style.display = "block";
+            }
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-
-            setTimeout(() => {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }, 2000);
+            
+            // Void offset to force reflow and restart animation
+            void modal.offsetWidth; 
+            modal.querySelector('.bg-white').classList.add('animate-modal-pop');
         }
 
         function openFilePreview(file) {
@@ -568,13 +587,25 @@ $paymentRows = $paymentService->getPaymentSummariesByLoanType((int)$type_id);
     </script>
 
     <style>
-        @keyframes pop {
-            0% { transform: scale(0.95); opacity: 0; }
+        /* Modern Spring-loaded Modal Entrance */
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .animate-pop {
-            animation: pop 0.2s ease-out forwards;
+        /* Playful Icon Bounce */
+        @keyframes iconBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-modal-pop {
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .animate-icon-bounce {
+            animation: iconBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both;
         }
 
         .visible-scrollbar::-webkit-scrollbar {
