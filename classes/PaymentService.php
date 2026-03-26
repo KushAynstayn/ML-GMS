@@ -29,6 +29,16 @@ class PaymentService
             throw new Exception("Payment ID {$paymentId} not found.");
         }
 
+        if (($payment['application_status'] ?? '') !== 'pending') {
+            return [
+                'status' => $payment['application_status'],
+                'message' => 'Payment already processed.',
+                'loan_id' => $payment['loan_id'] ?? null,
+                'applied_amount' => 0.00,
+                'remaining_amount' => (float)($payment['excess_amount'] ?? 0.00)
+            ];
+        }
+
         $this->db->beginTransaction();
 
         try {
@@ -51,47 +61,40 @@ class PaymentService
 
             $this->assignPaymentToLoan($paymentId, $loanId);
 
-            $amountForSchedule = $this->getAmountAvailableForSchedule($payment);
+            $components = $this->extractPaymentComponents($payment);
+            $paymentDate = $this->resolvePaymentDate($payment);
 
-            if ($amountForSchedule <= 0) {
-                $this->updatePaymentApplicationStatus(
-                    $paymentId,
-                    'unapplied',
-                    0.00,
-                    'Payment saved but no allocatable principal/interest amount found.'
-                );
+            $this->insertNonLedgerAllocationIfNeeded($paymentId, $loanId, $paymentDate, $components);
 
-                $this->db->commit();
-
-                return [
-                    'status' => 'unapplied',
-                    'message' => 'Payment has no allocatable amount.'
-                ];
-            }
-
-            $primaryResult = $this->applyToPrimaryLedger($payment, $loanId, $amountForSchedule);
+            $primaryResult = $this->applyToPrimaryLedger(
+                $payment,
+                $loanId,
+                $components['allocatable_amortization']
+            );
 
             if ($this->hasSecondaryLedger($loanId) && !empty($primaryResult['primary_allocations'])) {
                 $this->mirrorStatusesToSecondaryLedger($payment, $loanId, $primaryResult['primary_allocations']);
             }
 
-            $remaining = (float)$primaryResult['remaining_amount'];
+            $remainingAmortization = round((float)$primaryResult['remaining_amount'], 2);
+            $appliedAmount = round((float)$primaryResult['applied_amount'], 2);
 
-            $applicationStatus = 'fully_applied';
-            if ((float)$primaryResult['applied_amount'] <= 0) {
-                $applicationStatus = 'unapplied';
-            } elseif ($remaining > 0.0001) {
-                $applicationStatus = 'partially_applied';
+            if ($remainingAmortization > 0) {
+                $this->insertExcessAllocation($paymentId, $loanId, $paymentDate, $remainingAmortization);
             }
 
-            $remarks = $remaining > 0.0001
-                ? 'Payment applied with excess/unallocated amount remaining.'
-                : 'Payment applied successfully.';
+            $applicationStatus = $this->determineApplicationStatus(
+                $appliedAmount,
+                $remainingAmortization,
+                $components['allocatable_amortization']
+            );
+
+            $remarks = $this->buildApplicationRemarks($components, $appliedAmount, $remainingAmortization);
 
             $this->updatePaymentApplicationStatus(
                 $paymentId,
                 $applicationStatus,
-                round($remaining, 2),
+                $remainingAmortization,
                 $remarks
             );
 
@@ -101,8 +104,8 @@ class PaymentService
                 'status' => $applicationStatus,
                 'message' => $remarks,
                 'loan_id' => $loanId,
-                'applied_amount' => round((float)$primaryResult['applied_amount'], 2),
-                'remaining_amount' => round($remaining, 2)
+                'applied_amount' => $appliedAmount,
+                'remaining_amount' => $remainingAmortization
             ];
         } catch (Exception $e) {
             $this->db->rollBack();
@@ -256,34 +259,109 @@ class PaymentService
         ]);
     }
 
-    private function getAmountAvailableForSchedule(array $payment): float
+    private function extractPaymentComponents(array $payment): array
     {
-        $principal = (float)($payment['principal'] ?? 0);
-        $interest = (float)($payment['interest'] ?? 0);
-        $total = (float)($payment['total'] ?? 0);
+        $principal = round((float)($payment['principal'] ?? 0), 2);
+        $interest = round((float)($payment['interest'] ?? 0), 2);
+        $vat = round((float)($payment['vat'] ?? 0), 2);
+        $penalty = round((float)($payment['penalty'] ?? 0), 2);
+        $interestDiff = round((float)($payment['interest_diff'] ?? 0), 2);
+        $total = round((float)($payment['total'] ?? 0), 2);
 
-        $allocatable = round($principal + $interest, 2);
+        $allocatableAmortization = round($principal + $interest, 2);
 
-        if ($allocatable <= 0 && $total > 0) {
-            $allocatable = round($total, 2);
+        if ($allocatableAmortization <= 0 && $total > 0) {
+            $allocatableAmortization = round($total - $vat - $penalty - $interestDiff, 2);
         }
 
-        return $allocatable;
+        if ($allocatableAmortization < 0) {
+            $allocatableAmortization = 0.00;
+        }
+
+        return [
+            'principal' => $principal,
+            'interest' => $interest,
+            'vat' => $vat,
+            'penalty' => $penalty,
+            'interest_diff' => $interestDiff,
+            'total' => $total,
+            'allocatable_amortization' => $allocatableAmortization
+        ];
+    }
+
+    private function resolvePaymentDate(array $payment): string
+    {
+        return !empty($payment['date_of_transaction'])
+            ? $payment['date_of_transaction']
+            : (!empty($payment['payment_date']) ? $payment['payment_date'] : date('Y-m-d'));
+    }
+
+    private function determineApplicationStatus(
+        float $appliedAmount,
+        float $remainingAmortization,
+        float $allocatableAmortization
+    ): string {
+        if ($allocatableAmortization <= 0 && $appliedAmount <= 0) {
+            return 'unapplied';
+        }
+
+        if ($appliedAmount <= 0 && $remainingAmortization > 0) {
+            return 'partially_applied';
+        }
+
+        if ($remainingAmortization > 0.0001) {
+            return 'partially_applied';
+        }
+
+        if ($appliedAmount > 0) {
+            return 'fully_applied';
+        }
+
+        return 'unapplied';
+    }
+
+    private function buildApplicationRemarks(array $components, float $appliedAmount, float $remainingAmortization): string
+    {
+        $parts = [];
+
+        if ($components['penalty'] > 0) {
+            $parts[] = 'Penalty recorded: ' . number_format($components['penalty'], 2);
+        }
+
+        if ($components['vat'] > 0) {
+            $parts[] = 'VAT recorded: ' . number_format($components['vat'], 2);
+        }
+
+        if ($components['interest_diff'] > 0) {
+            $parts[] = 'Interest diff recorded: ' . number_format($components['interest_diff'], 2);
+        }
+
+        if ($appliedAmount > 0) {
+            $parts[] = 'Amortization applied: ' . number_format($appliedAmount, 2);
+        }
+
+        if ($remainingAmortization > 0) {
+            $parts[] = 'Excess/unallocated amortization: ' . number_format($remainingAmortization, 2);
+        }
+
+        if (empty($parts)) {
+            return 'Payment saved but no allocatable amount found.';
+        }
+
+        return implode(' | ', $parts);
     }
 
     private function applyToPrimaryLedger(array $payment, int $loanId, float $amountAvailable): array
     {
         $paymentId = (int)$payment['payment_id'];
-        $paymentDate = !empty($payment['date_of_transaction'])
-            ? $payment['date_of_transaction']
-            : ($payment['payment_date'] ?? date('Y-m-d'));
+        $paymentDate = $this->resolvePaymentDate($payment);
 
         $rows = $this->getOpenPrimaryLedgerRows($loanId);
 
         if (empty($rows)) {
             return [
                 'applied_amount' => 0.00,
-                'remaining_amount' => $amountAvailable,
+                'remaining_amount' => round($amountAvailable, 2),
                 'primary_allocations' => []
             ];
         }
@@ -293,7 +371,7 @@ class PaymentService
         $allocations = [];
 
         foreach ($rows as $row) {
-            if ($remaining <= 0) {
+            if ($remaining <= 0.0001) {
                 break;
             }
 
@@ -302,26 +380,32 @@ class PaymentService
             $alreadyPaid = round((float)$row['amount_paid'], 2);
             $remainingDue = round((float)$row['remaining_due'], 2);
 
-            if ($remainingDue <= 0) {
+            if ($remainingDue <= 0.0001) {
                 continue;
             }
 
             $before = $remainingDue;
             $apply = min($remaining, $remainingDue);
+            $apply = round($apply, 2);
+
             $after = round($remainingDue - $apply, 2);
+            if ($after < 0) {
+                $after = 0.00;
+            }
+
             $newAmountPaid = round($alreadyPaid + $apply, 2);
 
-            $newStatus = 'partial';
+            $ledgerStatus = 'partial';
             if ($after <= 0.0001) {
                 $after = 0.00;
-                $newStatus = 'paid';
+                $ledgerStatus = 'paid';
             }
 
             $this->updatePrimaryLedgerRow(
                 $primaryLedgerId,
                 $newAmountPaid,
                 $after,
-                $newStatus,
+                $ledgerStatus,
                 $paymentDate,
                 $paymentId
             );
@@ -350,13 +434,13 @@ class PaymentService
                 'applied_vat' => 0.00,
                 'applied_interest_diff' => 0.00,
                 'amount_after_allocation' => $after,
-                'allocation_status' => $newStatus === 'paid' ? 'full' : 'partial',
+                'allocation_status' => $ledgerStatus === 'paid' ? 'full' : 'partial',
             ]);
 
             $allocations[] = [
                 'installment_no' => (int)$row['installment_no'],
                 'due_date' => $row['due_date'],
-                'status' => $newStatus,
+                'status' => $ledgerStatus,
                 'paid_date' => $paymentDate,
                 'payment_id' => $paymentId,
             ];
@@ -372,17 +456,10 @@ class PaymentService
         ];
     }
 
-    /**
-     * Mirror-only behavior for GMS secondary ledger.
-     * The secondary ledger does NOT receive an independent monetary allocation.
-     * It only mirrors the status of the same installment in primary.
-     */
     private function mirrorStatusesToSecondaryLedger(array $payment, int $loanId, array $primaryAllocations): void
     {
         $paymentId = (int)$payment['payment_id'];
-        $paymentDate = !empty($payment['date_of_transaction'])
-            ? $payment['date_of_transaction']
-            : ($payment['payment_date'] ?? date('Y-m-d'));
+        $paymentDate = $this->resolvePaymentDate($payment);
 
         foreach ($primaryAllocations as $allocation) {
             $secondaryRow = $this->getSecondaryRowByInstallmentNo($loanId, (int)$allocation['installment_no']);
@@ -393,25 +470,18 @@ class PaymentService
 
             $secondaryLedgerId = (int)$secondaryRow['secondary_ledger_id'];
             $scheduledAmount = round((float)$secondaryRow['amount_due'], 2);
+            $existingAmountPaid = round((float)($secondaryRow['amount_paid'] ?? 0), 2);
+            $existingRemainingDue = round((float)($secondaryRow['remaining_due'] ?? $scheduledAmount), 2);
             $status = $allocation['status'];
 
-            $mirroredAmountPaid = 0.00;
-            $mirroredRemainingDue = $scheduledAmount;
+            $mirroredAmountPaid = $existingAmountPaid;
+            $mirroredRemainingDue = $existingRemainingDue;
 
             if ($status === 'paid') {
                 $mirroredAmountPaid = $scheduledAmount;
                 $mirroredRemainingDue = 0.00;
             } elseif ($status === 'partial') {
-                // For mirror-only behavior, partial in primary means partial in secondary.
-                // We keep a light mirrored state without treating this as an independent cash allocation.
-                $existingAmountPaid = round((float)($secondaryRow['amount_paid'] ?? 0), 2);
-                $existingRemainingDue = round((float)($secondaryRow['remaining_due'] ?? $scheduledAmount), 2);
-
-                // Preserve current partial tracking if already present, otherwise set a minimal partial state.
-                if ($existingAmountPaid > 0 && $existingRemainingDue > 0 && $existingRemainingDue < $scheduledAmount) {
-                    $mirroredAmountPaid = $existingAmountPaid;
-                    $mirroredRemainingDue = $existingRemainingDue;
-                } else {
+                if ($existingAmountPaid <= 0 || $existingRemainingDue >= $scheduledAmount) {
                     $mirroredAmountPaid = 0.01;
                     $mirroredRemainingDue = max(round($scheduledAmount - 0.01, 2), 0.00);
                 }
@@ -435,7 +505,7 @@ class PaymentService
                 'installment_no' => (int)$secondaryRow['installment_no'],
                 'due_date' => $secondaryRow['due_date'],
                 'scheduled_amount' => $scheduledAmount,
-                'amount_before_allocation' => $scheduledAmount,
+                'amount_before_allocation' => $existingRemainingDue,
                 'amount_applied' => 0.00,
                 'applied_principal' => 0.00,
                 'applied_interest' => 0.00,
@@ -446,6 +516,73 @@ class PaymentService
                 'allocation_status' => $status === 'paid' ? 'full' : 'partial',
             ]);
         }
+    }
+
+    private function insertNonLedgerAllocationIfNeeded(
+        int $paymentId,
+        int $loanId,
+        string $paymentDate,
+        array $components
+    ): void {
+        $nonLedgerTotal = round(
+            $components['penalty'] + $components['vat'] + $components['interest_diff'],
+            2
+        );
+
+        if ($nonLedgerTotal <= 0) {
+            return;
+        }
+
+        $this->insertPaymentAllocation([
+            'payment_id' => $paymentId,
+            'loan_id' => $loanId,
+            'ledger_type' => 'primary',
+            'primary_ledger_id' => null,
+            'secondary_ledger_id' => null,
+            'installment_no' => 0,
+            'due_date' => $paymentDate,
+            'scheduled_amount' => 0.00,
+            'amount_before_allocation' => 0.00,
+            'amount_applied' => $nonLedgerTotal,
+            'applied_principal' => 0.00,
+            'applied_interest' => 0.00,
+            'applied_penalty' => $components['penalty'],
+            'applied_vat' => $components['vat'],
+            'applied_interest_diff' => $components['interest_diff'],
+            'amount_after_allocation' => 0.00,
+            'allocation_status' => 'full',
+        ]);
+    }
+
+    private function insertExcessAllocation(
+        int $paymentId,
+        int $loanId,
+        string $paymentDate,
+        float $excessAmount
+    ): void {
+        if ($excessAmount <= 0) {
+            return;
+        }
+
+        $this->insertPaymentAllocation([
+            'payment_id' => $paymentId,
+            'loan_id' => $loanId,
+            'ledger_type' => 'primary',
+            'primary_ledger_id' => null,
+            'secondary_ledger_id' => null,
+            'installment_no' => 0,
+            'due_date' => $paymentDate,
+            'scheduled_amount' => 0.00,
+            'amount_before_allocation' => 0.00,
+            'amount_applied' => $excessAmount,
+            'applied_principal' => 0.00,
+            'applied_interest' => 0.00,
+            'applied_penalty' => 0.00,
+            'applied_vat' => 0.00,
+            'applied_interest_diff' => 0.00,
+            'amount_after_allocation' => 0.00,
+            'allocation_status' => 'excess',
+        ]);
     }
 
     private function getOpenPrimaryLedgerRows(int $loanId): array
@@ -670,5 +807,198 @@ class PaymentService
         $name = preg_replace('/\s+/', ' ', $name);
 
         return strtoupper($name);
+    }
+
+
+    public function getPaymentSummariesByLoanType(int $loanTypeId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                p.loan_id,
+                l.reference_number,
+                l.first_name,
+                l.middle_name,
+                l.last_name,
+                l.monthly_amortization,
+                p.payment_reference_no,
+                p.payment_date,
+                p.date_of_transaction,
+                SUM(p.total) AS paid_amount,
+                SUM(p.vat) AS total_vat,
+                SUM(p.penalty) AS total_penalty,
+                SUM(p.interest_diff) AS total_interest_diff,
+                SUM(p.partial_payment_balance) AS total_partial_balance,
+                MAX(
+                    CASE
+                        WHEN p.application_status = 'partially_applied' THEN 1
+                        ELSE 0
+                    END
+                ) AS has_partial,
+                MAX(
+                    CASE
+                        WHEN p.application_status IN ('fully_applied', 'partially_applied') THEN 1
+                        ELSE 0
+                    END
+                ) AS has_payment
+            FROM payments p
+            INNER JOIN loans l ON l.loan_id = p.loan_id
+            WHERE l.loan_type_id = :loan_type_id
+            AND p.match_status = 'matched'
+            GROUP BY
+                p.loan_id,
+                p.payment_reference_no,
+                p.payment_date,
+                p.date_of_transaction,
+                l.reference_number,
+                l.first_name,
+                l.middle_name,
+                l.last_name,
+                l.monthly_amortization
+            ORDER BY p.payment_date DESC, p.payment_reference_no DESC
+        ");
+        $stmt->execute([
+            ':loan_type_id' => $loanTypeId
+        ]);
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($rows as &$row) {
+            $loanId = (int)$row['loan_id'];
+            $paymentReferenceNo = (string)$row['payment_reference_no'];
+            $paymentDate = (string)$row['payment_date'];
+
+            $row['account_name'] = $this->buildPaymentDisplayName($row);
+            $row['date_paid'] = $row['payment_date'];
+            $row['date_applied'] = $this->getAppliedMonthLabel($loanId, $paymentReferenceNo, $paymentDate);
+            $row['status_label'] = $this->resolveGroupedPaymentStatus($row);
+            $row['next_due'] = $this->getNextDuePrimaryAmount($loanId);
+            $row['next_due_month'] = $this->getNextDuePrimaryMonthLabel($loanId);
+            $row['advance_payment'] = $this->calculateAdvancePayment(
+                (float)$row['paid_amount'],
+                (float)$row['monthly_amortization'],
+                (float)$row['total_vat'],
+                (float)$row['total_penalty'],
+                (float)$row['total_interest_diff']
+            );
+        }
+
+        unset($row);
+
+        return $rows;
+    }
+
+    private function buildPaymentDisplayName(array $row): string
+    {
+        $parts = [
+            trim((string)($row['first_name'] ?? '')),
+            trim((string)($row['middle_name'] ?? '')),
+            trim((string)($row['last_name'] ?? ''))
+        ];
+
+        return trim(preg_replace('/\s+/', ' ', implode(' ', array_filter($parts))));
+    }
+
+    private function getAppliedMonthLabel(int $loanId, string $paymentReferenceNo, string $paymentDate): string
+    {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT pa.due_date
+            FROM payment_allocations pa
+            INNER JOIN payments p ON p.payment_id = pa.payment_id
+            WHERE p.loan_id = :loan_id
+            AND p.payment_reference_no = :payment_reference_no
+            AND p.payment_date = :payment_date
+            AND pa.installment_no > 0
+            AND pa.amount_applied > 0
+            ORDER BY pa.due_date ASC
+        ");
+        $stmt->execute([
+            ':loan_id' => $loanId,
+            ':payment_reference_no' => $paymentReferenceNo,
+            ':payment_date' => $paymentDate
+        ]);
+
+        $dates = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($dates)) {
+            return '--';
+        }
+
+        $labels = [];
+        foreach ($dates as $dueDate) {
+            $labels[] = date('M', strtotime($dueDate));
+        }
+
+        $labels = array_values(array_unique($labels));
+
+        if (count($labels) === 1) {
+            return date('F', strtotime($dates[0]));
+        }
+
+        return $labels[0] . '-' . end($labels);
+    }
+
+    private function resolveGroupedPaymentStatus(array $row): string
+    {
+        if ((int)($row['has_partial'] ?? 0) === 1) {
+            return 'Partial';
+        }
+
+        if ((int)($row['has_payment'] ?? 0) === 1 && (float)($row['paid_amount'] ?? 0) > 0) {
+            return 'Paid';
+        }
+
+        return 'Unpaid';
+    }
+
+    private function getNextDuePrimaryAmount(int $loanId): float
+    {
+        $stmt = $this->db->prepare("
+            SELECT amount_due
+            FROM primary_ledger
+            WHERE loan_id = :loan_id
+            AND status IN ('unpaid', 'partial')
+            ORDER BY installment_no ASC
+            LIMIT 1
+        ");
+        $stmt->execute([':loan_id' => $loanId]);
+
+        $amount = $stmt->fetchColumn();
+
+        return $amount !== false ? round((float)$amount, 2) : 0.00;
+    }
+
+    private function getNextDuePrimaryMonthLabel(int $loanId): string
+    {
+        $stmt = $this->db->prepare("
+            SELECT due_date
+            FROM primary_ledger
+            WHERE loan_id = :loan_id
+            AND status IN ('unpaid', 'partial')
+            ORDER BY installment_no ASC
+            LIMIT 1
+        ");
+        $stmt->execute([':loan_id' => $loanId]);
+
+        $dueDate = $stmt->fetchColumn();
+
+        return $dueDate ? date('M', strtotime($dueDate)) : '';
+    }
+
+    private function calculateAdvancePayment(
+        float $paidAmount,
+        float $monthlyAmortization,
+        float $vat,
+        float $penalty,
+        float $interestDiff
+    ): float {
+        $netPaidTowardAmort = round($paidAmount - $vat - $penalty - $interestDiff, 2);
+
+        if ($monthlyAmortization <= 0) {
+            return 0.00;
+        }
+
+        $advance = round($netPaidTowardAmort - $monthlyAmortization, 2);
+
+        return $advance > 0 ? $advance : 0.00;
     }
 }
