@@ -517,7 +517,7 @@ class LoanService {
                 $eir,
                 $monthly,
                 $secondaryMonthly,
-                $regionCode,
+                $data['region_code'] ?? '',
                 $currentUserName
             ]);
 
