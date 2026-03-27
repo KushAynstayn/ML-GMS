@@ -34,7 +34,7 @@ class ImportService
             // ✅ CRITICAL FIX: Explicitly check for GMS to determine ledger routing
             $isGMS = strtoupper(trim($sheet->getCell('A2')->getValue())) === 'GMS';
             
-            $regionName = trim($sheet->getCell('B3')->getValue()); 
+            $regionCode = trim($sheet->getCell('D3')->getValue()); 
             
             $rawDateInstalled = $sheet->getCell('B4')->getValue(); 
             $dateInstalled = is_numeric($rawDateInstalled) 
@@ -95,7 +95,7 @@ class ImportService
                 'term_months'          => $term,
                 'interest_rate'        => $interestRate,
                 'monthly_amortization' => $monthly,
-                'region_name'          => $regionName,
+                'region_code'          => $regionCode,
                 'loan_type_text'       => $loanTypeText,
                 'date_installed'       => $dateInstalled,
                 'gms'                  => $isGMS, // Passed to Service to control ledger display

@@ -15,22 +15,42 @@ class LoanService {
         $this->masterDb = $database->connect('MASTER');
     }
 
-    private function getRegionNameById($regionId) {
-        if (empty($regionId)) {
+    private function getRegionCodeById($regionId) {
+    if (empty($regionId)) {
+        return '';
+    }
+
+    $stmt = $this->masterDb->prepare("
+        SELECT region_code
+        FROM region_masterfile
+        WHERE id = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$regionId]);
+
+    $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+    return trim($row['region_code'] ?? '');
+}
+
+    private function getRegionCodeByDescription($regionDescription) {
+        $regionDescription = trim((string)$regionDescription);
+
+        if ($regionDescription === '') {
             return '';
         }
 
         $stmt = $this->masterDb->prepare("
-            SELECT region_description 
-            FROM region_masterfile 
-            WHERE id = ?
+            SELECT region_code
+            FROM region_masterfile
+            WHERE TRIM(region_description) = TRIM(?)
             LIMIT 1
         ");
-        $stmt->execute([$regionId]);
+        $stmt->execute([$regionDescription]);
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        return $row['region_description'] ?? '';
+        return trim($row['region_code'] ?? '');
     }
 
     /* ============================================================
@@ -70,7 +90,7 @@ class LoanService {
                 ? round((float)($data['secondary_monthly'] ?? 0), 2)
                 : 0.00;
             
-            $regionName = $this->getRegionNameById($data['region_id'] ?? null);
+            $regionCode = $this->getRegionCodeById($data['region_id'] ?? null);
 
             /* ============================
                INSERT INTO LOANS
@@ -94,7 +114,7 @@ class LoanService {
             eir,
             monthly_amortization,
             secondary_monthly,
-            region_name,
+            region_code,
             source,
             status,
             date_created,
@@ -121,7 +141,7 @@ class LoanService {
             $eir,
             $monthlyAmortization,
             $secondaryMonthly,
-            $regionName,
+            $regionCode,
             $currentUserName
         ]);
 
@@ -446,6 +466,8 @@ class LoanService {
             $data['secondary_monthly'] = $secondaryMonthly;
             $data['monthly_factor'] = $monthlyFactor;
 
+            $regionCode = $this->getRegionCodeByDescription($data['region_name'] ?? '');
+
             /* ============================================================
             INSERT INTO LOANS
             ============================================================ */
@@ -468,7 +490,7 @@ class LoanService {
                 eir,
                 monthly_amortization,
                 secondary_monthly,
-                region_name,
+                region_code,
                 source,
                 status,
                 date_created,
@@ -495,7 +517,7 @@ class LoanService {
                 $eir,
                 $monthly,
                 $secondaryMonthly,
-                $data['region_name'] ?? '',
+                $regionCode,
                 $currentUserName
             ]);
 
