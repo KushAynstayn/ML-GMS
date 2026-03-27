@@ -142,22 +142,28 @@ function renderTableRows(rows) {
     tableBody.innerHTML = '';
 
     if (!rows.length) {
-        const emptyRow = document.createElement('tr');
-        emptyRow.id = 'noRecordFound';
-        emptyRow.innerHTML = `
-            <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">
-                No records found.
-            </td>
-        `;
-        tableBody.appendChild(emptyRow);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">
+                    No records found.
+                </td>
+            </tr>`;
         return;
     }
 
     rows.forEach(row => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-red-50/50 transition-colors';
-        tr.setAttribute('data-loan-type', row.loan_type_filter || '');
-        tr.setAttribute('data-wheels', row.wheels_filter || '');
+        // Add cursor-pointer to indicate it's clickable
+        tr.className = 'hover:bg-red-50/50 transition-colors cursor-pointer border-b border-gray-100'; 
+        
+        // Trigger the amortization function with 'secondary' logic
+        tr.onclick = () => {
+            if (typeof viewAmortization === 'function') {
+                viewAmortization(row.loan_id, 'secondary');
+            } else {
+                console.error("viewAmortization function not found. Check if amortization.js is loaded.");
+            }
+        };
 
         tr.innerHTML = `
             <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.date_granted)}</td>
@@ -386,6 +392,20 @@ async function downloadExcel() {
         saveAs(new Blob([excelBuffer]), `Collection_Report_${filterText.replace(/\s+/g, '_')}.xlsx`);
     } catch (error) {
         console.error("Error generating Excel:", error);
+    }
+}
+</script>
+
+<?php include('../includes/modals/amortization_modal.php'); ?>
+<script src="../assets/js/amortization.js"></script>
+
+<script>
+// This function bridges the report to your existing amortization logic
+function viewSecondaryLedger(loanId) {
+    if (typeof openAmortizationModal === 'function') {
+        openAmortizationModal(loanId);
+    } else {
+        console.error("openAmortizationModal function not found in amortization.js");
     }
 }
 </script>
