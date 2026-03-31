@@ -20,6 +20,68 @@ try {
 <?php include('../includes/header.php'); ?>
 <?php include '../includes/modals/add_user_modal.php'; ?>
 
+<style>
+    /* Custom Scrollbar */
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 8px;
+    }
+    .overflow-x-auto::-webkit-scrollbar-track {
+        background: #f3f4f6;
+    }
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: #e5e7eb;
+        border-radius: 4px;
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes subtle-jump {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+    .hover-jump:hover {
+        animation: subtle-jump 0.6s infinite ease-in-out;
+    }
+
+    /* Bounce Effect for Modals */
+    @keyframes bounceIn {
+        0% { transform: scale(0.9); opacity: 0; }
+        60% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); }
+    }
+    .animate-bounce-in {
+        animation: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Piano Row Effect */
+    #tableBody tr {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+    }
+
+    #tableBody tr:hover {
+        transform: scale(1.015);
+        background-color: #fef2f2 !important; /* Very light red */
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+    }
+
+    /* Table Container Deep Shadow */
+    .table-container-shadow {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    @keyframes fadeInSlide {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .row-fade-in {
+        animation: fadeInSlide 0.3s ease-out forwards;
+    }
+</style>
+
 <div class="flex h-screen overflow-hidden">
     <?php include('../includes/sidebar.php'); ?>
 
@@ -39,15 +101,15 @@ try {
                 
                 <button 
                     onclick="openAddUserModal()" 
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm hover-jump"
                 >
                     + Add User
                 </button>
             </div>
         </header>
 
-        <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
-            <table class="w-full text-left" id="userTable">
+        <div class="bg-white rounded-xl table-container-shadow overflow-x-auto border border-gray-100">
+            <table class="w-full text-left border-collapse" id="userTable">
                 <thead class="bg-[#D50000]">
                     <tr>
                         <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">ID Number</th>
@@ -69,7 +131,7 @@ try {
                         $typeClass = ($user['user_type'] === 'admin') ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700';
                         $statusClass = ($user['status'] === 'active') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
                     ?>
-                        <tr onclick='openEditModal(<?php echo json_encode($user); ?>)' class="hover:bg-red-50/50 transition-colors group cursor-pointer">
+                        <tr onclick='openEditModal(<?php echo json_encode($user); ?>)' class="cursor-pointer border-b border-gray-100">
                             <td class="px-4 py-4 text-sm font-mono text-gray-500"><?php echo htmlspecialchars($user['id_number']); ?></td>
                             <td class="px-4 py-4 text-sm text-gray-600"><?php echo htmlspecialchars($user['email']); ?></td>
                             <td class="px-4 py-4 text-sm font-semibold text-gray-700"><?php echo htmlspecialchars($fullName); ?></td>
@@ -87,7 +149,7 @@ try {
 </div>
 
 <div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-bounce-in">
         <div class="bg-gray-50 p-6 flex justify-between items-center border-b border-gray-200">
             <h3 class="text-gray-800 font-bold text-xl">User <span class="text-[#D50000]">Details</span></h3>
             <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors">&times;</button>
@@ -138,7 +200,7 @@ try {
 
 <?php if (isset($_GET['update']) && $_GET['update'] === 'error'): ?>
 <div id="errorModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
-    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden border-t-4 border-[#D50000]">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden border-t-4 border-[#D50000] animate-bounce-in">
         <div class="p-6 text-center">
             <div class="w-16 h-16 bg-red-100 text-[#D50000] rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,10 +297,17 @@ function filterTable() {
                         nameText.includes(searchText);
 
         if (dateMatch && textMatch) {
+            // Only add animation if it was previously hidden to create a "fade-in" effect on search
+            if (row.style.display === "none") {
+                row.classList.remove('row-fade-in');
+                void row.offsetWidth; // Trigger reflow to restart animation
+                row.classList.add('row-fade-in');
+            }
             row.style.display = "";
             hasMatch = true;
         } else {
             row.style.display = "none";
+            row.classList.remove('row-fade-in');
         }
     });
 

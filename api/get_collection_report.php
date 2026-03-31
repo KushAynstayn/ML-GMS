@@ -86,12 +86,13 @@ try {
         $sql .= " AND l.loan_type_id = 2 AND m.type = '3-WHEELS' ";
     }
 
+    // MODIFIED: Changed filter from l.pn_date to p.payment_date
     if ($startDate !== '' && $endDate !== '') {
-        $sql .= " AND l.pn_date BETWEEN :start_date AND :end_date ";
+        $sql .= " AND p.payment_date BETWEEN :start_date AND :end_date ";
         $params[':start_date'] = $startDate;
         $params[':end_date'] = $endDate;
     } elseif ($startDate !== '') {
-        $sql .= " AND l.pn_date = :start_date ";
+        $sql .= " AND p.payment_date = :start_date ";
         $params[':start_date'] = $startDate;
     }
 

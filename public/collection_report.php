@@ -10,8 +10,47 @@
         background: #f3f4f6;
     }
     .overflow-x-auto::-webkit-scrollbar-thumb {
-        background: #e5e7eb;
+        background: #8d93a0;
         border-radius: 4px;
+    }
+
+    /* --- ANIMATIONS FROM ALL LOANS --- */
+    @keyframes subtle-jump {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+    .hover-jump:hover {
+        animation: subtle-jump 0.6s infinite ease-in-out;
+    }
+
+    /* Piano Row Effect */
+    #tableBody tr {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+    }
+
+    #tableBody tr:hover {
+        transform: scale(1.015);
+        background-color: #fef2f2 !important; /* Very light red */
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+    }
+
+    /* Table Container Deep Shadow */
+    .table-container-shadow {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Search/Fade Swap Effect */
+    @keyframes fadeInSlide {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .row-fade-in {
+        animation: fadeInSlide 0.3s ease-out forwards;
     }
 </style>
 
@@ -67,7 +106,7 @@
                 </div>
 
                 <div class="relative inline-block text-left shrink-0" id="downloadDropdown">
-                    <button onclick="toggleDropdown()" class="flex items-center gap-2 bg-[#D50000] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#B70000] transition-all shadow-sm text-sm">
+                    <button onclick="toggleDropdown()" class="flex items-center gap-2 bg-[#D50000] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#B70000] transition-all shadow-sm text-sm hover-jump">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
@@ -85,21 +124,21 @@
             </div>
         </header>
 
-        <div class="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-100">
+        <div class="bg-white rounded-xl table-container-shadow overflow-x-auto border border-gray-100">
             <table id="collectionTable" class="w-full text-left border-collapse min-w-[1400px]">
                 <thead class="bg-[#D50000]">
                     <tr>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Granted</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Installed</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Granted</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Installed</th>
                         <th class="px-3 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Account Name</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Monthly Amortization</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Principal</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Interest</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Term</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Reference Number</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Applied</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Date Paid</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white text-center">Status</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Monthly Amortization</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Principal</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Interest</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Term</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Reference Number</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Applied</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Paid</th>
+                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Status</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
@@ -142,22 +181,28 @@ function renderTableRows(rows) {
     tableBody.innerHTML = '';
 
     if (!rows.length) {
-        const emptyRow = document.createElement('tr');
-        emptyRow.id = 'noRecordFound';
-        emptyRow.innerHTML = `
-            <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">
-                No records found.
-            </td>
-        `;
-        tableBody.appendChild(emptyRow);
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">
+                    No records found.
+                </td>
+            </tr>`;
         return;
     }
 
     rows.forEach(row => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-red-50/50 transition-colors';
-        tr.setAttribute('data-loan-type', row.loan_type_filter || '');
-        tr.setAttribute('data-wheels', row.wheels_filter || '');
+        // Combined fade-in and specific border styles. 
+        // Note: The "Piano Row" effect is targeted via CSS #tableBody tr
+        tr.className = 'row-fade-in border-b border-gray-100'; 
+        
+        tr.onclick = () => {
+            if (typeof viewAmortization === 'function') {
+                viewAmortization(row.loan_id, 'secondary');
+            } else {
+                console.error("viewAmortization function not found. Check if amortization.js is loaded.");
+            }
+        };
 
         tr.innerHTML = `
             <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.date_granted)}</td>
@@ -229,7 +274,8 @@ function toggleDropdown() {
 
 window.onclick = function(event) {
     if (!event.target.closest('#downloadDropdown')) {
-        document.getElementById('dropdownMenu').classList.add('hidden');
+        const menu = document.getElementById('dropdownMenu');
+        if (menu) menu.classList.add('hidden');
     }
 };
 
@@ -386,6 +432,20 @@ async function downloadExcel() {
         saveAs(new Blob([excelBuffer]), `Collection_Report_${filterText.replace(/\s+/g, '_')}.xlsx`);
     } catch (error) {
         console.error("Error generating Excel:", error);
+    }
+}
+</script>
+
+<?php include('../includes/modals/amortization_modal.php'); ?>
+<script src="../assets/js/amortization.js"></script>
+
+<script>
+// This function bridges the report to your existing amortization logic
+function viewSecondaryLedger(loanId) {
+    if (typeof openAmortizationModal === 'function') {
+        openAmortizationModal(loanId);
+    } else {
+        console.error("openAmortizationModal function not found in amortization.js");
     }
 }
 </script>
