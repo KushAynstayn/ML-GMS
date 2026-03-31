@@ -24,20 +24,23 @@ try {
             l.last_name,
             l.pn_date,
             l.term_months,
-            l.monthly_amortization,
+            l.secondary_monthly,
 
             c.date_installed AS car_date_installed,
+            c.gps_provider AS car_gps_provider,
+
             m.date_installed AS motor_date_installed,
             m.type AS motor_type,
+            m.gps_provider AS motor_gps_provider,
 
-            pl.primary_ledger_id,
-            pl.installment_no,
-            pl.due_date,
-            pl.principal AS ledger_principal,
-            pl.interest AS ledger_interest,
-            pl.paid_date,
-            pl.status AS ledger_status,
-            pl.last_payment_id,
+            sl.secondary_ledger_id,
+            sl.installment_no,
+            sl.due_date,
+            sl.principal AS ledger_principal,
+            sl.interest AS ledger_interest,
+            sl.paid_date,
+            sl.status AS ledger_status,
+            sl.last_payment_id,
 
             p.payment_id,
             p.payment_date,
@@ -58,12 +61,17 @@ try {
         LEFT JOIN motor_loans m
             ON l.loan_id = m.loan_id
 
-        LEFT JOIN primary_ledger pl
-            ON pl.last_payment_id = p.payment_id
-           AND pl.loan_id = p.loan_id
+        LEFT JOIN secondary_ledger sl
+            ON sl.last_payment_id = p.payment_id
+           AND sl.loan_id = p.loan_id
 
         WHERE p.match_status = 'matched'
           AND p.application_status IN ('fully_applied', 'partially_applied')
+          AND (
+                (l.loan_type_id = 1 AND UPPER(COALESCE(c.gps_provider, '')) = 'GMS')
+                OR
+                (l.loan_type_id = 2 AND UPPER(COALESCE(m.gps_provider, '')) = 'GMS')
+              )
     ";
 
     $params = [];
@@ -95,7 +103,7 @@ try {
         $params[':start_date'] = $startDate;
     }
 
-    $sql .= " ORDER BY p.payment_date DESC, l.reference_number ASC, pl.installment_no ASC ";
+    $sql .= " ORDER BY p.payment_date DESC, l.reference_number ASC, sl.installment_no ASC ";
 
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
@@ -140,6 +148,7 @@ try {
 
         $principal = 0.00;
         $interest = 0.00;
+        $monthlyAmortization = 0.00;
 
         if ($row['ledger_principal'] !== null) {
             $principal = (float)$row['ledger_principal'];
@@ -153,13 +162,17 @@ try {
             $interest = (float)$row['payment_interest'];
         }
 
+        if ($row['secondary_monthly'] !== null && $row['secondary_monthly'] !== '') {
+            $monthlyAmortization = (float)$row['secondary_monthly'];
+        }
+
         return [
             'loan_id' => (int)$row['loan_id'],
             'payment_id' => (int)$row['payment_id'],
             'date_granted' => !empty($row['pn_date']) ? date('m/d/Y', strtotime($row['pn_date'])) : '---',
             'date_installed' => $dateInstalled,
             'account_name' => preg_replace('/\s+/', ' ', $fullName),
-            'monthly_amortization' => number_format((float)$row['monthly_amortization'], 2),
+            'monthly_amortization' => number_format($monthlyAmortization, 2),
             'principal' => number_format($principal, 2),
             'interest' => number_format($interest, 2),
             'term' => (int)$row['term_months'] . ' mos',
