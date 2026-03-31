@@ -39,81 +39,66 @@ if (!empty($paymentRows)) {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
-    .tab-btn:focus,
-    .tab-btn:active {
-        outline: none !important;
-        box-shadow: none !important;
+    /* --- NEW ANIMATIONS & EFFECTS --- */
+
+    /* 1. Add Payment Jump Effect */
+    @keyframes jump {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    .btn-jump:hover {
+        animation: jump 0.5s ease-in-out infinite;
+    }
+    .btn-jump:active {
+        animation: none;
     }
 
-    button:focus {
-        outline: none !important;
+    /* 2. Piano-like Zoom & Light Red Hover */
+    .piano-row {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 1;
+    }
+    .piano-row:hover {
+        transform: scale(1.0);
+        background-color: #fef2f2 !important; /* Light red/rose background */
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(213, 0, 0, 0.1);
     }
 
-    .cursor-pointer-row {
-        cursor: pointer;
-        transition: background-color 0.2s;
+    /* 3. Fade/Swap effect for search results */
+    .row-fade {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Modern Spring-loaded Modal Entrance */
+    /* Existing Styles */
+    .tab-btn:focus, .tab-btn:active { outline: none !important; box-shadow: none !important; }
+    button:focus { outline: none !important; }
+    .cursor-pointer-row { cursor: pointer; }
+    
     @keyframes modalPop {
         0% { transform: scale(0.9); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
     }
-
-    /* Playful Icon Bounce */
     @keyframes iconBounce {
         0% { transform: scale(0); }
         50% { transform: scale(1.2); }
         100% { transform: scale(1); }
     }
+    .animate-modal-pop { animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    .animate-icon-bounce { animation: iconBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both; }
 
-    .animate-modal-pop {
-        animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
+    .visible-scrollbar::-webkit-scrollbar { width: 14px; height: 14px; }
+    .visible-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    .visible-scrollbar::-webkit-scrollbar-thumb { background: #a3a3a3; border-radius: 4px; border: 2px solid #f1f1f1; }
 
-    .animate-icon-bounce {
-        animation: iconBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both;
-    }
-
-    .visible-scrollbar::-webkit-scrollbar {
-        width: 14px;
-        height: 14px;
-    }
-
-    .visible-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-    }
-
-    .visible-scrollbar::-webkit-scrollbar-thumb {
-        background: #a3a3a3;
-        border-radius: 4px;
-        border: 2px solid #f1f1f1;
-    }
-
-    #excelTablePreview {
-        width: max-content;
-        min-width: 100%;
-        border-collapse: collapse;
-        font-size: 0.8rem;
-        background: white;
-    }
-
-    #excelTablePreview th,
-    #excelTablePreview td {
-        border-bottom: 1px solid #f3f4f6;
-        padding: 0.75rem 1.5rem;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    #excelTablePreview th {
-        font-weight: 700;
-        background: white;
-        color: #1f2937;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-    }
+    #excelTablePreview { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.8rem; background: white; }
+    #excelTablePreview th, #excelTablePreview td { border-bottom: 1px solid #f3f4f6; padding: 0.75rem 1.5rem; text-align: left; white-space: nowrap; }
+    #excelTablePreview th { font-weight: 700; background: white; color: #1f2937; padding-top: 1rem; padding-bottom: 1rem; }
 </style>
 
 <body class="h-screen overflow-hidden flex flex-col bg-gray-50">
@@ -184,13 +169,13 @@ if (!empty($paymentRows)) {
 
                 <button
                     onclick="openPaymentModal()"
-                    class="bg-[#D50000] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-[#b00000] transition-all shadow-sm"
+                    class="bg-[#D50000] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-[#b00000] transition-all shadow-md btn-jump"
                 >
                     Add Payment
                 </button>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
                 <div class="overflow-x-auto">
                     <table class="w-full" id="paymentsTable">
                         <thead class="bg-[#D50000]">
@@ -235,7 +220,7 @@ if (!empty($paymentRows)) {
                                     $nextMonthLabel = $nextDueMonth !== '' ? 'For ' . $nextDueMonth : 'For Next Month';
                                     ?>
                                     <tr
-                                        class="hover:bg-gray-50 transition-colors cursor-pointer-row"
+                                        class="hover:bg-gray-50 transition-colors cursor-pointer-row piano-row"
                                         onclick="showBreakdown(this)"
                                         data-amort="<?php echo htmlspecialchars(number_format($monthlyAmortization, 2, '.', '')); ?>"
                                         data-prev-paid="<?php echo htmlspecialchars(number_format($paidAmount, 2, '.', '')); ?>"
@@ -496,6 +481,10 @@ if (!empty($paymentRows)) {
                 }
 
                 if (matchesSearch && matchesDate) {
+                    // APPLY FADE EFFECT IF IT WAS HIDDEN
+                    if (row.style.display === "none") {
+                        row.classList.add('row-fade');
+                    }
                     row.style.display = "";
                     visibleRows++;
 
@@ -507,6 +496,7 @@ if (!empty($paymentRows)) {
                     }
                 } else {
                     row.style.display = "none";
+                    row.classList.remove('row-fade');
                 }
             });
 
@@ -655,67 +645,4 @@ if (!empty($paymentRows)) {
             reader.readAsArrayBuffer(file);
         }
     </script>
-
-    <style>
-        /* Modern Spring-loaded Modal Entrance */
-        @keyframes modalPop {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Playful Icon Bounce */
-        @keyframes iconBounce {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .animate-modal-pop {
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .animate-icon-bounce {
-            animation: iconBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both;
-        }
-
-        .visible-scrollbar::-webkit-scrollbar {
-            width: 14px;
-            height: 14px;
-        }
-
-        .visible-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        .visible-scrollbar::-webkit-scrollbar-thumb {
-            background: #a3a3a3;
-            border-radius: 4px;
-            border: 2px solid #f1f1f1;
-        }
-
-        #excelTablePreview {
-            width: max-content;
-            min-width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-            background: white;
-        }
-
-        #excelTablePreview th,
-        #excelTablePreview td {
-            border-bottom: 1px solid #f3f4f6;
-            padding: 0.75rem 1.5rem;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        #excelTablePreview th {
-            font-weight: 700;
-            background: white;
-            color: #1f2937;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-    </style>
 </body>

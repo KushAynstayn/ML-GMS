@@ -1,5 +1,5 @@
 <div id="addUserModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-bounce-in">
         <div class="bg-gray-50 p-6 flex justify-between items-center border-b border-gray-200">
             <h3 class="text-gray-800 font-bold text-xl">Add New <span class="text-[#D50000]">User</span></h3>
             <button onclick="closeAddUserModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors">&times;</button>
