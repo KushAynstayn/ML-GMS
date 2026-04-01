@@ -633,26 +633,26 @@ function renderSummaryTable(summary) {
 function renderDetailsTable(rows) {
     const tbody = document.getElementById('detailsTableBody');
 
-    if (!rows.length) {
+    if (!rows || rows.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">
+                <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500">
                     No running receivables found for the selected filters.
                 </td>
-            </tr>
-        `;
+            </tr>`;
         return;
     }
-    
+
+    // These keys match the $details array in your PHP file exactly
     tbody.innerHTML = rows.map(row => `
-        <tr>
-            <td class="px-4 py-3 text-sm font-medium text-gray-900">${row.ref_no}</td>
-            <td class="px-4 py-3 text-sm text-gray-700">${row.borrower_name}</td>
-            <td class="px-4 py-3 text-sm text-gray-600">${row.loan_type}</td>
-            <td class="px-4 py-3 text-sm text-gray-600">${row.main_zone}</td>
-            <td class="px-4 py-3 text-sm text-gray-600">${row.zone}</td>
-            <td class="px-4 py-3 text-sm text-gray-600">${row.region}</td>
-            <td class="px-4 py-3 text-sm text-right font-bold text-gray-900">${formatAmount(row.outstanding)}</td>
+        <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-3 text-sm font-medium text-gray-900">${escapeHtml(row.reference_number)}</td>
+            <td class="px-4 py-3 text-sm text-gray-700">${escapeHtml(row.borrower_name)}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">${escapeHtml(row.loan_type_label)}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">${escapeHtml(row.main_zone_display)}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">${escapeHtml(row.zone_display)}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">${escapeHtml(row.region_display)}</td>
+            <td class="px-4 py-3 text-sm text-right font-bold text-gray-900">${formatAmount(row.outstanding_balance)}</td>
         </tr>
     `).join('');
 }
