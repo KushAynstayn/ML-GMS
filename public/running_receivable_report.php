@@ -167,7 +167,7 @@ include('../includes/header.php');
 <div class="flex h-screen overflow-hidden">
     <?php include('../includes/sidebar.php'); ?>
 
-    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto h-full">
+    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto animate-content">
         <header class="mb-8">
             <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
                 Running <span class="text-ml-red">Receivables</span>
