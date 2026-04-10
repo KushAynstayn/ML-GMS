@@ -7,10 +7,10 @@
         height: 8px;
     }
     .overflow-x-auto::-webkit-scrollbar-track {
-        background: #f3f4f6;
+        background: #ffffff;
     }
     .overflow-x-auto::-webkit-scrollbar-thumb {
-        background: #8d93a0;
+        background: #ffffff;
         border-radius: 4px;
     }
 
@@ -294,6 +294,13 @@ window.addEventListener('load', fetchCollectionReport);
 
 // --- Download Functions ---
 
+function getReportDateString() {
+    const endDateVal = document.getElementById('endDate')?.value;
+    let targetDate = endDateVal ? new Date(endDateVal) : new Date();
+    
+    return `As of ${targetDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+}
+
 function getVisibleTableRowsForExport() {
     const headerRow = Array.from(document.querySelectorAll('#collectionTable thead th')).map(th => th.innerText.trim());
     const dataRows = Array.from(document.querySelectorAll('#collectionTable tbody tr'))
@@ -309,8 +316,7 @@ function downloadPDF() {
     const img = new Image();
     img.src = '../assets/images/ml.png';
 
-    const now = new Date();
-    const dateStr = `Generated on ${now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+    const dateStr = getReportDateString();
 
     const filterSelect = document.getElementById('vehicleTypeFilter');
     const filterText = filterSelect.options[filterSelect.selectedIndex].text.toUpperCase();
@@ -378,19 +384,26 @@ async function downloadExcel() {
         worksheet.getCell('F4').value = "COLLECTION REPORT";
         worksheet.getCell('F4').font = { bold: true, size: 12 };
         worksheet.getCell('F4').alignment = { horizontal: 'center' };
+        
+        // Date String updated to "As of..." and made BOLD
+        worksheet.getCell('F5').value = getReportDateString();
+        worksheet.getCell('F5').font = { bold: true, size: 10 };
+        worksheet.getCell('F5').alignment = { horizontal: 'center' };
 
         const filterSelect = document.getElementById('vehicleTypeFilter');
         const filterText = filterSelect.options[filterSelect.selectedIndex].text.toUpperCase();
 
-        worksheet.getCell('A5').value = filterText;
-        worksheet.getCell('A5').font = { bold: true };
+        // Moved "ALL VEHICLE TYPE" down to Row 6
+        worksheet.getCell('A6').value = filterText;
+        worksheet.getCell('A6').font = { bold: true };
 
         const { headerRow, dataRows } = getVisibleTableRowsForExport();
 
         const allRows = [headerRow, ...dataRows];
 
         allRows.forEach((rowData, rowIndex) => {
-            const excelRow = worksheet.getRow(rowIndex + 6);
+            // Pushing the table down to start at Row 7
+            const excelRow = worksheet.getRow(rowIndex + 7);
 
             rowData.forEach((value, colIndex) => {
                 const cell = excelRow.getCell(colIndex + 1);

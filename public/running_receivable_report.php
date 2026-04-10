@@ -262,9 +262,9 @@ include('../includes/header.php');
 
             <div id="detailsSection" class="hidden bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-ml-red text-white">
+                    <table id="detailsTable" class="w-full text-left border-collapse"> 
+                    <thead>
+                        <tr class="bg-ml-red text-white">
                                 <th class="px-4 py-3 text-xs font-bold uppercase">Ref No.</th>
                                 <th class="px-4 py-3 text-xs font-bold uppercase">Borrower</th>
                                 <th class="px-4 py-3 text-xs font-bold uppercase">Loan Type</th>
@@ -665,42 +665,159 @@ function escapeHtml(str) {
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
 }
+// --- UPDATED EXPORT FUNCTIONS ---
+
+function getVisibleTableRowsForExport() {
+    const activeSection = !document.getElementById('summarySection').classList.contains('hidden') ? 'summary' : 'details';
+    const tableId = activeSection === 'summary' ? 'receivableTable' : 'detailsTable';
+    
+    const headerRow = Array.from(document.querySelectorAll(`#${tableId} thead th`)).map(th => th.innerText.trim());
+    const dataRows = Array.from(document.querySelectorAll(`#${tableId} tbody tr`))
+        .map(row => Array.from(row.querySelectorAll('td')).map(td => td.innerText.trim()));
+
+    return { headerRow, dataRows, activeSection };
+}
 
 function downloadPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('l', 'mm', 'letter');
-    doc.setFontSize(14);
-    doc.text("Running Receivables Report", 14, 15);
-    doc.setFontSize(10);
-    doc.text(document.getElementById('asOfDateText').innerText, 14, 22);
-    doc.autoTable({
-        html: '#receivableTable',
-        startY: 28,
-        theme: 'grid',
-        styles: { fontSize: 8, halign: 'center' },
-        headStyles: { fillColor: [213, 0, 0] }
-    });
-    doc.save('Running_Receivables.pdf');
+    const img = new Image();
+    img.src = '../assets/images/ml.png';
+
+    const dateStr = document.getElementById('asOfDateText').innerText;
+    const { headerRow, dataRows, activeSection } = getVisibleTableRowsForExport();
+    const reportTitle = activeSection === 'summary' ? "RUNNING RECEIVABLES SUMMARY" : "RUNNING RECEIVABLES DETAILS";
+
+    img.onload = function() {
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const centerX = pageWidth / 2;
+
+        doc.addImage(img, 'PNG', centerX - 17.5, 10, 35, 7);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(100, 100, 100);
+        doc.text("LOANS DEPARTMENT", centerX, 22, { align: "center" });
+        doc.text(reportTitle, centerX, 27, { align: "center" });
+
+        doc.setFont("helvetica", "normal");
+        doc.text(dateStr, centerX, 32, { align: "center" });
+
+        doc.autoTable({
+            head: [headerRow],
+            body: dataRows,
+            startY: 40,
+            theme: 'grid',
+            styles: {
+                fontSize: 7,
+                halign: 'center',
+                textColor: [0, 0, 0],
+                lineColor: [200, 200, 200]
+            },
+            headStyles: {
+                fillColor: [213, 0, 0],
+                textColor: [255, 255, 255]
+            },
+            margin: { left: 14, right: 14 }
+        });
+
+        doc.save(`Running_Receivables_${activeSection}.pdf`);
+    };
 }
 
 async function downloadExcel() {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Receivables');
+    try {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Receivables');
 
-    worksheet.getCell('A1').value = "Running Receivables Report";
-    worksheet.getCell('A2').value = document.getElementById('asOfDateText').innerText;
+        const { headerRow, dataRows, activeSection } = getVisibleTableRowsForExport();
+        const reportTitle = activeSection === 'summary' ? "RUNNING RECEIVABLES SUMMARY" : "RUNNING RECEIVABLES DETAILS";
+        const totalCols = headerRow.length;
+        
+        // Define Column C as the target (Index 3)
+        const targetCol = 3;
 
-    const table = document.getElementById('receivableTable');
-    const rows = Array.from(table.querySelectorAll('tr'));
+        // Set Row 2 height to fit the logo exactly
+        worksheet.getRow(2).height = 35;
 
-    rows.forEach((tr, rowIndex) => {
-        const cells = Array.from(tr.querySelectorAll('th, td'));
-        cells.forEach((cell, colIndex) => {
-            worksheet.getRow(rowIndex + 4).getCell(colIndex + 1).value = cell.innerText.trim();
+        // Add Logo - Row 2, centered around Column C
+        const response = await fetch('../assets/images/ml.png');
+        const buffer = await response.arrayBuffer();
+        const logoId = workbook.addImage({ buffer: buffer, extension: 'png' });
+
+        worksheet.addImage(logoId, {
+            tl: { col: targetCol - 0.8, row: 1.1 }, // Adjusted offsets to center within Row 2
+            ext: { width: 130, height: 28 } 
         });
-    });
 
-    const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), 'Running_Receivables.xlsx');
+        // Header Text: LOANS DEPARTMENT - Row 3, Column C
+        const deptCell = worksheet.getRow(3).getCell(targetCol);
+        deptCell.value = "LOANS DEPARTMENT";
+        deptCell.font = { bold: true, size: 14 };
+        deptCell.alignment = { horizontal: 'center' };
+
+        // Header Text: REPORT TITLE - Row 4, Column C
+        const titleCell = worksheet.getRow(4).getCell(targetCol);
+        titleCell.value = reportTitle;
+        titleCell.font = { bold: true, size: 12 };
+        titleCell.alignment = { horizontal: 'center' };
+
+        // Date Range Text - Row 5, Column C
+        const dateCell = worksheet.getRow(5).getCell(targetCol);
+        dateCell.value = document.getElementById('asOfDateText').innerText;
+        dateCell.font = { bold: true };
+        dateCell.alignment = { horizontal: 'center' };
+
+        const allRows = [headerRow, ...dataRows];
+
+        allRows.forEach((rowData, rowIndex) => {
+            const excelRow = worksheet.getRow(rowIndex + 7);
+            
+            // Apply borders to EVERY cell in the row up to the total column count
+            for (let colIndex = 1; colIndex <= totalCols; colIndex++) {
+                const cell = excelRow.getCell(colIndex);
+                const cellValue = rowData[colIndex - 1] || "";
+                
+                cell.value = cellValue;
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+                
+                // Alignment: Center everything except the first column of the summary (Labels)
+                if (activeSection === 'summary' && colIndex === 1) {
+                    cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                } else {
+                    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                }
+
+                // Table Header Styling
+                if (rowIndex === 0) {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFD50000' }
+                    };
+                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                }
+                
+                // Bold category headers (ML LOANS / OTHER LOANS)
+                if (cellValue === "ML LOANS" || cellValue === "OTHER LOANS" || cellValue === "GRAND TOTAL" || cellValue.includes("Subtotal")) {
+                    cell.font = { bold: true };
+                }
+            }
+        });
+
+        // Set column widths
+        worksheet.columns.forEach((column, i) => {
+            column.width = i === 0 ? 30 : 20; 
+        });
+
+        const excelBuffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([excelBuffer]), `Running_Receivables_${activeSection}.xlsx`);
+    } catch (error) {
+        console.error("Error generating Excel:", error);
+    }
 }
 </script>
