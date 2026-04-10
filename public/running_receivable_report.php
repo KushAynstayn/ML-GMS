@@ -12,6 +12,10 @@ include('../includes/header.php');
     .grand-total-row { background-color: #f3f4f6; font-weight: 800; border-top: 2px solid #D50000; }
     .category-header { background-color: #fee2e2; color: #b91c1c; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
 
+    /* Independent Row Label Styling */
+    .loan-main-row { color: #991b1b; font-weight: 800; }
+    .loan-sub-row { color: #4b5563; font-weight: 500; }
+
     .filter-card,
     .summary-card {
         background: #fff;
@@ -344,21 +348,17 @@ include('../includes/header.php');
 <script>
 const SUMMARY_STRUCTURE = {
     ml_loans: [
-        { key: 'auto_car_loan', label: 'Auto/Car Loan' },
+        { key: 'auto_car_loan', label: 'Auto/Car Loan', isIndependent: true, isHeaderOnly: true },
         { key: 'prenda', label: ' - Prenda' },
         { key: 'pre_owned', label: ' - Pre-owned' },
         { key: 'surplus', label: ' - Surplus' },
-        { key: 'motorcycle_loan', label: 'Motorcycle Loan' },
+        { key: 'motorcycle_loan', label: 'Motorcycle Loan', isIndependent: true, isHeaderOnly: true },
         { key: 'two_wheels', label: ' - 2-Wheels' },
         { key: 'three_wheels', label: ' - 3-Wheels' },
-        { key: 'real_estate_loan', label: 'Real-Estate Loan' },
-        { key: 'commercial_loan', label: 'Commercial Loan' },
-        { key: 'salary_loan', label: 'Salary Loan' },
-        { key: 'truck_loan', label: 'Truck Loan' }
-    ],
-    other_loans: [
-        { key: 'small_business_loan', label: 'Small Business Loan' },
-        { key: 'pensioners_loan', label: "Pensioner's Loan" }
+        { key: 'real_estate_loan', label: 'Real-Estate Loan', isIndependent: true },
+        { key: 'commercial_loan', label: 'Commercial Loan', isIndependent: true },
+        { key: 'salary_loan', label: 'Salary Loan', isIndependent: true },
+        { key: 'truck_loan', label: 'Truck Loan', isIndependent: true }
     ]
 };
 
@@ -561,69 +561,61 @@ function renderSummaryCards(cards) {
     document.getElementById('cardGrandTotal').innerText = formatAmount(cards.grand_total || 0);
 }
 
-function createSummaryRow(label, values, rowClass = '') {
+function createSummaryRow(label, values, rowClass = '', isHeaderOnly = false) {
     const lncr = Number(values.lncr || 0);
     const vismin = Number(values.vismin || 0);
     const headOffice = Number(values.head_office || 0);
     const jewelry = Number(values.jewelry || 0);
     const total = lncr + vismin + headOffice + jewelry;
 
+    const displayLncr = isHeaderOnly ? '' : formatAmount(lncr);
+    const displayVismin = isHeaderOnly ? '' : formatAmount(vismin);
+    const displayHO = isHeaderOnly ? '' : formatAmount(headOffice);
+    const displayJewelry = isHeaderOnly ? '' : formatAmount(jewelry);
+    const displayTotal = isHeaderOnly ? '' : formatAmount(total);
+    
+    const valueWeight = (isHeaderOnly) ? '' : 'font-medium text-gray-700';
+    const totalWeight = (isHeaderOnly) ? '' : 'font-semibold text-gray-700';
+
     return `
         <tr class="${rowClass}">
-            <td class="px-4 py-3 text-sm font-medium">${label}</td>
-            <td class="px-4 py-3 text-sm text-center">${formatAmount(lncr)}</td>
-            <td class="px-4 py-3 text-sm text-center">${formatAmount(vismin)}</td>
-            <td class="px-4 py-3 text-sm text-center">${formatAmount(headOffice)}</td>
-            <td class="px-4 py-3 text-sm text-center">${formatAmount(jewelry)}</td>
-            <td class="px-4 py-3 text-sm text-center font-semibold">${formatAmount(total)}</td>
+            <td class="px-4 py-3 text-sm">${label}</td>
+            <td class="px-4 py-3 text-sm text-center ${valueWeight}">${displayLncr}</td>
+            <td class="px-4 py-3 text-sm text-center ${valueWeight}">${displayVismin}</td>
+            <td class="px-4 py-3 text-sm text-center ${valueWeight}">${displayHO}</td>
+            <td class="px-4 py-3 text-sm text-center ${valueWeight}">${displayJewelry}</td>
+            <td class="px-4 py-3 text-sm text-center ${totalWeight}">${displayTotal}</td>
         </tr>
     `;
 }
 
 function renderSummaryTable(summary) {
     let html = '';
-    html += `<tr class="category-header"><td colspan="6" class="px-4 py-3 text-sm">ML LOANS</td></tr>`;
-    let mlSubtotal = { lncr: 0, vismin: 0, head_office: 0, jewelry: 0 };
+    let grandTotalAccumulator = { lncr: 0, vismin: 0, head_office: 0, jewelry: 0 };
+
     SUMMARY_STRUCTURE.ml_loans.forEach(item => {
         const row = summary[item.key] || {};
-        html += createSummaryRow(item.label, row, 'hover:bg-gray-50 transition-colors');
-        mlSubtotal.lncr += Number(row.lncr || 0);
-        mlSubtotal.vismin += Number(row.vismin || 0);
-        mlSubtotal.head_office += Number(row.head_office || 0);
-        mlSubtotal.jewelry += Number(row.jewelry || 0);
+        
+        const rowClass = item.isIndependent 
+            ? 'loan-main-row hover:bg-gray-50 transition-colors' 
+            : 'loan-sub-row hover:bg-gray-50 transition-colors';
+
+        html += createSummaryRow(item.label, row, rowClass, !!item.isHeaderOnly);
+        
+        grandTotalAccumulator.lncr += Number(row.lncr || 0);
+        grandTotalAccumulator.vismin += Number(row.vismin || 0);
+        grandTotalAccumulator.head_office += Number(row.head_office || 0);
+        grandTotalAccumulator.jewelry += Number(row.jewelry || 0);
     });
-
-    html += createSummaryRow('Subtotal (ML Loans)', mlSubtotal, 'subtotal-row border-t-2 border-gray-200');
-
-    html += `<tr class="category-header"><td colspan="6" class="px-6 py-3 text-sm">OTHER LOANS</td></tr>`;
-
-    let otherSubtotal = { lncr: 0, vismin: 0, head_office: 0, jewelry: 0 };
-    SUMMARY_STRUCTURE.other_loans.forEach(item => {
-        const row = summary[item.key] || {};
-        html += createSummaryRow(item.label, row, 'hover:bg-gray-50 transition-colors');
-        otherSubtotal.lncr += Number(row.lncr || 0);
-        otherSubtotal.vismin += Number(row.vismin || 0);
-        otherSubtotal.head_office += Number(row.head_office || 0);
-        otherSubtotal.jewelry += Number(row.jewelry || 0);
-    });
-
-    html += createSummaryRow('Subtotal (Other Loans)', otherSubtotal, 'subtotal-row border-t-2 border-gray-200');
-
-    const grandTotal = {
-        lncr: mlSubtotal.lncr + otherSubtotal.lncr,
-        vismin: mlSubtotal.vismin + otherSubtotal.vismin,
-        head_office: mlSubtotal.head_office + otherSubtotal.head_office,
-        jewelry: mlSubtotal.jewelry + otherSubtotal.jewelry
-    };
 
     html += `
         <tr class="grand-total-row">
             <td class="px-6 py-5 text-base uppercase">Grand Total</td>
-            <td class="px-6 py-5 text-sm text-center">${formatAmount(grandTotal.lncr)}</td>
-            <td class="px-6 py-5 text-sm text-center">${formatAmount(grandTotal.vismin)}</td>
-            <td class="px-6 py-5 text-sm text-center">${formatAmount(grandTotal.head_office)}</td>
-            <td class="px-6 py-5 text-sm text-center">${formatAmount(grandTotal.jewelry)}</td>
-            <td class="px-6 py-5 text-lg text-center text-ml-red">${formatAmount(grandTotal.lncr + grandTotal.vismin + grandTotal.head_office + grandTotal.jewelry)}</td>
+            <td class="px-6 py-5 text-sm text-center font-bold text-gray-900">${formatAmount(grandTotalAccumulator.lncr)}</td>
+            <td class="px-6 py-5 text-sm text-center font-bold text-gray-900">${formatAmount(grandTotalAccumulator.vismin)}</td>
+            <td class="px-6 py-5 text-sm text-center font-bold text-gray-900">${formatAmount(grandTotalAccumulator.head_office)}</td>
+            <td class="px-6 py-5 text-sm text-center font-bold text-gray-900">${formatAmount(grandTotalAccumulator.jewelry)}</td>
+            <td class="px-6 py-5 text-lg text-center font-bold text-gray-900">${formatAmount(grandTotalAccumulator.lncr + grandTotalAccumulator.vismin + grandTotalAccumulator.head_office + grandTotalAccumulator.jewelry)}</td>
         </tr>
     `;
 
@@ -717,6 +709,40 @@ function downloadPDF() {
                 fillColor: [213, 0, 0],
                 textColor: [255, 255, 255]
             },
+            columnStyles: {
+                0: { halign: 'left' } 
+            },
+            didParseCell: function(data) {
+                if (activeSection === 'summary') {
+                    const rowLabel = data.row.cells[0].text[0];
+                    const isMainRow = SUMMARY_STRUCTURE.ml_loans.some(l => l.label === rowLabel && l.isIndependent);
+                    const isGrandTotal = rowLabel === "GRAND TOTAL";
+
+                    // Handle styling for the first column (Labels)
+                    if (data.column.index === 0) {
+                        if (isMainRow) {
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.textColor = [153, 27, 27]; // Red
+                        }
+                        if (isGrandTotal) {
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.textColor = [0, 0, 0]; // Black
+                        }
+                    } 
+                    // Handle numeric value styling (Grand Total only)
+                    else {
+                        if (isGrandTotal) {
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.textColor = [0, 0, 0]; // Black
+                        }
+                    }
+
+                    // Background color for Grand Total row
+                    if (isGrandTotal) {
+                        data.cell.styles.fillColor = [243, 244, 246];
+                    }
+                }
+            },
             margin: { left: 14, right: 14 }
         });
 
@@ -771,49 +797,49 @@ async function downloadExcel() {
 
         allRows.forEach((rowData, rowIndex) => {
             const excelRow = worksheet.getRow(rowIndex + 7);
+            const isSummary = activeSection === 'summary';
+            const rowLabel = rowData[0];
+            const isMainRow = isSummary && SUMMARY_STRUCTURE.ml_loans.some(l => l.label === rowLabel && l.isIndependent);
+            const isGrandTotal = isSummary && rowLabel === "GRAND TOTAL";
             
-            // Apply borders to EVERY cell in the row up to the total column count
             for (let colIndex = 1; colIndex <= totalCols; colIndex++) {
                 const cell = excelRow.getCell(colIndex);
-                const cellValue = rowData[colIndex - 1] || "";
-                
-                cell.value = cellValue;
+                cell.value = rowData[colIndex - 1] || "";
                 cell.border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' }
+                    top: { style: 'thin' }, left: { style: 'thin' },
+                    bottom: { style: 'thin' }, right: { style: 'thin' }
                 };
                 
-                // Alignment: Center everything except the first column of the summary (Labels)
-                if (activeSection === 'summary' && colIndex === 1) {
-                    cell.alignment = { horizontal: 'left', vertical: 'middle' };
-                } else {
-                    cell.alignment = { horizontal: 'center', vertical: 'middle' };
-                }
+                cell.alignment = { 
+                    horizontal: (colIndex === 1) ? 'left' : 'center', 
+                    vertical: 'middle' 
+                };
 
-                // Table Header Styling
                 if (rowIndex === 0) {
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFD50000' }
-                    };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD50000' } };
                     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-                }
-                
-                // Bold category headers (ML LOANS / OTHER LOANS)
-                if (cellValue === "ML LOANS" || cellValue === "OTHER LOANS" || cellValue === "GRAND TOTAL" || cellValue.includes("Subtotal")) {
-                    cell.font = { bold: true };
+                } else if (isSummary) {
+                    if (colIndex === 1) { // Styling for First Column (Labels)
+                        if (isMainRow) {
+                            cell.font = { bold: true, color: { argb: 'FF991B1B' } }; // Red
+                        }
+                        if (isGrandTotal) {
+                            cell.font = { bold: true, color: { argb: 'FF000000' } }; // Black
+                        }
+                    } else { // Styling for Value Columns
+                        if (isGrandTotal) {
+                            cell.font = { bold: true, color: { argb: 'FF000000' } }; // Black
+                        }
+                    }
+
+                    if (isGrandTotal) {
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+                    }
                 }
             }
         });
 
-        // Set column widths
-        worksheet.columns.forEach((column, i) => {
-            column.width = i === 0 ? 30 : 20; 
-        });
-
+        worksheet.columns.forEach((column, i) => { column.width = i === 0 ? 30 : 20; });
         const excelBuffer = await workbook.xlsx.writeBuffer();
         saveAs(new Blob([excelBuffer]), `Running_Receivables_${activeSection}.xlsx`);
     } catch (error) {
