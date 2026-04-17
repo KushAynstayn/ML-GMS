@@ -24,6 +24,7 @@ include('../includes/header.php');
         box-shadow: 0 1px 3px rgba(0,0,0,.05);
     }
 
+    
     /* Jumping Animation */
     @keyframes subtle-jump {
         0%, 100% { transform: translateY(0); }
