@@ -33,6 +33,9 @@ if (isset($_POST['submit'])) {
 
             if ((int)$user['must_change_password'] === 1) {
                 $_SESSION['force_password_change'] = true;
+            } else {
+                // Ensure the flag is completely removed if they are already good to go
+                unset($_SESSION['force_password_change']);
             }
 
             header('Location: ../public/dashboard.php');
