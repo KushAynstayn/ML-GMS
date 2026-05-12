@@ -32,3 +32,4 @@ use Cadc20239999\MlGms\Database;
 $db = new Database();
 $loanConn   = $db->connect('LOAN');
 $masterConn = $db->connect('MASTER');
+$conn = $loanConn;

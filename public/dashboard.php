@@ -3,9 +3,9 @@
 ob_start(); 
 require_once('../includes/init.php');
 
-// Map the connection from init.php to the $conn variable used in your queries
+/** @var \PDO $loanConn */
+/** @var \PDO $conn */
 $conn = $loanConn;
-
 
 // --- THE SEARCH BRIDGE (AJAX Handler) ---
 if (isset($_GET['ajax_search'])) {

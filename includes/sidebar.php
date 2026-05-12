@@ -195,7 +195,7 @@ $menu_items = [
     .sidebar-locked { width: 16rem !important; }
     #sidebar:hover { width: 16rem; }
     
-    .rotate-180 { transform: rotate(180deg); }
+    .rotate-180 { transform: rotate(180deg) !important; }
 </style>
 
 <script>
@@ -211,17 +211,34 @@ $menu_items = [
 
     function toggleSubmenu(e, el) {
         e.preventDefault();
+        
+        // Don't do anything if sidebar is collapsed
         if (!sidebar.classList.contains('sidebar-locked') && !sidebar.matches(':hover')) return;
 
-        const submenu = el.nextElementSibling;
-        const arrow = el.querySelector('.submenu-arrow');
-        
-        if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
-            submenu.style.maxHeight = '0px';
-            arrow.classList.remove('rotate-180');
+        const currentSubmenu = el.nextElementSibling;
+        const currentArrow = el.querySelector('.submenu-arrow');
+        const isOpen = currentSubmenu.style.maxHeight && currentSubmenu.style.maxHeight !== '0px';
+
+        // 1. Close ALL other submenus first
+        document.querySelectorAll('.submenu').forEach(sub => {
+            if (sub !== currentSubmenu) {
+                sub.style.maxHeight = '0px';
+                // Find the associated arrow for this submenu and reset it
+                const parentLink = sub.previousElementSibling;
+                if (parentLink) {
+                    const arrow = parentLink.querySelector('.submenu-arrow');
+                    if (arrow) arrow.classList.remove('rotate-180');
+                }
+            }
+        });
+
+        // 2. Toggle the clicked one
+        if (isOpen) {
+            currentSubmenu.style.maxHeight = '0px';
+            currentArrow.classList.remove('rotate-180');
         } else {
-            submenu.style.maxHeight = submenu.scrollHeight + "px";
-            arrow.classList.add('rotate-180');
+            currentSubmenu.style.maxHeight = currentSubmenu.scrollHeight + "px";
+            currentArrow.classList.add('rotate-180');
         }
     }
 </script>

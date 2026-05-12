@@ -14,7 +14,12 @@ async function viewAmortization(loanId, sourceTab) {
         const { loan, primary_ledger, secondary_ledger } = responseData.data;
 
         // Borrower Info (Ensure these IDs exist in your HTML)
-        document.getElementById('modalDispName').innerText = (loan.first_name + ' ' + loan.last_name);
+        const borrowerName = [loan.first_name, loan.middle_name, loan.last_name]
+            .filter(name => name && name.trim())
+            .join(' ') || loan.borrower_name || loan.account_name || loan.name || 'Borrower Amortization';
+        document.getElementById('modalDispName').innerText = borrowerName;
+        const modalTitle = document.getElementById('amortizationModalTitle');
+        if (modalTitle) modalTitle.innerText = borrowerName;
         document.getElementById('modalDispRef').innerText = loan.reference_number;
         document.getElementById('modalDispContact').innerText = loan.contact_number || 'N/A';
         document.getElementById('modalDispPrincipal').innerText = formatCurrency(loan.principal_amount);
@@ -143,6 +148,8 @@ async function viewAmortization(loanId, sourceTab) {
     }
 
         // THE KEY LINE: This shows the modal
+        const printArea = document.getElementById('amortizationPrintArea');
+        if (printArea) printArea.scrollTop = 0;
         document.getElementById('amortizationModal').classList.remove('hidden');
 
     } catch (error) {
