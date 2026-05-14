@@ -123,7 +123,7 @@ include('../includes/header.php');
         animation: modal-pop 0.2s ease-out forwards;
     }
 
-    /* Custom Dropdown Styling */
+    /* Custom Dropdown Styling - Updated for better visibility */
     .custom-dropdown-container {
         position: relative;
     }
@@ -133,13 +133,13 @@ include('../includes/header.php');
         top: 100%;
         left: 0;
         right: 0;
-        z-index: 200; 
+        z-index: 50; 
         background: white;
         border: 1px solid #e2e8f0;
         border-radius: 8px;
         margin-top: 4px;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        max-height: 210px; 
+        max-height: 250px; 
         overflow-y: auto;
     }
 
@@ -252,12 +252,12 @@ include('../includes/header.php');
                 <table id="receivableTable" class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-ml-red text-white">
-                            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider">Loans</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-center">LNCR</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-center">VISMIN</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-center">HEAD OFFICE</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-center">JEWELRY</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase tracking-wider text-center">TOTAL</th>
+                            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Loans</th>
+                            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap text-center">LNCR</th>
+                            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap text-center">VISMIN</th>
+                            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap text-center">HEAD OFFICE</th>
+                            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap text-center">JEWELRY</th>
+                            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap text-center">TOTAL</th>
                         </tr>
                     </thead>
                     <tbody id="summaryTableBody" class="divide-y divide-gray-100 text-gray-700"></tbody>
@@ -265,7 +265,7 @@ include('../includes/header.php');
             </div>
 
             <div id="detailsSection" class="hidden bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-hidden">
                     <table id="detailsTable" class="w-full text-left border-collapse"> 
                     <thead>
                         <tr class="bg-ml-red text-white">
@@ -286,12 +286,14 @@ include('../includes/header.php');
     </main>
 </div>
 
-<div id="filterModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[150] p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-sm max-w-sm overflow-visible animate-modal-pop">
-        <div class="p-5 border-b flex justify-between items-center bg-gray-50">
+<div id="filterModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[150] p-4" onclick="toggleFilterModal(false)">
+    <div class="bg-white rounded-3xl shadow-2xl w-sm max-w-sm animate-modal-pop" onclick="event.stopPropagation()">
+        <div class="p-5 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
             <h3 class="text-lg font-bold text-gray-800">Filter <span class="text-[#D50000]">Report</span></h3>
-            <button onclick="toggleFilterModal(false)" class="text-gray-400 hover:text-gray-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <button onclick="toggleFilterModal(false)" class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full p-1 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
             </button>
         </div>
 
@@ -324,7 +326,7 @@ include('../includes/header.php');
                     <span class="truncate">All Zones</span>
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </button>
-                <div id="zoneContent" class="custom-dropdown-content hidden"></div>
+                <div id="zoneContent" class="custom-dropdown-content drop-up-content hidden"></div>
             </div>
 
             <div class="custom-dropdown-container">
@@ -338,7 +340,7 @@ include('../includes/header.php');
             </div>
         </div>
 
-        <div class="p-5 bg-gray-50 border-t flex gap-3">
+        <div class="p-5 bg-gray-50 border-t flex gap-3 rounded-b-3xl">
             <button id="applyFiltersBtn" class="flex-1 bg-[#D50000] text-white py-2.5 rounded-xl font-bold text-sm hover:bg-[#B70000] transition-all shadow-md active:scale-95">Apply Filters</button>
             <button id="resetFiltersBtn" class="flex-1 bg-white border border-gray-200 text-gray-600 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-100 transition-all active:scale-95">Reset</button>
         </div>
@@ -348,17 +350,17 @@ include('../includes/header.php');
 <script>
 const SUMMARY_STRUCTURE = {
     ml_loans: [
-        { key: 'auto_car_loan', label: 'Auto/Car Loan', isIndependent: true, isHeaderOnly: true },
-        { key: 'prenda', label: ' - Prenda' },
-        { key: 'pre_owned', label: ' - Pre-owned' },
-        { key: 'surplus', label: ' - Surplus' },
-        { key: 'motorcycle_loan', label: 'Motorcycle Loan', isIndependent: true, isHeaderOnly: true },
-        { key: 'two_wheels', label: ' - 2-Wheels' },
-        { key: 'three_wheels', label: ' - 3-Wheels' },
-        { key: 'real_estate_loan', label: 'Real-Estate Loan', isIndependent: true },
-        { key: 'commercial_loan', label: 'Commercial Loan', isIndependent: true },
-        { key: 'salary_loan', label: 'Salary Loan', isIndependent: true },
-        { key: 'truck_loan', label: 'Truck Loan', isIndependent: true }
+        { key: 'auto_car_loan', label: 'AUTO/CAR LOAN', isIndependent: true, isHeaderOnly: true },
+        { key: 'prenda', label: ' - PRENDA' },
+        { key: 'pre_owned', label: ' - PRE-OWNED' },
+        { key: 'surplus', label: ' - SURPLUS' },
+        { key: 'motorcycle_loan', label: 'MOTORCYCLE LOAN', isIndependent: true, isHeaderOnly: true },
+        { key: 'two_wheels', label: ' - 2-WHEELS' },
+        { key: 'three_wheels', label: ' - 3-WHEELS' },
+        { key: 'real_estate_loan', label: 'REAL-ESTATE LOAN', isIndependent: true },
+        { key: 'commercial_loan', label: 'COMMERCIAL LOAN', isIndependent: true },
+        { key: 'salary_loan', label: 'SALARY LOAN', isIndependent: true },
+        { key: 'truck_loan', label: 'TRUCK LOAN', isIndependent: true }
     ]
 };
 
@@ -398,6 +400,9 @@ function bindEvents() {
     window.addEventListener('click', function(e) {
         if (!e.target.closest('.custom-dropdown-container')) {
             document.querySelectorAll('.custom-dropdown-content').forEach(el => el.classList.add('hidden'));
+        }
+        if (!e.target.closest('#downloadDropdown')) {
+            document.getElementById('dropdownMenu').classList.add('hidden');
         }
     });
 }
@@ -475,9 +480,9 @@ function formatAmount(value) {
 async function loadFilterOptions() {
     const response = await fetch('../api/get_running_receivables_filters.php');
     const data = await response.json();
-    populateCustomDropdown('mainZoneContent', 'mainZoneFilter', 'mainZoneDisplay', data.main_zones || [], 'main_zone_code', 'main_zone_description', 'All Main Zones', handleMainZoneChange);
-    populateCustomDropdown('zoneContent', 'zoneFilter', 'zoneDisplay', data.zones || [], 'zone_code', 'zone_description', 'All Zones', handleZoneChange);
-    populateCustomDropdown('regionContent', 'regionFilter', 'regionDisplay', data.regions || [], 'region_code', 'region_description', 'All Regions');
+    populateCustomDropdown('mainZoneContent', 'mainZoneFilter', 'mainZoneDisplay', data.main_zones || [], 'main_zone_code', 'main_zone_description', 'ALL MAIN ZONES', handleMainZoneChange);
+    populateCustomDropdown('zoneContent', 'zoneFilter', 'zoneDisplay', data.zones || [], 'zone_code', 'zone_description', 'ALL ZONES', handleZoneChange);
+    populateCustomDropdown('regionContent', 'regionFilter', 'regionDisplay', data.regions || [], 'region_code', 'region_description', 'ALL REGIONS');
 }
 
 function populateCustomDropdown(containerId, hiddenId, displayId, items, valueKey, textKey, defaultLabel, callback) {

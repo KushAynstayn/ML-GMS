@@ -125,25 +125,25 @@
         </header>
 
         <div class="bg-white rounded-xl table-container-shadow overflow-x-auto border border-gray-100">
-            <table id="collectionTable" class="w-full text-left border-collapse min-w-[1400px]">
+            <table id="collectionTable" class="w-full text-left border-collapse text-[9px]">
                 <thead class="bg-[#D50000]">
                     <tr>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Granted</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Installed</th>
-                        <th class="px-3 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Account Name</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Monthly Amortization</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Principal</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Interest</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Term</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Reference Number</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Applied</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Date Paid</th>
-                        <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-white">Status</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Date Granted</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Date Installed</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Account Name</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Monthly Amortization</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Principal</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Interest</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Term</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Reference Number</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Date Applied</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Date Paid</th>
+                        <th class="px-1 py-3 text-center text-[9px] font-bold uppercase tracking-wider text-white whitespace-normal break-words">Status</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
                     <tr id="loadingRow">
-                        <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">
+                        <td colspan="11" class="px-2 py-8 text-center text-[10px] text-gray-400 italic">
                             Loading collection report...
                         </td>
                     </tr>
@@ -183,7 +183,7 @@ function renderTableRows(rows) {
     if (!rows.length) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 italic">
+                <td colspan="11" class="px-2 py-8 text-center text-[10px] text-gray-400 italic">
                     No records found.
                 </td>
             </tr>`;
@@ -205,17 +205,17 @@ function renderTableRows(rows) {
         };
 
         tr.innerHTML = `
-            <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.date_granted)}</td>
-            <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.date_installed)}</td>
-            <td class="px-3 py-4 text-xs text-gray-800 font-medium text-center">${escapeHtml(row.account_name)}</td>
-            <td class="px-2 py-4 text-xs text-gray-700 text-center">${escapeHtml(row.monthly_amortization)}</td>
-            <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.principal)}</td>
-            <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.interest)}</td>
-            <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.term)}</td>
-            <td class="px-2 py-4 text-xs font-mono text-gray-500 uppercase text-center">${escapeHtml(row.reference_number)}</td>
-            <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.date_applied)}</td>
-            <td class="px-2 py-4 text-xs text-gray-600 text-center">${escapeHtml(row.date_paid)}</td>
-            <td class="px-2 py-4 text-xs text-center">${formatStatusBadge(row.status)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-600 text-center whitespace-normal break-words">${escapeHtml(row.date_granted)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-600 text-center whitespace-normal break-words">${escapeHtml(row.date_installed)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-800 font-medium text-center whitespace-normal break-words">${escapeHtml(row.account_name)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-700 text-center whitespace-normal break-words">${escapeHtml(row.monthly_amortization)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-600 text-center whitespace-normal break-words">${escapeHtml(row.principal)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-600 text-center whitespace-normal break-words">${escapeHtml(row.interest)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-600 text-center whitespace-normal break-words">${escapeHtml(row.term)}</td>
+            <td class="px-1 py-3 text-[9px] font-mono text-gray-500 uppercase text-center whitespace-normal break-words">${escapeHtml(row.reference_number)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-600 text-center whitespace-normal break-words">${escapeHtml(row.date_applied)}</td>
+            <td class="px-1 py-3 text-[9px] text-gray-600 text-center whitespace-normal break-words">${escapeHtml(row.date_paid)}</td>
+            <td class="px-1 py-3 text-[9px] text-center whitespace-normal break-words">${formatStatusBadge(row.status)}</td>
         `;
 
         tableBody.appendChild(tr);

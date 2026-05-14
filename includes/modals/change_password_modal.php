@@ -1,21 +1,22 @@
 <div id="changePasswordModal" class="change-password-modal" style="display: none;">
    <div class="change-password-modal-content">
-      <div class="text-center mb-6">
-         <h3 class="text-3xl font-bold text-gray-800">Create a New Password</h3>
-         <h6 class="text-base text-gray-500 mt-2">You are using the default password. Please change it to continue.</h6>
+      <div class="text-center mb-4">
+         <h3 class="text-lg font-bold text-gray-800">Create a New Password</h3>
+         <p class="text-xs text-gray-500 mt-1">You are using the default password.</p>
+         <p class="text-xs text-gray-500 mt-0">Please change it to continue.</p>
       </div>
 
-      <form action="../actions/change_password_action.php" method="post" onsubmit="return validatePasswordForm()" class="space-y-6">
+      <form action="../actions/change_password_action.php" method="post" onsubmit="return validatePasswordForm()" class="space-y-3">
          <div class="input-container relative border-b-2 border-gray-200 focus-within:border-red-600 transition-all">
             <input type="password" id="newPassword" name="new_password" required
-                   class="block w-full px-0 py-2 bg-transparent text-gray-900 relative z-10 focus:outline-none peer">
-            <label class="absolute left-0 top-2 text-gray-500 transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-red-600 peer-valid:-top-4 peer-valid:text-xs">
+                   class="block w-full px-0 py-1.5 text-sm bg-transparent text-gray-900 relative z-10 focus:outline-none peer">
+            <label class="absolute left-0 top-1.5 text-gray-500 text-sm transition-all peer-focus:-top-3 peer-focus:text-[10px] peer-focus:text-red-600 peer-valid:-top-3 peer-valid:text-[10px]">
                New Password
             </label>
          </div>
 
-         <div id="passwordRequirements" class="text-xs space-y-1 text-gray-600 bg-gray-50 border border-gray-200 rounded-xl p-3">
-            <p class="font-semibold text-gray-700 mb-1">Password must contain:</p>
+         <div id="passwordRequirements" class="text-[10px] space-y-0.5 text-gray-600 bg-gray-50 border border-gray-200 rounded-lg p-2">
+            <p class="font-semibold text-gray-700 mb-0.5">Password must contain:</p>
             <p id="reqLength" class="text-red-500">• At least 8 characters</p>
             <p id="reqUpper" class="text-red-500">• At least 1 uppercase letter</p>
             <p id="reqLower" class="text-red-500">• At least 1 lowercase letter</p>
@@ -25,17 +26,17 @@
 
          <div class="input-container relative border-b-2 border-gray-200 focus-within:border-red-600 transition-all">
             <input type="password" id="confirmPassword" name="confirm_password" required
-                   class="block w-full px-0 py-2 bg-transparent text-gray-900 relative z-10 focus:outline-none peer">
-            <label class="absolute left-0 top-2 text-gray-500 transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-red-600 peer-valid:-top-4 peer-valid:text-xs">
+                   class="block w-full px-0 py-1.5 text-sm bg-transparent text-gray-900 relative z-10 focus:outline-none peer">
+            <label class="absolute left-0 top-1.5 text-gray-500 text-sm transition-all peer-focus:-top-3 peer-focus:text-[10px] peer-focus:text-red-600 peer-valid:-top-3 peer-valid:text-[10px]">
                Confirm Password
             </label>
 
-            <p id="passwordMatchMessage" class="text-xs mt-2"></p>
+            <p id="passwordMatchMessage" class="text-[10px] mt-1"></p>
          </div>
 
-         <div class="flex justify-center pt-4">
+         <div class="flex justify-center pt-2">
             <button type="submit" name="newPass"
-                    class="bg-red-600 text-white px-8 py-2 rounded-full font-bold shadow-md hover:bg-red-700 transition">
+                    class="bg-red-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-md hover:bg-red-700 transition">
                Change Password
             </button>
          </div>
@@ -58,10 +59,10 @@
 
     .change-password-modal-content {
         background-color: #fff;
-        padding: 2.5rem;
-        border-radius: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 1rem;
         width: 100%;
-        max-width: 460px;
+        max-width: 380px;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
 </style>

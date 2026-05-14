@@ -53,6 +53,13 @@ try {
     }
 
     /* Piano Row Effect */
+    #tableBody td {
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        padding: 0.5rem 0.75rem;
+        white-space: nowrap;
+    }
+
     #tableBody tr {
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
@@ -61,7 +68,6 @@ try {
     }
 
     #tableBody tr:hover {
-        transform: scale(1.015);
         background-color: #fef2f2 !important; /* Very light red */
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         z-index: 10;
@@ -70,6 +76,7 @@ try {
     /* Table Container Deep Shadow */
     .table-container-shadow {
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        overflow-x: hidden;
     }
 
     @keyframes fadeInSlide {
@@ -108,18 +115,18 @@ try {
             </div>
         </header>
 
-        <div class="bg-white rounded-xl table-container-shadow overflow-x-auto border border-gray-100">
+        <div class="bg-white rounded-xl table-container-shadow border border-gray-100">
             <table class="w-full text-left border-collapse" id="userTable">
                 <thead class="bg-[#D50000]">
                     <tr>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">ID Number</th>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Username</th>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Full Name</th>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Last Online</th>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Created</th>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Date Modified</th>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">User Type</th>
-                        <th class="px-4 py-4 text-xs font-bold uppercase tracking-wider text-white">Status</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">ID Number</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Username</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Full Name</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Last Online</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Date Created</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Date Modified</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">User Type</th>
+                        <th class="px-3 py-3 text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Status</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
@@ -132,14 +139,14 @@ try {
                         $statusClass = ($user['status'] === 'active') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
                     ?>
                         <tr onclick='openEditModal(<?php echo json_encode($user); ?>)' class="cursor-pointer border-b border-gray-100">
-                            <td class="px-4 py-4 text-sm font-mono text-gray-500"><?php echo htmlspecialchars($user['id_number']); ?></td>
-                            <td class="px-4 py-4 text-sm text-gray-600"><?php echo htmlspecialchars($user['email']); ?></td>
-                            <td class="px-4 py-4 text-sm font-semibold text-gray-700"><?php echo htmlspecialchars($fullName); ?></td>
-                            <td class="px-4 py-4 text-sm text-gray-500"><?php echo $user['last_online'] ? date("m/d/Y H:i", strtotime($user['last_online'])) : 'Never'; ?></td>
-                            <td class="px-4 py-4 text-sm text-gray-600"><?php echo date("m/d/Y", strtotime($user['date_created'])); ?></td>
-                            <td class="px-4 py-4 text-sm text-gray-500"><?php echo $user['modified_date'] ? date("m/d/Y", strtotime($user['modified_date'])) : '---'; ?></td>
-                            <td class="px-4 py-4 text-sm"><span class="px-2 py-1 rounded text-xs font-bold uppercase <?php echo $typeClass; ?>"><?php echo htmlspecialchars($user['user_type']); ?></span></td>
-                            <td class="px-4 py-4 text-sm"><span class="px-2 py-1 rounded text-xs font-bold uppercase <?php echo $statusClass; ?>"><?php echo htmlspecialchars($user['status']); ?></span></td>
+                            <td class="px-3 py-2 text-[11px] font-mono text-gray-500 whitespace-nowrap"><?php echo htmlspecialchars($user['id_number']); ?></td>
+                            <td class="px-3 py-2 text-[11px] text-gray-600 whitespace-nowrap"><?php echo htmlspecialchars($user['email']); ?></td>
+                            <td class="px-3 py-2 text-[11px] font-semibold text-gray-700 whitespace-nowrap"><?php echo htmlspecialchars($fullName); ?></td>
+                            <td class="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap"><?php echo $user['last_online'] ? date("m/d/Y H:i", strtotime($user['last_online'])) : 'NEVER'; ?></td>
+                            <td class="px-3 py-2 text-[11px] text-gray-600 whitespace-nowrap"><?php echo date("m/d/Y", strtotime($user['date_created'])); ?></td>
+                            <td class="px-3 py-2 text-[11px] text-gray-500 whitespace-nowrap"><?php echo $user['modified_date'] ? date("m/d/Y", strtotime($user['modified_date'])) : '---'; ?></td>
+                            <td class="px-3 py-2 text-[11px] whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase <?php echo $typeClass; ?>"><?php echo htmlspecialchars($user['user_type']); ?></span></td>
+                            <td class="px-3 py-2 text-[11px] whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase <?php echo $statusClass; ?>"><?php echo htmlspecialchars($user['status']); ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -148,50 +155,59 @@ try {
     </main>
 </div>
 
-<div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-bounce-in">
-        <div class="bg-gray-50 p-6 flex justify-between items-center border-b border-gray-200">
-            <h3 class="text-gray-800 font-bold text-xl">User <span class="text-[#D50000]">Details</span></h3>
-            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition-colors">&times;</button>
+<div id="editModal" onclick="closeEditModal()" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-bounce-in" onclick="event.stopPropagation()">
+        <div class="bg-gray-50 p-4 border-b border-gray-200">
+            <h3 class="text-gray-800 font-bold text-lg">User <span class="text-[#D50000]">Details</span></h3>
         </div>
-        <form action="../actions/update_user.php" method="POST" class="p-6 space-y-4">
+        <form action="../actions/update_user.php" method="POST" class="p-4 space-y-2">
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">ID Number (Read Only)</label>
-                <input type="text" name="id_number" id="edit_id" readonly class="w-full bg-gray-50 border border-gray-200 p-2 rounded-lg text-gray-500 cursor-not-allowed">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">First Name</label>
-                    <input type="text" name="first_name" id="edit_fname" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-[#D50000]/20 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Last Name</label>
-                    <input type="text" name="last_name" id="edit_lname" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-[#D50000]/20 outline-none">
-                </div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">ID Number</label>
+                <input type="text" name="id_number" id="edit_id" readonly
+                    class="w-full bg-gray-50 border border-gray-200 p-2 rounded-lg text-sm text-gray-500 cursor-not-allowed">
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Username</label>
-                <input type="text" name="email" id="edit_user" required class="w-full border border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-[#D50000]/20 outline-none">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Username</label>
+                <input type="text" name="email" id="edit_user" readonly
+                    class="w-full bg-gray-50 border border-gray-200 p-2 rounded-lg text-sm text-gray-500 cursor-not-allowed">
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-2">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">User Type</label>
-                    <select name="user_type" id="edit_type" class="w-full border border-gray-200 p-2 rounded-lg outline-none cursor-pointer">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">First Name</label>
+                    <input type="text" name="first_name" id="edit_fname" required
+                        class="w-full border border-gray-200 p-2 rounded-lg text-sm focus:ring-2 focus:ring-[#D50000]/10 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Middle</label>
+                    <input type="text" name="middle_name" id="edit_mname" placeholder="Optional"
+                        class="w-full border border-gray-200 p-2 rounded-lg text-sm focus:ring-2 focus:ring-[#D50000]/10 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Last Name</label>
+                    <input type="text" name="last_name" id="edit_lname" required
+                        class="w-full border border-gray-200 p-2 rounded-lg text-sm focus:ring-2 focus:ring-[#D50000]/10 outline-none"
+                        oninput="generateEditUsername()">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">User Type</label>
+                    <select name="user_type" id="edit_type" class="w-full border border-gray-200 p-2 rounded-lg text-sm outline-none cursor-pointer">
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                    <select name="status" id="edit_status" class="w-full border border-gray-200 p-2 rounded-lg outline-none cursor-pointer">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Status</label>
+                    <select name="status" id="edit_status" class="w-full border border-gray-200 p-2 rounded-lg text-sm outline-none cursor-pointer">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
             </div>
-            <div class="pt-4 flex gap-3">
-                <button type="button" onclick="closeEditModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition-colors">Cancel</button>
-                <button type="submit" class="flex-1 px-4 py-2 bg-[#D50000] text-white rounded-lg font-bold hover:bg-[#B70000] shadow-md transition-colors">Save Changes</button>
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="closeEditModal()" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-600 text-sm font-bold hover:bg-gray-50 transition-colors">Cancel</button>
+                <button type="submit" class="flex-1 px-4 py-2 bg-[#D50000] text-white rounded-lg text-sm font-bold hover:bg-[#B70000] shadow-md transition-colors">Save Changes</button>
             </div>
         </form>
     </div>
@@ -239,17 +255,34 @@ function closeAddUserModal() {
     document.getElementById("addUserModal").classList.add("hidden");
 }
 
+function generateUsername() {
+    const lastName = document.getElementById('addLastName').value.trim();
+    const idNumber = document.getElementById('addIdNumber').value.trim();
+    const usernameField = document.getElementById('addUsername');
+
+    const last4 = lastName.substring(0, 4).toLowerCase();
+    usernameField.value = (last4 && idNumber) ? last4 + idNumber : '';
+}
+
+function generateEditUsername() {
+    const lastName = document.getElementById('edit_lname').value.trim();
+    const idNumber = document.getElementById('edit_id').value.trim();
+    const usernameField = document.getElementById('edit_user');
+
+    const last4 = lastName.substring(0, 4).toLowerCase();
+    usernameField.value = (last4 && idNumber) ? last4 + idNumber : '';
+}
+
 
 function openEditModal(user) {
     document.getElementById('edit_id').value = user.id_number;
+    document.getElementById('edit_user').value = user.email;
     document.getElementById('edit_fname').value = user.first_name;
+    document.getElementById('edit_mname').value = user.middle_name || '';
     document.getElementById('edit_lname').value = user.last_name;
-    
-    document.getElementById('edit_user').value = user.email; 
-    
     document.getElementById('edit_type').value = user.user_type;
     document.getElementById('edit_status').value = user.status;
-    
+
     const modal = document.getElementById('editModal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');

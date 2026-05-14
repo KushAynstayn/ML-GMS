@@ -271,8 +271,8 @@ if (!empty($paymentRows)) {
         </main>
     </div>
 
-    <div id="breakdownModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[150] p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-modal-pop">
+    <div id="breakdownModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[150] p-4" onclick="closeBreakdownModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-modal-pop" onclick="event.stopPropagation()">
             <div class="p-5 border-b flex justify-between items-center bg-gray-50">
                 <h3 class="text-lg font-bold text-gray-800">Payment <span class="text-[#D50000]">Breakdown</span></h3>
             </div>
@@ -345,8 +345,8 @@ if (!empty($paymentRows)) {
         </div>
     </div>
 
-    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[110] p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-modal-pop">
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[110] p-4" onclick="closePaymentModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-modal-pop" onclick="event.stopPropagation()">
             <div class="p-6 border-b flex justify-between items-center bg-gray-50">
                 <h3 class="text-xl font-bold text-gray-800">Import <span class="text-[#D50000]">Payments</span></h3>
                 <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light focus:outline-none">&times;</button>
@@ -383,17 +383,28 @@ if (!empty($paymentRows)) {
     </div>
 
     <div id="statusAlert" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[200] p-6">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-[320px] w-full overflow-hidden animate-modal-pop border border-gray-100">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-[360px] w-full overflow-hidden animate-modal-pop border border-gray-100">
             <div id="alertContent" class="p-8 text-center">
                 <div id="alertIconContainer" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 animate-icon-bounce">
                 </div>
                 <h3 id="alertTitle" class="text-xl font-bold text-gray-800 mb-1"></h3>
                 <p id="alertMessage" class="text-sm text-gray-500 font-normal mb-6 leading-relaxed"></p>
-                
-                <button id="alertOkBtn" onclick="document.getElementById('statusAlert').classList.replace('flex', 'hidden')" 
+
+                <button id="alertOkBtn" onclick="document.getElementById('statusAlert').classList.replace('flex', 'hidden')"
                     class="w-full bg-[#1e293b] text-white py-3 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-900 transition-all shadow-sm">
                     OK
                 </button>
+
+                <div id="alertConfirmBtns" class="flex gap-3 hidden">
+                    <button id="alertCheckAgainBtn"
+                        class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-gray-200 transition-all">
+                        Check Again
+                    </button>
+                    <button id="alertProceedBtn"
+                        class="flex-1 bg-[#D50000] text-white py-3 rounded-xl text-sm font-semibold uppercase tracking-wider hover:bg-[#b00000] transition-all shadow-sm">
+                        Yes, Proceed
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -560,6 +571,44 @@ if (!empty($paymentRows)) {
                 return;
             }
 
+            showVerificationAlert();
+        }
+
+        function showVerificationAlert() {
+            const modal = document.getElementById('statusAlert');
+            const iconContainer = document.getElementById('alertIconContainer');
+            const okBtn = document.getElementById('alertOkBtn');
+            const confirmBtns = document.getElementById('alertConfirmBtns');
+
+            modal.querySelector('.bg-white').classList.remove('animate-modal-pop');
+            iconContainer.classList.remove('animate-icon-bounce');
+
+            document.getElementById('alertTitle').innerText = 'Double-Check File';
+            document.getElementById('alertMessage').innerText = 'Please make sure the file you\'re importing is correct. Verify that all payment details, amounts, and references are accurate before proceeding.';
+
+            iconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-yellow-50 animate-icon-bounce";
+            iconContainer.innerHTML = `<svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>`;
+
+            okBtn.style.display = "none";
+            confirmBtns.classList.remove('hidden');
+
+            document.getElementById('alertCheckAgainBtn').onclick = () => {
+                modal.classList.replace('flex', 'hidden');
+            };
+
+            document.getElementById('alertProceedBtn').onclick = () => {
+                modal.classList.replace('flex', 'hidden');
+                doUpload(document.getElementById('fileInput'));
+            };
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            void modal.offsetWidth;
+            modal.querySelector('.bg-white').classList.add('animate-modal-pop');
+        }
+
+        function doUpload(fileInput) {
             const formData = new FormData();
             formData.append('import_type', 'payment');
             formData.append('loan_type_id', document.getElementById('loanTypeId').value);
@@ -602,13 +651,18 @@ if (!empty($paymentRows)) {
             const modal = document.getElementById('statusAlert');
             const iconContainer = document.getElementById('alertIconContainer');
             const okBtn = document.getElementById('alertOkBtn');
-            
+            const confirmBtns = document.getElementById('alertConfirmBtns');
+
             // Remove animation classes to re-trigger them
             modal.querySelector('.bg-white').classList.remove('animate-modal-pop');
             iconContainer.classList.remove('animate-icon-bounce');
 
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = message;
+
+            // Hide confirm buttons, show OK button for status alerts
+            confirmBtns.classList.add('hidden');
+            okBtn.style.display = "block";
 
             if (type === 'success') {
                 iconContainer.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 bg-green-50 animate-icon-bounce";
