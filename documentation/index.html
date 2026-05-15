@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML-GMS Documentation | M Lhuillier Loans & GMS Management System</title>
+    <link rel="icon" href="../assets/images/mlcircle.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ml-red': {
+                            50: '#fff5f5',
+                            100: '#ffe0e0',
+                            200: '#ffb3b3',
+                            300: '#ff8080',
+                            400: '#ff4d4d',
+                            500: '#D50000',
+                            600: '#b30000',
+                            700: '#9a0000',
+                            800: '#5d0101',
+                            900: '#220303',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-gray-700 antialiased font-sans">
+
+<!-- ==================== TOP NAVBAR ==================== -->
+<header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-backdrop-blur:bg-white/80">
+    <div class="max-w-[90rem] mx-auto flex h-16 items-center px-4 sm:px-6 lg:px-8">
+        <!-- Mobile menu toggle -->
+        <button id="sidebar-toggle" class="lg:hidden mr-3 p-2 rounded-md text-gray-600 hover:text-ml-red-500 hover:bg-red-50 transition-colors" aria-label="Toggle sidebar">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2.5 shrink-0 mr-8">
+            <img src="../assets/images/mlhuillier-red.png" alt="M Lhuillier" class="h-7 w-auto">
+            <span class="hidden sm:inline text-sm font-bold text-gray-800 tracking-tight">ML-GMS Docs</span>
+        </a>
+
+        <!-- Search -->
+        <div class="hidden md:flex flex-1 max-w-md">
+            <div class="relative w-full">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input id="doc-search" type="text" placeholder="Search documentation..." class="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-ml-red-400 focus:ring-1 focus:ring-ml-red-400 transition-all outline-none">
+            </div>
+        </div>
+
+        <!-- Right links -->
+        <div class="flex items-center gap-2 ml-auto">
+            <a href="../public/dashboard.php" class="hidden sm:flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 hover:text-ml-red-600 transition-colors rounded-lg hover:bg-red-50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"/>
+                </svg>
+                Dashboard
+            </a>
+            <span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-ml-red-50 text-ml-red-700 rounded-full border border-ml-red-200">
+                v2.1
+            </span>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== LAYOUT: SIDEBAR + MAIN ==================== -->
+<div class="max-w-[90rem] mx-auto flex">
+
+    <!-- LEFT SIDEBAR -->
+    <aside id="sidebar" class="fixed lg:sticky top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] shrink-0 border-r border-gray-200 bg-gray-50 overflow-y-auto overflow-x-hidden transition-transform duration-300 -translate-x-full lg:translate-x-0">
+        <nav class="p-4 pb-8" id="sidebar-nav">
+            <!-- Section: Introduction -->
+            <div class="nav-section">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="intro">
+                    <span>Introduction</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#overview" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Overview</a>
+                    <a href="#tech-stack" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Tech Stack</a>
+                </div>
+            </div>
+
+            <!-- Section: Getting Started -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="getting-started">
+                    <span>Getting Started</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#requirements" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Requirements</a>
+                    <a href="#installation" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Installation</a>
+                    <a href="#environment" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Environment (.env)</a>
+                </div>
+            </div>
+
+            <!-- Section: Architecture -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="architecture">
+                    <span>Architecture</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#directory-structure" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Directory Structure</a>
+                    <a href="#dual-database" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Dual Database Design</a>
+                    <a href="#class-overview" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Class Overview</a>
+                </div>
+            </div>
+
+            <!-- Section: Dashboard -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="dashboard">
+                    <span>Dashboard</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#dashboard-overview" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Portfolio Overview</a>
+                    <a href="#dashboard-stats" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Statistics Cards</a>
+                    <a href="#dashboard-search" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Live Search</a>
+                </div>
+            </div>
+
+            <!-- Section: Loan Management -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="loans">
+                    <span>Loan Management</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#loan-types" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Loan Types</a>
+                    <a href="#manual-add" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Manual Record Entry</a>
+                    <a href="#excel-import" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Excel Import</a>
+                    <a href="#gms-logic" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">GMS Commission Logic</a>
+                </div>
+            </div>
+
+            <!-- Section: Amortization -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="amortization">
+                    <span>Amortization System</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#primary-ledger" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Primary Ledger</a>
+                    <a href="#secondary-ledger" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Secondary Ledger (GMS)</a>
+                    <a href="#eir-calculation" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">EIR Calculation</a>
+                </div>
+            </div>
+
+            <!-- Section: Payments -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="payments">
+                    <span>Payments</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#payment-import" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Import Flow</a>
+                    <a href="#auto-matching" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Auto-Matching Algorithm</a>
+                    <a href="#ledger-allocation" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Ledger Allocation</a>
+                </div>
+            </div>
+
+            <!-- Section: Reports -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="reports">
+                    <span>Reports</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#gms-commission-report" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">GMS Commissions</a>
+                    <a href="#receivable-report" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Running Receivables</a>
+                    <a href="#collection-report" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Collection Report</a>
+                </div>
+            </div>
+
+            <!-- Section: User Management -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="users">
+                    <span>User Management</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#user-roles" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Roles & Permissions</a>
+                    <a href="#authentication" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Authentication</a>
+                </div>
+            </div>
+
+            <!-- Section: Database -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="database">
+                    <span>Database Schema</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#schema-loans" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">loans</a>
+                    <a href="#schema-ledger" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Ledger Tables</a>
+                    <a href="#schema-payments" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Payments & Allocations</a>
+                    <a href="#schema-master" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Master Tables</a>
+                </div>
+            </div>
+
+            <!-- Section: Classes Reference -->
+            <div class="nav-section mt-3">
+                <button class="nav-section-btn flex items-center justify-between w-full text-left py-1.5 text-sm font-semibold text-gray-900 hover:text-ml-red-600 transition-colors" data-section="api-reference">
+                    <span>Classes Reference</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200 nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="nav-subsection mt-1 ml-3 border-l border-gray-200 pl-3 space-y-0.5">
+                    <a href="#class-database" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">Database</a>
+                    <a href="#class-loanservice" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">LoanService</a>
+                    <a href="#class-paymentservice" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">PaymentService</a>
+                    <a href="#class-importservice" class="block py-1 text-sm text-gray-600 hover:text-ml-red-600 transition-colors">ImportService</a>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Backdrop for mobile sidebar -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="flex-1 min-w-0 px-4 sm:px-8 lg:px-12 py-8 lg:py-12 max-w-4xl">
+
+        <!-- ========== INTRODUCTION ========== -->
+        <section id="overview" class="doc-section">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">ML-GMS</h1>
+            <p class="text-lg text-gray-500 mb-6">M Lhuillier &mdash; GPS Monitoring System &amp; Loans Management</p>
+
+            <div class="flex flex-wrap gap-3 mb-8">
+                <span class="badge">PHP 8+</span>
+                <span class="badge">MySQL</span>
+                <span class="badge">Tailwind CSS</span>
+                <span class="badge">Chart.js</span>
+                <span class="badge">PhpSpreadsheet</span>
+            </div>
+
+            <p class="mb-4">ML-GMS is a comprehensive, dual-database loan origination and servicing platform built for <strong>M Lhuillier</strong>. It manages the full lifecycle of loans—from origination through amortization scheduling, payment processing, and commission tracking—across six loan product types, with special support for GPS-monitored (GMS) collateral.</p>
+
+            <div class="callout callout-info">
+                <p class="font-semibold mb-1">Purpose</p>
+                <p>This system tracks loans, auto-generates amortization schedules (primary &amp; secondary ledgers), processes imported payment files via intelligent borrower/reference matching, allocates payments to ledger installments, and produces compliance reports (GMS commissions, receivables, collections).</p>
+            </div>
+
+            <h2 id="tech-stack" class="doc-h2">Tech Stack</h2>
+            <table class="doc-table">
+                <thead>
+                    <tr><th>Component</th><th>Technology</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Language</td><td>PHP 8.x</td></tr>
+                    <tr><td>Database</td><td>MySQL 5.7+ / MariaDB (dual-database: LOAN + MASTER)</td></tr>
+                    <tr><td>CSS Framework</td><td>Tailwind CSS (CDN)</td></tr>
+                    <tr><td>Charts</td><td>Chart.js</td></tr>
+                    <tr><td>Excel I/O</td><td>PhpSpreadsheet 5.x</td></tr>
+                    <tr><td>Environment</td><td>vlucas/phpdotenv</td></tr>
+                    <tr><td>Namespace</td><td><code>Cadc20239999\MlGms</code></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ========== GETTING STARTED ========== -->
+        <section id="requirements" class="doc-section">
+            <h2 class="doc-h2">Getting Started</h2>
+
+            <h3 id="requirements" class="doc-h3">Requirements</h3>
+            <ul class="list-disc pl-6 space-y-1 mb-4">
+                <li>PHP 8.0 or higher with <code>pdo_mysql</code> extension</li>
+                <li>MySQL 5.7+ or MariaDB 10.3+</li>
+                <li>Composer (PHP dependency manager)</li>
+                <li>XAMPP, WAMP, or any PHP-capable web server</li>
+            </ul>
+
+            <h3 id="installation" class="doc-h3">Installation</h3>
+            <div class="code-block" data-label="Terminal">
+                <pre><code># 1. Clone the repository into your web root
+git clone &lt;repo-url&gt; ML-GMS
+cd ML-GMS
+
+# 2. Install PHP dependencies
+composer install
+
+# 3. Create and configure the environment file
+cp .env.example .env
+# Edit .env with your database credentials
+
+# 4. The application is now accessible at:
+# http://localhost/ML-GMS/public/login.php</code></pre>
+                <button class="copy-btn" title="Copy code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+
+            <h3 id="environment" class="doc-h3">Environment Configuration (.env)</h3>
+            <p class="mb-3">The system uses two separate MySQL databases, each configured in the <code>.env</code> file:</p>
+            <div class="code-block" data-label=".env">
+                <pre><code># LOAN Database (primary transactional data)
+LOAN_DB_HOST=localhost
+LOAN_DB_NAME=ml_loans
+LOAN_DB_USER=root
+LOAN_DB_PASS=
+
+# MASTER Database (reference/master data)
+MASTER_DB_HOST=localhost
+MASTER_DB_NAME=ml_master
+MASTER_DB_USER=root
+MASTER_DB_PASS=</code></pre>
+                <button class="copy-btn" title="Copy code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========== ARCHITECTURE ========== -->
+        <section id="directory-structure" class="doc-section">
+            <h2 class="doc-h2">Architecture</h2>
+
+            <h3 id="directory-structure" class="doc-h3">Directory Structure</h3>
+            <div class="code-block" data-label="Project Root">
+                <pre><code>ML-GMS/
+├── assets/
+│   ├── css/styles.css          # Global styles
+│   ├── js/                     # JavaScript files
+│   │   ├── main.js             # Core app logic
+│   │   ├── amortization.js     # Amortization calculator
+│   │   ├── import_loan.js      # Excel import UI
+│   │   └── login.js            # Login page logic
+│   └── images/                 # Branding assets
+├── classes/
+│   ├── Database.php            # PDO connection manager
+│   ├── LoanService.php         # Loan CRUD + ledger generation
+│   ├── PaymentService.php      # Payment matching & allocation
+│   ├── ImportService.php       # Excel file parser
+│   ├── PaymentImportService.php
+│   ├── AmortizationService.php
+│   ├── MasterDataService.php
+│   └── AuthService.php
+├── includes/
+│   ├── init.php                # Session, autoload, DB bootstrap
+│   ├── header.php              # HTML head + top nav
+│   ├── sidebar.php             # Navigation sidebar
+│   ├── date_picker.php
+│   ├── modals/                 # Modal dialogs
+│   └── tabs/                   # Tabbed UI components
+├── public/                     # All page endpoints
+│   ├── login.php               # Authentication
+│   ├── dashboard.php           # Main dashboard
+│   ├── all_loans.php           # Loan listing by type
+│   ├── add_loan.php            # Manual/add loan
+│   ├── all_payments.php        # Payment listing
+│   ├── gms_commission.php      # GMS report
+│   ├── collection_report.php   # Collection report
+│   ├── running_receivable_report.php
+│   └── user_management.php     # Admin: user CRUD
+├── vendor/                     # Composer dependencies
+├── composer.json
+└── .env                        # Environment config</code></pre>
+                <button class="copy-btn" title="Copy code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+
+            <h3 id="dual-database" class="doc-h3">Dual Database Design</h3>
+            <p class="mb-3">The system connects to two MySQL databases simultaneously using a single <code>Database</code> class:</p>
+            <table class="doc-table">
+                <thead>
+                    <tr><th>Connection Key</th><th>Purpose</th><th>Example Tables</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>LOAN</code></td><td>Transactional loan data</td><td>loans, primary_ledger, secondary_ledger, payments, payment_allocations</td></tr>
+                    <tr><td><code>MASTER</code></td><td>Reference/master data</td><td>region_masterfile, loan_types, users</td></tr>
+                </tbody>
+            </table>
+            <div class="code-block" data-label="classes/Database.php">
+                <pre><code>public function connect($db_type = 'LOAN')
+{
+    $host = $_ENV["{$db_type}_DB_HOST"];
+    $db_name = $_ENV["{$db_type}_DB_NAME"];
+    $username = $_ENV["{$db_type}_DB_USER"];
+    $password = $_ENV["{$db_type}_DB_PASS"];
+
+    $dsn = "mysql:host={$host};dbname={$db_name};charset=utf8mb4";
+    $this->conn = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+    return $this->conn;
+}</code></pre>
+                <button class="copy-btn" title="Copy code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+
+            <h3 id="class-overview" class="doc-h3">Class Overview</h3>
+            <table class="doc-table">
+                <thead>
+                    <tr><th>Class</th><th>Responsibility</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>Database</code></td><td>PDO connection factory; returns connections for LOAN or MASTER</td></tr>
+                    <tr><td><code>LoanService</code></td><td>Manual &amp; import record saving, primary/secondary ledger generation, EIR computation</td></tr>
+                    <tr><td><code>PaymentService</code></td><td>Payment import processing, borrower matching, primary ledger allocation, excess handling</td></tr>
+                    <tr><td><code>ImportService</code></td><td>Excel (.xlsx) file parsing via PhpSpreadsheet, mapping worksheet cells to loan records</td></tr>
+                    <tr><td><code>PaymentImportService</code></td><td>Excel-based payment file import and processing</td></tr>
+                    <tr><td><code>AmortizationService</code></td><td>Amortization schedule computation and display</td></tr>
+                    <tr><td><code>MasterDataService</code></td><td>Reference data queries (regions, loan types)</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ========== DASHBOARD ========== -->
+        <section id="dashboard-overview" class="doc-section">
+            <h2 class="doc-h2">Dashboard</h2>
+            <p class="mb-4">The dashboard (<code>public/dashboard.php</code>) is the central hub after login. It presents a real-time overview of the entire loan portfolio with interactive charts, live search, and GMS commission summaries.</p>
+
+            <h3 id="dashboard-overview" class="doc-h3">Portfolio Overview</h3>
+            <p class="mb-3">Two key aggregate panels are displayed:</p>
+            <ul class="list-disc pl-6 space-y-1 mb-4">
+                <li><strong>Overall Portfolio</strong> &mdash; total active borrowers and sum of principal amounts</li>
+                <li><strong>GMS Commissions</strong> &mdash; count of GMS-tagged borrowers and total dealer incentive commissions</li>
+            </ul>
+
+            <h3 id="dashboard-stats" class="doc-h3">Statistics Cards</h3>
+            <p class="mb-3">Six glass-panel cards break down each loan type with borrower counts and total value:</p>
+            <table class="doc-table">
+                <thead><tr><th>Card</th><th>Source</th></tr></thead>
+                <tbody>
+                    <tr><td>Car Loan</td><td><code>loan_types JOIN loans WHERE loan_type_id = 1</code></td></tr>
+                    <tr><td>Motor Loan</td><td>Split into 2-Wheels and 3-Wheels via <code>motor_loans.type</code></td></tr>
+                    <tr><td>Real Estate Loan</td><td><code>loan_type_id = 6</code></td></tr>
+                    <tr><td>Commercial Loan</td><td>Home loans (<code>loan_type_id = 3</code>)</td></tr>
+                    <tr><td>Salary Loan</td><td><code>loan_type_id = 4</code></td></tr>
+                    <tr><td>Truck Loan</td><td>Personal Property loans (<code>loan_type_id = 5</code>)</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="dashboard-search" class="doc-h3">Live Search</h3>
+            <p>An AJAX-powered search bar queries the <code>loans</code> table by <strong>reference_number</strong>, <strong>first_name</strong>, or <strong>last_name</strong>. Results display in a slide-down table below the header. The endpoint responds to <code>?ajax_search=&lt;term&gt;</code> with JSON.</p>
+        </section>
+
+        <!-- ========== LOAN MANAGEMENT ========== -->
+        <section id="loan-types" class="doc-section">
+            <h2 class="doc-h2">Loan Management</h2>
+
+            <h3 id="loan-types" class="doc-h3">Loan Types</h3>
+            <table class="doc-table">
+                <thead>
+                    <tr><th>ID</th><th>Type Key</th><th>Label</th><th>Has Tabs</th><th>Vehicle Table</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><code>car</code></td><td>Car Loan</td><td>Yes</td><td><code>car_loans</code></td></tr>
+                    <tr><td>2</td><td><code>motor</code></td><td>Motor Loan</td><td>Yes (2W/3W)</td><td><code>motor_loans</code></td></tr>
+                    <tr><td>3</td><td><code>home</code></td><td>Commercial Loan</td><td>No</td><td>&mdash;</td></tr>
+                    <tr><td>4</td><td><code>salary</code></td><td>Salary Loan</td><td>No</td><td>&mdash;</td></tr>
+                    <tr><td>5</td><td><code>personal</code></td><td>Truck Loan</td><td>No</td><td>&mdash;</td></tr>
+                    <tr><td>6</td><td><code>realestate</code></td><td>Real Estate Loan</td><td>No</td><td>&mdash;</td></tr>
+                </tbody>
+            </table>
+            <p class="mt-3">Each loan type is accessed via <code>all_loans.php?type=&lt;key&gt;</code>. Car and Motor types have tabbed sub-views (primary ledger, secondary ledger, add record, import file).</p>
+
+            <h3 id="manual-add" class="doc-h3">Manual Record Entry</h3>
+            <p class="mb-3">The <code>LoanService::saveManualRecord()</code> method handles adding a single loan manually through the UI. The flow:</p>
+            <ol class="list-decimal pl-6 space-y-1 mb-4">
+                <li>Validate and sanitize input fields (principal, term, AOR, dates)</li>
+                <li>Calculate monthly amortization: <code>ceil((principal &times; ((AOR &times; 0.01) + 1)) / term)</code></li>
+                <li>If GMS-tagged (<code>date_installed</code> present): compute dealer incentive (5% of principal), net proceeds, EY, EIR, secondary monthly</li>
+                <li>Insert row into <code>loans</code> table</li>
+                <li>Insert into <code>car_loans</code> or <code>motor_loans</code> if applicable</li>
+                <li>Auto-generate primary ledger (all loans)</li>
+                <li>Auto-generate secondary ledger (GMS loans only)</li>
+            </ol>
+
+            <h3 id="excel-import" class="doc-h3">Excel Import</h3>
+            <p class="mb-3">The <code>ImportService</code> class parses <code>.xlsx</code> worksheets using PhpSpreadsheet. Each sheet represents one loan record with a standardized layout:</p>
+            <table class="doc-table">
+                <thead><tr><th>Cell</th><th>Content</th></tr></thead>
+                <tbody>
+                    <tr><td>A1</td><td>Loan type (CAR LOAN / MOTOR LOAN)</td></tr>
+                    <tr><td>A2</td><td>GMS flag ("GMS" or empty)</td></tr>
+                    <tr><td>D3</td><td>Region code</td></tr>
+                    <tr><td>B4</td><td>Date installed (GPS)</td></tr>
+                    <tr><td>B6 / D6 / F6</td><td>First / Middle / Last name</td></tr>
+                    <tr><td>B7 / D7</td><td>Contact number / Principal amount</td></tr>
+                    <tr><td>B8 / D8</td><td>Reference number / Term (months)</td></tr>
+                    <tr><td>B9 / D9</td><td>PN date / Interest rate (AOR)</td></tr>
+                    <tr><td>B10 / D10</td><td>Maturity date / Monthly amortization</td></tr>
+                    <tr><td>A15+</td><td>Amortization schedule rows</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="gms-logic" class="doc-h3">GMS Commission Logic</h3>
+            <div class="callout callout-warning">
+                <p class="font-semibold mb-1">GMS = GPS Monitoring System</p>
+                <p>A loan is flagged as GMS when a <code>date_installed</code> is present (GPS device installation date). This triggers a secondary ledger and commission calculations.</p>
+            </div>
+            <ul class="list-disc pl-6 space-y-1 mt-3">
+                <li><strong>Dealer Incentive:</strong> 5% of principal amount</li>
+                <li><strong>Net Proceeds:</strong> Principal &minus; Dealer Incentive</li>
+                <li><strong>Secondary Monthly:</strong> <code>(((net_proceeds &times; monthly_factor) &times; term) + net_proceeds) / term</code></li>
+                <li><strong>EIR:</strong> Computed via Newton-Raphson IRR method on secondary cash flows</li>
+            </ul>
+        </section>
+
+        <!-- ========== AMORTIZATION SYSTEM ========== -->
+        <section id="primary-ledger" class="doc-section">
+            <h2 class="doc-h2">Amortization System</h2>
+
+            <h3 id="primary-ledger" class="doc-h3">Primary Ledger</h3>
+            <p class="mb-3">Every loan automatically gets a primary amortization schedule. The calculation uses the EY (Effective Yield) method:</p>
+            <div class="code-block" data-label="Ledger Calculation">
+                <pre><code>// For each installment (1 to term):
+interest = round(balance * (annualEY / 100) / 12, 2)
+principal = round(monthly - interest, 2)
+ending_balance = round(balance - principal, 2)
+
+// On final installment:
+principal = balance          // absorb any rounding
+ending_balance = 0.00</code></pre>
+                <button class="copy-btn" title="Copy code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+
+            <h3 id="secondary-ledger" class="doc-h3">Secondary Ledger (GMS Only)</h3>
+            <p class="mb-3">Only generated for GMS-tagged loans. Uses <strong>net proceeds</strong> as the starting balance and <strong>secondary monthly</strong> for installment amounts. The interest rate is derived via EIR (internal rate of return) calculation.</p>
+
+            <h3 id="eir-calculation" class="doc-h3">EIR Calculation</h3>
+            <p>The <code>LoanService::getEIRRate()</code> method implements the Newton-Raphson method to solve for the monthly interest rate where:</p>
+            <p class="mb-3"><strong>PV + &Sigma;(PMT / (1+r)^t) = 0</strong> for t = 1 to nper</p>
+            <div class="code-block" data-label="Newton-Raphson IRR">
+                <pre><code>private function getEIRRate($nper, $pmt, $pv, $guess = 0.01) {
+    $rate = $guess;
+    for ($i = 0; $i < 100; $i++) {
+        $f = $pv;
+        $df = 0;
+        for ($t = 1; $t <= $nper; $t++) {
+            $f += $pmt / pow(1 + $rate, $t);
+            $df += -$t * $pmt / pow(1 + $rate, $t + 1);
+        }
+        $newRate = $rate - $f / $df;
+        if (abs($newRate - $rate) < 1e-10) return $newRate;
+        $rate = $newRate;
+    }
+    return $rate;
+}</code></pre>
+                <button class="copy-btn" title="Copy code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========== PAYMENTS ========== -->
+        <section id="payment-import" class="doc-section">
+            <h2 class="doc-h2">Payments</h2>
+
+            <h3 id="payment-import" class="doc-h3">Import Flow</h3>
+            <p class="mb-3">Payments are imported from Excel files and processed in a multi-step pipeline:</p>
+            <ol class="list-decimal pl-6 space-y-1 mb-4">
+                <li><strong>File Upload:</strong> Excel file parsed, rows inserted into <code>payments</code> table with <code>application_status = 'pending'</code></li>
+                <li><strong>Processing:</strong> <code>PaymentService::processImportedPayment()</code> is called per payment</li>
+                <li><strong>Matching:</strong> Payment is matched to a loan via reference number or borrower name</li>
+                <li><strong>Allocation:</strong> Payment amount distributed across open ledger installments</li>
+                <li><strong>Status Update:</strong> Payment marked as <code>fully_applied</code>, <code>partially_applied</code>, or <code>unmatched</code></li>
+            </ol>
+
+            <h3 id="auto-matching" class="doc-h3">Auto-Matching Algorithm</h3>
+            <p>The <code>PaymentService::matchLoan()</code> method uses a two-tier matching strategy:</p>
+            <table class="doc-table">
+                <thead><tr><th>Priority</th><th>Match Field</th><th>Logic</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Reference Number</td><td>Exact match on <code>loans.reference_number</code>. If exactly 1 result found, use it. If >1, skip.</td></tr>
+                    <tr><td>2</td><td>Borrower Name</td><td>Normalized full name match across all loans. Falls back when reference is empty/ambiguous.</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="ledger-allocation" class="doc-h3">Ledger Allocation</h3>
+            <p>Once matched, the allocatable amount (principal + interest) is distributed to open primary ledger rows in installment order:</p>
+            <div class="code-block" data-label="Allocation Logic">
+                <pre><code>// Get open primary ledger rows (status IN unpaid, partial)
+// Sort by installment_no ASC
+foreach open_row:
+    apply = min(remaining, row.remaining_due)
+    row.amount_paid += apply
+    row.remaining_due -= apply
+    remaining -= apply
+    if row.remaining_due == 0: row.status = 'paid'
+    else: row.status = 'partial'
+    // Also mirror to secondary ledger if GMS loan</code></pre>
+                <button class="copy-btn" title="Copy code">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+                </button>
+            </div>
+            <p class="mt-3">Payment components (VAT, penalty, interest_diff) are recorded as non-ledger allocations. Any excess beyond the total remaining due is stored as an <code>excess</code> allocation.</p>
+        </section>
+
+        <!-- ========== REPORTS ========== -->
+        <section id="gms-commission-report" class="doc-section">
+            <h2 class="doc-h2">Reports</h2>
+
+            <h3 id="gms-commission-report" class="doc-h3">GMS Commissions Report</h3>
+            <p>Located at <code>public/gms_commission.php</code>. Lists all GMS-tagged loans (those with <code>gps_provider = 'GMS'</code> in <code>car_loans</code> or <code>motor_loans</code>) along with their dealer incentive amounts. Supports date-range filtering and export.</p>
+
+            <h3 id="receivable-report" class="doc-h3">Running Receivables Report</h3>
+            <p>Located at <code>public/running_receivable_report.php</code>. Shows outstanding balances across all active loans. Tracks what is owed vs. what has been paid, organized by loan type. Key columns: borrower, reference number, total due, total paid, balance remaining.</p>
+
+            <h3 id="collection-report" class="doc-h3">Collection Report</h3>
+            <p>Located at <code>public/collection_report.php</code>. Summarizes payment collections by period (daily/weekly/monthly). Groups collected amounts by loan type and payment method, providing a reconciliation view against expected collections.</p>
+        </section>
+
+        <!-- ========== USER MANAGEMENT ========== -->
+        <section id="user-roles" class="doc-section">
+            <h2 class="doc-h2">User Management</h2>
+
+            <h3 id="user-roles" class="doc-h3">Roles & Permissions</h3>
+            <table class="doc-table">
+                <thead><tr><th>Role</th><th>Access</th></tr></thead>
+                <tbody>
+                    <tr><td><code>admin</code></td><td>Full access to all modules including User Management</td></tr>
+                    <tr><td><code>user</code></td><td>Dashboard, Loans, Payments, Reports. User Management hidden.</td></tr>
+                </tbody>
+            </table>
+            <p class="mt-3">The sidebar dynamically hides admin-only items by checking <code>$_SESSION['user_type']</code>. Admin-only routes (User Management) are gated with the <code>admin_only</code> flag in <code>includes/sidebar.php</code>.</p>
+
+            <h3 id="authentication" class="doc-h3">Authentication</h3>
+            <ul class="list-disc pl-6 space-y-1 mb-4">
+                <li><strong>Login:</strong> <code>public/login.php</code> validates credentials against the MASTER database users table</li>
+                <li><strong>Sessions:</strong> User identity stored in <code>$_SESSION</code> with prefixed keys (<code>admin_name</code> / <code>user_name</code>)</li>
+                <li><strong>Force Password Change:</strong> New users with flag <code>force_password_change = true</code> are trapped in the change password modal (Escape key disabled, modal forced open)</li>
+                <li><strong>Logout:</strong> Destroys session and redirects to login</li>
+            </ul>
+        </section>
+
+        <!-- ========== DATABASE SCHEMA ========== -->
+        <section id="schema-loans" class="doc-section">
+            <h2 class="doc-h2">Database Schema</h2>
+
+            <h3 id="schema-loans" class="doc-h3">LOAN Database: loans</h3>
+            <table class="doc-table">
+                <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>loan_id</code></td><td>INT AUTO_INCREMENT</td><td>Primary key</td></tr>
+                    <tr><td><code>reference_number</code></td><td>VARCHAR</td><td>Unique loan reference</td></tr>
+                    <tr><td><code>loan_type_id</code></td><td>INT</td><td>FK to loan_types (1-6)</td></tr>
+                    <tr><td><code>monthly_factor</code></td><td>DECIMAL</td><td>Interest rate / term</td></tr>
+                    <tr><td><code>first_name / middle_name / last_name</code></td><td>VARCHAR</td><td>Borrower name parts</td></tr>
+                    <tr><td><code>contact_number</code></td><td>VARCHAR</td><td>Borrower phone</td></tr>
+                    <tr><td><code>pn_date</code></td><td>DATE</td><td>Promissory note date (date granted)</td></tr>
+                    <tr><td><code>pn_maturity_date</code></td><td>DATE</td><td>Loan maturity date</td></tr>
+                    <tr><td><code>principal_amount</code></td><td>DECIMAL(14,2)</td><td>Original loan amount</td></tr>
+                    <tr><td><code>term_months</code></td><td>INT</td><td>Number of installments</td></tr>
+                    <tr><td><code>dealer_incentive</code></td><td>DECIMAL(14,2)</td><td>5% of principal (GMS only)</td></tr>
+                    <tr><td><code>net_proceeds</code></td><td>DECIMAL(14,2)</td><td>Principal - incentive (GMS only)</td></tr>
+                    <tr><td><code>interest_rate</code></td><td>DECIMAL</td><td>Annual add-on rate (AOR)</td></tr>
+                    <tr><td><code>ey</code></td><td>DECIMAL</td><td>Effective yield (annual %)</td></tr>
+                    <tr><td><code>eir</code></td><td>DECIMAL</td><td>Effective interest rate (monthly decimal)</td></tr>
+                    <tr><td><code>monthly_amortization</code></td><td>DECIMAL(14,2)</td><td>Primary monthly due</td></tr>
+                    <tr><td><code>secondary_monthly</code></td><td>DECIMAL(14,2)</td><td>GMS secondary monthly due</td></tr>
+                    <tr><td><code>region_code</code></td><td>VARCHAR</td><td>Branch region code</td></tr>
+                    <tr><td><code>source</code></td><td>ENUM</td><td>'manual' or 'import'</td></tr>
+                    <tr><td><code>status</code></td><td>VARCHAR</td><td>'active' or 'closed'</td></tr>
+                    <tr><td><code>created_by</code></td><td>VARCHAR</td><td>User who created the record</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="schema-ledger" class="doc-h3">Ledger Tables</h3>
+            <p class="mb-3">Two structurally identical tables track amortization installments:</p>
+            <table class="doc-table">
+                <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td><code>primary_ledger</code></td><td>All loans; tracks the borrower-facing schedule</td></tr>
+                    <tr><td><code>secondary_ledger</code></td><td>GMS loans only; tracks the net-proceeds-based schedule</td></tr>
+                </tbody>
+            </table>
+            <p class="mt-3 mb-3">Both tables share this column structure:</p>
+            <table class="doc-table">
+                <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>primary_ledger_id</code> / <code>secondary_ledger_id</code></td><td>INT PK</td><td>Primary key</td></tr>
+                    <tr><td><code>loan_id</code></td><td>INT FK</td><td>References loans</td></tr>
+                    <tr><td><code>installment_no</code></td><td>INT</td><td>1-based installment number</td></tr>
+                    <tr><td><code>due_date</code></td><td>DATE</td><td>Payment due date</td></tr>
+                    <tr><td><code>beginning_balance</code></td><td>DECIMAL</td><td>Balance before payment</td></tr>
+                    <tr><td><code>principal</code></td><td>DECIMAL</td><td>Scheduled principal portion</td></tr>
+                    <tr><td><code>interest</code></td><td>DECIMAL</td><td>Scheduled interest portion</td></tr>
+                    <tr><td><code>ending_balance</code></td><td>DECIMAL</td><td>Balance after payment</td></tr>
+                    <tr><td><code>amount_due</code></td><td>DECIMAL</td><td>principal + interest</td></tr>
+                    <tr><td><code>amount_paid</code></td><td>DECIMAL</td><td>Actual amount received</td></tr>
+                    <tr><td><code>remaining_due</code></td><td>DECIMAL</td><td>amount_due - amount_paid</td></tr>
+                    <tr><td><code>status</code></td><td>ENUM</td><td>'unpaid', 'partial', 'paid'</td></tr>
+                    <tr><td><code>paid_date</code></td><td>DATE</td><td>Date payment was applied</td></tr>
+                    <tr><td><code>last_payment_id</code></td><td>INT FK</td><td>Most recent payment applied</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="schema-payments" class="doc-h3">Payments & Allocations</h3>
+            <table class="doc-table">
+                <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td><code>payments</code></td><td>Imported payment records with matching and application status</td></tr>
+                    <tr><td><code>payment_allocations</code></td><td>Line-item breakdown of how each payment was applied to ledgers</td></tr>
+                </tbody>
+            </table>
+
+            <h4 class="text-sm font-semibold text-gray-800 mt-4 mb-2">payments (key columns)</h4>
+            <table class="doc-table">
+                <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>payment_id</code></td><td>PK</td></tr>
+                    <tr><td><code>payment_reference_no</code></td><td>External payment reference</td></tr>
+                    <tr><td><code>borrower_name</code></td><td>Name as it appears in the payment file</td></tr>
+                    <tr><td><code>reference_number</code></td><td>Loan reference (for matching)</td></tr>
+                    <tr><td><code>total / principal / interest / vat / penalty / interest_diff</code></td><td>Payment breakdown</td></tr>
+                    <tr><td><code>match_status</code></td><td>'pending', 'matched', 'unmatched'</td></tr>
+                    <tr><td><code>application_status</code></td><td>'pending', 'fully_applied', 'partially_applied', 'unapplied'</td></tr>
+                    <tr><td><code>excess_amount</code></td><td>Unallocated amount after all installments paid</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="schema-master" class="doc-h3">MASTER Database Tables</h3>
+            <table class="doc-table">
+                <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td><code>region_masterfile</code></td><td>Region codes and descriptions (<code>id, region_code, region_description</code>)</td></tr>
+                    <tr><td><code>loan_types</code></td><td><code>loan_type_id, loan_type_name</code></td></tr>
+                    <tr><td><code>users</code></td><td>System users with roles and credentials</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ========== CLASSES REFERENCE ========== -->
+        <section id="class-database" class="doc-section">
+            <h2 class="doc-h2">Classes Reference</h2>
+
+            <h3 id="class-database" class="doc-h3">Database</h3>
+            <p class="mb-2"><code>namespace Cadc20239999\MlGms;</code></p>
+            <table class="doc-table">
+                <thead><tr><th>Method</th><th>Signature</th><th>Returns</th></tr></thead>
+                <tbody>
+                    <tr><td><code>connect</code></td><td><code>connect(string $db_type = 'LOAN')</code></td><td><code>PDO|null</code></td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="class-loanservice" class="doc-h3">LoanService</h3>
+            <p class="mb-2"><code>namespace Cadc20239999\MlGms;</code></p>
+            <table class="doc-table">
+                <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>saveManualRecord(array $data): array</code></td><td>Creates a loan + ledgers from manual form input</td></tr>
+                    <tr><td><code>saveImportedRecord(array $data, array $rows): array</code></td><td>Creates a loan + ledgers from Excel import data</td></tr>
+                    <tr><td><code>generatePrimaryLedger($loanId, $data)</code></td><td>Private. Generates amortization using EY method</td></tr>
+                    <tr><td><code>generateSecondaryLedger($loanId, $data, $rows)</code></td><td>Private. Generates GMS secondary schedule via IRR</td></tr>
+                    <tr><td><code>getEIRRate($nper, $pmt, $pv, $guess)</code></td><td>Private. Newton-Raphson IRR solver</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="class-paymentservice" class="doc-h3">PaymentService</h3>
+            <p class="mb-2"><code>namespace Cadc20239999\MlGms;</code></p>
+            <table class="doc-table">
+                <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>processImportedPayment(int $id): array</code></td><td>Full pipeline: match, allocate, update status</td></tr>
+                    <tr><td><code>matchLoan(string $ref, string $name): ?array</code></td><td>Two-tier matching by reference then name</td></tr>
+                    <tr><td><code>getPaymentSummariesByLoanType(int $typeId): array</code></td><td>Aggregated payment view with computed fields</td></tr>
+                </tbody>
+            </table>
+
+            <h3 id="class-importservice" class="doc-h3">ImportService</h3>
+            <p class="mb-2"><code>namespace Cadc20239999\MlGms;</code></p>
+            <table class="doc-table">
+                <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>importFile(string $path): void</code></td><td>Parses .xlsx workbook, maps cells to LoanService</td></tr>
+                    <tr><td><code>extractAmortization($sheet): array</code></td><td>Private. Reads rows 15+ as amortization schedule</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-16 pt-8 border-t border-gray-200 text-sm text-gray-400">
+            <p>ML-GMS &copy; M Lhuillier. Documentation generated from system analysis.</p>
+        </footer>
+    </main>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "Bash(Start-Process *)",
+      "PowerShell(Start-Process \"C:\\\\xampp\\\\htdocs\\\\GMS\\\\ML-GMS\\\\documentation\\\\index.html\")"
+    ]
+  }
+}

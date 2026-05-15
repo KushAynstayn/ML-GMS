@@ -1,0 +1,308 @@
+/* ============================================================
+   ML-GMS Documentation - Custom Styles
+   Color Theme: M Lhuillier Red (#D50000)
+   Layout: vuejs.org-style documentation
+   ============================================================ */
+
+/* ---------- CSS Variables ---------- */
+:root {
+    --ml-red: #D50000;
+    --ml-red-dark: #9a0000;
+    --ml-red-darker: #5d0101;
+    --ml-red-light: #ffe0e0;
+    --ml-red-50: #fff5f5;
+    --sidebar-width: 16rem;
+    --navbar-height: 4rem;
+    --content-max: 52rem;
+}
+
+/* ---------- Smooth Scroll ---------- */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+}
+
+/* ---------- Sidebar Scrollbar ---------- */
+#sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+#sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+#sidebar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 2px;
+}
+#sidebar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* ---------- Nav Section States ---------- */
+.nav-section-btn .nav-arrow {
+    transition: transform 0.2s ease;
+}
+.nav-section-btn.open .nav-arrow {
+    transform: rotate(180deg);
+}
+.nav-subsection {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+}
+.nav-subsection.open {
+    max-height: 500px;
+}
+.nav-subsection a.nav-active {
+    color: var(--ml-red);
+    font-weight: 600;
+    border-left: 2px solid var(--ml-red);
+    margin-left: -13px;
+    padding-left: 12px;
+}
+
+/* ---------- Documentation Typography ---------- */
+.doc-section {
+    margin-bottom: 3.5rem;
+    scroll-margin-top: 5rem;
+}
+.doc-h2 {
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: #111827;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    letter-spacing: -0.02em;
+}
+.doc-h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-top: 1.75rem;
+    margin-bottom: 0.625rem;
+    scroll-margin-top: 5rem;
+}
+
+/* ---------- Badges ---------- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ml-red-dark);
+    background: var(--ml-red-50);
+    border: 1px solid #ffcccc;
+    border-radius: 9999px;
+    letter-spacing: 0.025em;
+}
+
+/* ---------- Code Blocks ---------- */
+.code-block {
+    position: relative;
+    margin: 1rem 0 1.5rem;
+    background: #1e1e2e;
+    border-radius: 0.5rem;
+    border: 1px solid #2d2d3f;
+    overflow: hidden;
+}
+.code-block::before {
+    content: attr(data-label);
+    display: block;
+    padding: 0.45rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    background: #252536;
+    border-bottom: 1px solid #2d2d3f;
+}
+.code-block[data-label=""]::before {
+    display: none;
+}
+.code-block pre {
+    margin: 0;
+    padding: 1.25rem 1rem;
+    overflow-x: auto;
+    font-size: 0.8125rem;
+    line-height: 1.65;
+}
+.code-block code {
+    color: #e0e0e0;
+    font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Consolas', monospace;
+}
+.code-block .copy-btn {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.5rem;
+    padding: 0.35rem 0.4rem;
+    color: #6b7280;
+    background: transparent;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.code-block .copy-btn:hover {
+    color: #e5e7eb;
+    background: rgba(255,255,255,0.08);
+}
+.code-block .copy-btn.copied {
+    color: #4ade80;
+}
+
+/* Inline code */
+:not(pre) > code {
+    padding: 0.15em 0.4em;
+    font-size: 0.875em;
+    color: #b91c1c;
+    background: #fef2f2;
+    border-radius: 0.25rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* ---------- Tables ---------- */
+.doc-table {
+    width: 100%;
+    margin: 1rem 0 1.5rem;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+.doc-table thead {
+    background: #f9fafb;
+}
+.doc-table th {
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    border-bottom: 2px solid #e5e7eb;
+}
+.doc-table td {
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+}
+.doc-table tbody tr:hover {
+    background: #fef2f2;
+}
+.doc-table td:first-child {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.8rem;
+    color: var(--ml-red-dark);
+    font-weight: 500;
+}
+
+/* ---------- Callout Boxes ---------- */
+.callout {
+    margin: 1.25rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+.callout-info {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #1e3a5f;
+}
+.callout-warning {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    color: #78350f;
+}
+.callout-tip {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    color: #14532d;
+}
+.callout-danger {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #7f1d1d;
+}
+
+/* ---------- Lists ---------- */
+.doc-section ul,
+.doc-section ol {
+    margin-bottom: 1rem;
+}
+.doc-section li {
+    margin-bottom: 0.25rem;
+    line-height: 1.6;
+}
+
+/* ---------- Links ---------- */
+.doc-section a {
+    color: var(--ml-red);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.doc-section a:hover {
+    color: var(--ml-red-dark);
+}
+
+/* ---------- Sidebar Mobile ---------- */
+@media (max-width: 1023px) {
+    #sidebar.open {
+        transform: translateX(0);
+    }
+    #sidebar-backdrop.show {
+        display: block;
+    }
+}
+
+/* ---------- Search Highlight ---------- */
+.search-highlight {
+    background: #fde68a;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* ---------- Print Styles ---------- */
+@media print {
+    #sidebar, header, #sidebar-backdrop, .copy-btn {
+        display: none !important;
+    }
+    main {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    .code-block {
+        break-inside: avoid;
+        border: 1px solid #ccc;
+    }
+    .code-block pre {
+        white-space: pre-wrap;
+    }
+}
+
+/* ---------- Focus Visible ---------- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--ml-red);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* ---------- Transitions ---------- */
+#sidebar {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------- Strong text ---------- */
+strong {
+    color: #111827;
+}
